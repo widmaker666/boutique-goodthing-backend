@@ -12,15 +12,15 @@ export class CreatriceService {
     return `This action returns all creatrice`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} creatrice`;
   }
 
-  update(id: number, updateCreatriceDto: UpdateCreatriceDto) {
+  update(id: string, UpdateCreatriceDto: UpdateCreatriceDto) {
     return `This action updates a #${id} creatrice`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} creatrice`;
   }
 }
