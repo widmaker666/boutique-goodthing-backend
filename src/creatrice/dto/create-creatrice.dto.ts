@@ -1,7 +1,9 @@
 import {
   IsEmail,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
+  IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -13,12 +15,16 @@ export class CreateCreatriceDto {
   @MaxLength(50, {
     message: 'Le nom est trop long',
   })
+  @IsString()
   nom: string;
+  @IsOptional()
   @IsEmail()
-  email?: string;
+  email: string;
 
+  @IsOptional()
   @IsPhoneNumber('FR')
-  telephone?: string;
+  telephone: string;
+
   @IsNumber()
   tauxDeCommission: number;
 }

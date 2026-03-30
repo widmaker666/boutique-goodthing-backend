@@ -5,7 +5,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated"
 }
 
 datasource db {
@@ -13,10 +13,26 @@ datasource db {
 }
 
 model Creatrice {
-  id               String  @id @default(uuid())
+  id               String   @id @default(uuid())
   nom              String
   email            String?
   telephone        String?
   tauxDeCommission Float
-  createdAt DateTime @default(now())
+  createdAt        DateTime @default(now())
+  vente Vente[]
+}
+
+model Vente {
+  id           String    @id @default(uuid())
+  nomArticle   String
+  prixVente    Float
+  modePaiement ModePaiement
+  createdAt    DateTime  @default(now())
+  creatrice    Creatrice @relation(fields: [creatriceId], references: [id])
+  creatriceId  String
+}
+
+enum ModePaiement {
+  ESPECES
+  CARTE
 }

@@ -1,26 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCreatriceDto } from './dto/create-creatrice.dto';
 import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
+import { PrismaService } from 'src/prisma.service';
+import { QueryCreatrice } from './dto/query-creatrice.dto';
 
 @Injectable()
 export class CreatriceService {
-  create(createCreatriceDto: CreateCreatriceDto) {
-    return 'This action adds a new creatrice';
+  constructor(private prisma: PrismaService) {}
+
+  async create(createCreatriceDto: CreateCreatriceDto) {
+    const newCreateur = await this.prisma.creatrice.create({
+      data: createCreatriceDto,
+    });
+    return newCreateur;
   }
 
-  findAll() {
-    return `This action returns all creatrice`;
+  async findAll(filters: QueryCreatrice) {
+    const allData = await this.prisma.creatrice.findMany({
+      where: {
+        nom: filters.nom,
+        tauxDeCommission: {
+          gte: filters.minCommision,
+          lte: filters.maxCommision,
+        },
+      },
+    });
+    return allData;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} creatrice`;
+  async findOne(id: string) {
+    const findData = await this.prisma.creatrice.findUnique({
+      //le where attends un objet
+      where: { id },
+    });
+
+    if (!findData) {
+      throw new NotFoundException(`Createur ${id} introuvable`);
+    }
+    return findData;
   }
 
-  update(id: string, UpdateCreatriceDto: UpdateCreatriceDto) {
-    return `This action updates a #${id} creatrice`;
+  async update(id: string, updateCreatriceDto: UpdateCreatriceDto) {
+    const isCreateurExist = await this.prisma.creatrice.findUnique({
+      //le where attends un objet
+      where: { id },
+    });
+
+    if (!isCreateurExist) {
+      throw new NotFoundException(`Createur ${id} introuvable`);
+    }
+
+    const updateCreateur = await this.prisma.creatrice.update({
+      where: { id },
+      data: updateCreatriceDto,
+    });
+    return updateCreateur;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} creatrice`;
+  async remove(id: string) {
+    const isCreateurExist = await this.prisma.creatrice.findUnique({
+      //le where attends un objet
+      where: { id },
+    });
+
+    if (!isCreateurExist) {
+      throw new NotFoundException(`Createur ${id} introuvable`);
+    }
+
+    const removeCreateur = await this.prisma.creatrice.delete({
+      where: { id },
+    });
+    return removeCreateur;
   }
 }
