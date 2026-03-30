@@ -1,19 +1,49 @@
 # 🛍️ Boutique Backend
 
+![NestJS](https://img.shields.io/badge/NestJS-v11-E0234E?logo=nestjs) ![Prisma](https://img.shields.io/badge/Prisma-v7-2D3748?logo=prisma) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql) ![Node](https://img.shields.io/badge/Node.js-v22-339933?logo=nodedotjs)
+
 API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer les créatrices, d'enregistrer les ventes et de calculer automatiquement les commissions.
+
+---
 
 ## Stack technique
 
-- **Framework** : NestJS
-- **ORM** : Prisma v7
-- **Base de données** : PostgreSQL (Neon)
-- **Validation** : class-validator / class-transformer
-- **Runtime** : Node.js
+| Technologie       | Rôle                     |
+| ----------------- | ------------------------ |
+| NestJS            | Framework backend        |
+| Prisma v7         | ORM                      |
+| PostgreSQL (Neon) | Base de données cloud    |
+| class-validator   | Validation des DTOs      |
+| class-transformer | Transformation des types |
+
+---
+
+## Architecture
+
+```
+Requête HTTP
+     │
+     ▼
+ Controller        ← reçoit la requête, délègue au service
+     │
+     ▼
+  Service          ← logique métier, calculs de commission
+     │
+     ▼
+PrismaService      ← accès à la base de données
+     │
+     ▼
+ PostgreSQL        ← Neon (cloud)
+```
+
+---
 
 ## Prérequis
 
 - Node.js v18+
 - Un compte [Neon](https://neon.tech) pour la base de données
+
+---
 
 ## Installation
 
@@ -39,11 +69,32 @@ npx prisma migrate deploy
 npm run start:dev
 ```
 
+---
+
 ## Variables d'environnement
 
 ```env
 DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=verify-full"
 ```
+
+---
+
+## Scripts disponibles
+
+```bash
+npm run start:dev      # Démarrage en mode watch (développement)
+npm run start:prod     # Démarrage en production
+npm run build          # Compilation TypeScript
+npm run lint           # Vérification ESLint
+npm run test           # Tests unitaires
+npm run test:e2e       # Tests end-to-end
+
+npx prisma generate    # Générer le client Prisma
+npx prisma migrate dev # Créer et appliquer une migration
+npx prisma studio      # Interface graphique de la BDD
+```
+
+---
 
 ## Modules
 
@@ -121,6 +172,20 @@ Enregistrement des ventes avec calcul automatique des commissions.
 }
 ```
 
+---
+
+## Gestion des erreurs
+
+| Code HTTP | Description                            |
+| --------- | -------------------------------------- |
+| 200       | Succès                                 |
+| 201       | Ressource créée                        |
+| 400       | Données invalides (validation échouée) |
+| 404       | Ressource introuvable                  |
+| 500       | Erreur serveur interne                 |
+
+---
+
 ## Modèle de données
 
 ```prisma
@@ -150,8 +215,12 @@ enum ModePaiement {
 }
 ```
 
+---
+
 ## Roadmap
 
+- [x] Module Creatrice — CRUD + filtres + validation
+- [x] Module Vente — CRUD + filtres + calcul commission automatique
 - [ ] Module Stats — bilan global et par créatrice
 - [ ] Application mobile React Native + Expo
 - [ ] Export PDF / Excel des récapitulatifs
