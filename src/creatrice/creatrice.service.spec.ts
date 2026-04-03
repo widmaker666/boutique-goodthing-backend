@@ -1,16 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreatriceService } from './creatrice.service';
 import { PrismaService } from 'src/prisma.service';
-
-const mockPrismaService = {
-  creatrice: {
-    create: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
-};
+import { NotFoundException } from '@nestjs/common';
+import {
+  mockCreatrice,
+  mockPrismaService,
+} from './mocksTest/mockCreatriceService';
 
 describe('CreatriceService', () => {
   let service: CreatriceService;
@@ -31,5 +26,17 @@ describe('CreatriceService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should throw NotFoundException if creatrice not found', async () => {
+    mockPrismaService.creatrice.findUnique.mockResolvedValue(null);
+    await expect(service.findOne('id-inexistant')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should return a creatrice when found', async () => {
+    mockPrismaService.creatrice.findUnique.mockResolvedValue(mockCreatrice);
+    await expect(service.findOne('uuid-test')).resolves.toEqual(mockCreatrice);
   });
 });
