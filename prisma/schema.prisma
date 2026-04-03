@@ -12,6 +12,13 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
 model Creatrice {
   id               String   @id @default(uuid())
   nom              String
@@ -19,16 +26,16 @@ model Creatrice {
   telephone        String?
   tauxDeCommission Float
   createdAt        DateTime @default(now())
-  vente Vente[]
+  vente            Vente[]
 }
 
 model Vente {
-  id           String    @id @default(uuid())
+  id           String       @id @default(uuid())
   nomArticle   String
   prixVente    Float
   modePaiement ModePaiement
-  createdAt    DateTime  @default(now())
-  creatrice    Creatrice @relation(fields: [creatriceId], references: [id])
+  createdAt    DateTime     @default(now())
+  creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])
   creatriceId  String
 }
 

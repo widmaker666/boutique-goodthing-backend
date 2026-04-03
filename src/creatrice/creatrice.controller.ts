@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreatriceService } from './creatrice.service';
 import { CreateCreatriceDto } from './dto/create-creatrice.dto';
 import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { QueryCreatrice } from './dto/query-creatrice.dto';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('creatrice')
 export class CreatriceController {
   constructor(private readonly creatriceService: CreatriceService) {}

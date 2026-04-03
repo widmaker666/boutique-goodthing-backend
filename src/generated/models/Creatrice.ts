@@ -383,10 +383,6 @@ export type CreatriceScalarRelationFilter = {
   isNot?: Prisma.CreatriceWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
@@ -397,10 +393,6 @@ export type FloatFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type CreatriceCreateNestedOneWithoutVenteInput = {
