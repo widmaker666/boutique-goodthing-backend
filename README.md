@@ -1,4 +1,7 @@
-# 🛍️ Boutique Backend
+# 🛍️ # Encaissly - backend
+> La caisse intelligente des boutiques de créateurs
+
+Application mobile de suivi des ventes
 
 ![NestJS](https://img.shields.io/badge/NestJS-v11-E0234E?logo=nestjs) ![Prisma](https://img.shields.io/badge/Prisma-v7-2D3748?logo=prisma) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql) ![Node](https://img.shields.io/badge/Node.js-v22-339933?logo=nodedotjs)
 
