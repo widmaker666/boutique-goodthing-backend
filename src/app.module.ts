@@ -40,6 +40,9 @@ import * as Joi from 'joi';
         DATABASE_URL: Joi.string().required(), //- URL de connexion à la base Neon
         JWT_SECRET: Joi.string().required(), //- Clé secrète pour signer les tokens JWT
         PORT: Joi.number().default(3000), //- Port du serveur (3000 par défaut)
+        GOOGLE_CLIENT_ID: Joi.string().required(),
+        GOOGLE_CLIENT_SECRET: Joi.string().required(),
+        GOOGLE_CALLBACK_URL: Joi.string().required(),
       }),
     }),
   ],

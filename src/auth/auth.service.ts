@@ -162,4 +162,40 @@ export class AuthService {
       ),
     };
   }
+
+  async googleLogin(googleUser: {
+    email: string;
+    firstName: string;
+    lastName: string;
+  }) {
+    //- 1. Cherche l'utilisateur en base par email
+    let user = await this.prismaService.user.findUnique({
+      where: { email: googleUser.email },
+    });
+
+    if (!user) {
+      user = await this.prismaService.user.create({
+        data: { email: googleUser.email, password: '' },
+      });
+    }
+
+    const accessToken = this.jwtService.sign(
+      { sub: user.id, email: user?.email },
+      { expiresIn: '15m' },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
+
+    //- 4. Hash et sauvegarde le refresh token en base
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { refreshToken: hashedRefreshToken },
+    });
+
+    return { accessToken, refreshToken };
+  }
 }
