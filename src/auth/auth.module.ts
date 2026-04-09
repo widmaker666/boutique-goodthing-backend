@@ -12,7 +12,6 @@ import { JwtStrategy } from './jwt.strategy';
     //- expiresIn: '7d' = le token expire après 7 jours, l'utilisateur devra se reconnecter
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '7d' },
     }),
   ],
   //- PrismaService est nécessaire pour accéder à la table User
