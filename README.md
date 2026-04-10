@@ -11,15 +11,15 @@ API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer l
 
 ## Stack technique
 
-| Technologie | Rôle |
-|-------------|------|
-| NestJS | Framework backend |
-| Prisma v7 | ORM |
-| PostgreSQL (Neon) | Base de données cloud |
-| class-validator | Validation des DTOs |
-| class-transformer | Transformation des types |
-| Jest + Supertest | Tests unitaires et e2e |
-| Stripe | Paiements et abonnements |
+| Technologie         | Rôle                             |
+| ------------------- | -------------------------------- |
+| NestJS              | Framework backend                |
+| Prisma v7           | ORM                              |
+| PostgreSQL (Neon)   | Base de données cloud            |
+| class-validator     | Validation des DTOs              |
+| class-transformer   | Transformation des types         |
+| Jest + Supertest    | Tests unitaires et e2e           |
+| Stripe              | Paiements et abonnements         |
 | React Native + Expo | Application mobile iOS & Android |
 
 ---
@@ -108,19 +108,21 @@ npx prisma studio      # Interface graphique de la BDD
 
 Gestion des créatrices et de leurs taux de commission.
 
-| Méthode | Route | Description |
-|--------|-------|-------------|
-| GET | `/creatrice` | Liste toutes les créatrices |
-| GET | `/creatrice/:id` | Récupère une créatrice |
-| POST | `/creatrice` | Crée une créatrice |
-| PATCH | `/creatrice/:id` | Met à jour une créatrice |
-| DELETE | `/creatrice/:id` | Supprime une créatrice |
+| Méthode | Route            | Description                 |
+| ------- | ---------------- | --------------------------- |
+| GET     | `/creatrice`     | Liste toutes les créatrices |
+| GET     | `/creatrice/:id` | Récupère une créatrice      |
+| POST    | `/creatrice`     | Crée une créatrice          |
+| PATCH   | `/creatrice/:id` | Met à jour une créatrice    |
+| DELETE  | `/creatrice/:id` | Supprime une créatrice      |
 
 **Filtres disponibles** sur `GET /creatrice` :
+
 - `nom` — recherche par nom exact
 - `minCommision` / `maxCommision` — filtre par intervalle de commission
 
 **Exemple de body (POST) :**
+
 ```json
 {
   "nom": "Marie",
@@ -136,20 +138,22 @@ Gestion des créatrices et de leurs taux de commission.
 
 Enregistrement des ventes avec calcul automatique des commissions.
 
-| Méthode | Route | Description |
-|--------|-------|-------------|
-| GET | `/vente` | Liste toutes les ventes |
-| GET | `/vente/:id` | Récupère une vente |
-| POST | `/vente` | Crée une vente |
-| PATCH | `/vente/:id` | Met à jour une vente |
-| DELETE | `/vente/:id` | Supprime une vente |
+| Méthode | Route        | Description             |
+| ------- | ------------ | ----------------------- |
+| GET     | `/vente`     | Liste toutes les ventes |
+| GET     | `/vente/:id` | Récupère une vente      |
+| POST    | `/vente`     | Crée une vente          |
+| PATCH   | `/vente/:id` | Met à jour une vente    |
+| DELETE  | `/vente/:id` | Supprime une vente      |
 
 **Filtres disponibles** sur `GET /vente` :
+
 - `nomArticle` — recherche par nom d'article
 - `minPrixVente` / `maxPrixVente` — filtre par intervalle de prix
 - `modePaiement` — `ESPECES` ou `CARTE`
 
 **Exemple de body (POST) :**
+
 ```json
 {
   "nomArticle": "Collier fleurs",
@@ -160,6 +164,7 @@ Enregistrement des ventes avec calcul automatique des commissions.
 ```
 
 **Exemple de réponse :**
+
 ```json
 {
   "id": "...",
@@ -177,13 +182,13 @@ Enregistrement des ventes avec calcul automatique des commissions.
 
 ## Gestion des erreurs
 
-| Code HTTP | Description |
-|-----------|-------------|
-| 200 | Succès |
-| 201 | Ressource créée |
-| 400 | Données invalides (validation échouée) |
-| 404 | Ressource introuvable |
-| 500 | Erreur serveur interne |
+| Code HTTP | Description                            |
+| --------- | -------------------------------------- |
+| 200       | Succès                                 |
+| 201       | Ressource créée                        |
+| 400       | Données invalides (validation échouée) |
+| 404       | Ressource introuvable                  |
+| 500       | Erreur serveur interne                 |
 
 ---
 
@@ -220,33 +225,48 @@ enum ModePaiement {
 
 ## Plans
 
-| Fonctionnalité | Gratuit | Pro (9€/mois ou 79€/an) |
-|----------------|---------|--------------------------|
-| Créatrices | 3 max | Illimitées |
-| Boutiques | 1 | Multi-boutiques |
-| Stats | Basiques | Avancées |
-| Exports PDF/Excel | Aperçu flouté | Complets |
-| Support | — | Prioritaire |
+| Fonctionnalité                      | Gratuit                   | Pro (9€/mois ou 79€/an)                   |
+| ----------------------------------- | ------------------------- | ----------------------------------------- |
+| Créatrices                          | 3 max                     | Illimitées                                |
+| Boutiques                           | 1                         | Multi-boutiques                           |
+| Stats                               | Mois en cours uniquement  | Avancées + historique complet             |
+| Export PDF                          | 1 par mois avec filigrane | Illimité, sans filigrane, brandé boutique |
+| Export Excel / CSV                  | ✗                         | ✓                                         |
+| Période d'export                    | Mois en cours             | Filtrable librement                       |
+| Logo boutique dans PDF              | ✗                         | ✓                                         |
+| Récap automatique mensuel par email | ✗                         | ✓                                         |
+| Support                             | —                         | Prioritaire                               |
 
 ---
 
 ## Roadmap
 
 **Backend**
+
 - [x] Module `creatrice` — CRUD + filtres + validation
 - [x] Module `vente` — CRUD + filtres + calcul commission automatique
+- [x] Module `stats` — bilan global et par créatrice
+- [x] Module `auth` — inscription, connexion, JWT, Google OAuth, refresh tokens
+- [x] Sécurité — Helmet, rate limiting, validation des variables d'env
 - [ ] Tests unitaires et e2e — Jest + Supertest
-- [ ] Module `stats` — bilan global et par créatrice (TDD)
-- [ ] Module `auth` — inscription, connexion, JWT (TDD)
-- [ ] Module `user` — profil, gestion du plan (TDD)
-- [ ] Module `boutique` — multi-boutiques (TDD)
-- [ ] Module `export` — PDF + Excel
+- [ ] Module `user` — profil, gestion du plan (`FREE` / `PRO`), `lastExportDate`
+- [ ] `PlanGuard` — vérification du plan sur les routes d'export
+- [ ] Module `export`
+  - [ ] PDF global et par créatrice (avec filigrane si FREE)
+  - [ ] Excel global et par créatrice (PRO uniquement)
+  - [ ] CSV global et par créatrice (PRO uniquement)
+  - [ ] Limitation 1 export/mois pour FREE + mise à jour `lastExportDate`
+- [ ] Module `email` — envoi des récaps mensuels (Nodemailer ou Resend)
+- [ ] Cron job — récap automatique mensuel par créatrice (PRO uniquement)
+- [ ] Module `boutique` — multi-boutiques
 - [ ] Module `stripe` — abonnements mensuel/annuel
 
 **Mobile**
+
 - [ ] Application React Native + Expo (iOS & Android)
-- [ ] Écrans d'authentification
+- [ ] Écrans d'authentification (email/mdp + Google)
 - [ ] Dashboard des ventes
 - [ ] Gestion des créatrices
 - [ ] Stats et rapports
 - [ ] Intégration paiement Stripe
+- [ ] Visualisation des exports (PDF viewer)
