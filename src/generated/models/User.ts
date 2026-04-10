@@ -28,6 +28,8 @@ export type UserMinAggregateOutputType = {
   id: string | null
   email: string | null
   password: string | null
+  plan: $Enums.Plan | null
+  lastExportData: Date | null
   createdAt: Date | null
   refreshToken: string | null
 }
@@ -36,6 +38,8 @@ export type UserMaxAggregateOutputType = {
   id: string | null
   email: string | null
   password: string | null
+  plan: $Enums.Plan | null
+  lastExportData: Date | null
   createdAt: Date | null
   refreshToken: string | null
 }
@@ -44,6 +48,8 @@ export type UserCountAggregateOutputType = {
   id: number
   email: number
   password: number
+  plan: number
+  lastExportData: number
   createdAt: number
   refreshToken: number
   _all: number
@@ -54,6 +60,8 @@ export type UserMinAggregateInputType = {
   id?: true
   email?: true
   password?: true
+  plan?: true
+  lastExportData?: true
   createdAt?: true
   refreshToken?: true
 }
@@ -62,6 +70,8 @@ export type UserMaxAggregateInputType = {
   id?: true
   email?: true
   password?: true
+  plan?: true
+  lastExportData?: true
   createdAt?: true
   refreshToken?: true
 }
@@ -70,6 +80,8 @@ export type UserCountAggregateInputType = {
   id?: true
   email?: true
   password?: true
+  plan?: true
+  lastExportData?: true
   createdAt?: true
   refreshToken?: true
   _all?: true
@@ -151,6 +163,8 @@ export type UserGroupByOutputType = {
   id: string
   email: string
   password: string
+  plan: $Enums.Plan
+  lastExportData: Date | null
   createdAt: Date
   refreshToken: string | null
   _count: UserCountAggregateOutputType | null
@@ -180,6 +194,8 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
+  plan?: Prisma.EnumPlanFilter<"User"> | $Enums.Plan
+  lastExportData?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
 }
@@ -188,6 +204,8 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  lastExportData?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
 }
@@ -199,6 +217,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   password?: Prisma.StringFilter<"User"> | string
+  plan?: Prisma.EnumPlanFilter<"User"> | $Enums.Plan
+  lastExportData?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
 }, "id" | "email">
@@ -207,6 +227,8 @@ export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  lastExportData?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -221,6 +243,8 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
+  plan?: Prisma.EnumPlanWithAggregatesFilter<"User"> | $Enums.Plan
+  lastExportData?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
 }
@@ -229,6 +253,8 @@ export type UserCreateInput = {
   id?: string
   email: string
   password: string
+  plan?: $Enums.Plan
+  lastExportData?: Date | string | null
   createdAt?: Date | string
   refreshToken?: string | null
 }
@@ -237,6 +263,8 @@ export type UserUncheckedCreateInput = {
   id?: string
   email: string
   password: string
+  plan?: $Enums.Plan
+  lastExportData?: Date | string | null
   createdAt?: Date | string
   refreshToken?: string | null
 }
@@ -245,6 +273,8 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -253,6 +283,8 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -261,6 +293,8 @@ export type UserCreateManyInput = {
   id?: string
   email: string
   password: string
+  plan?: $Enums.Plan
+  lastExportData?: Date | string | null
   createdAt?: Date | string
   refreshToken?: string | null
 }
@@ -269,6 +303,8 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -277,6 +313,8 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -285,6 +323,8 @@ export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  lastExportData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
 }
@@ -293,6 +333,8 @@ export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  lastExportData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
 }
@@ -301,12 +343,22 @@ export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  lastExportData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type EnumPlanFieldUpdateOperationsInput = {
+  set?: $Enums.Plan
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -323,6 +375,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   email?: boolean
   password?: boolean
+  plan?: boolean
+  lastExportData?: boolean
   createdAt?: boolean
   refreshToken?: boolean
 }, ExtArgs["result"]["user"]>
@@ -331,6 +385,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   email?: boolean
   password?: boolean
+  plan?: boolean
+  lastExportData?: boolean
   createdAt?: boolean
   refreshToken?: boolean
 }, ExtArgs["result"]["user"]>
@@ -339,6 +395,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   email?: boolean
   password?: boolean
+  plan?: boolean
+  lastExportData?: boolean
   createdAt?: boolean
   refreshToken?: boolean
 }, ExtArgs["result"]["user"]>
@@ -347,11 +405,13 @@ export type UserSelectScalar = {
   id?: boolean
   email?: boolean
   password?: boolean
+  plan?: boolean
+  lastExportData?: boolean
   createdAt?: boolean
   refreshToken?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "createdAt" | "refreshToken", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "plan" | "lastExportData" | "createdAt" | "refreshToken", ExtArgs["result"]["user"]>
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -360,6 +420,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     email: string
     password: string
+    plan: $Enums.Plan
+    lastExportData: Date | null
     createdAt: Date
     refreshToken: string | null
   }, ExtArgs["result"]["user"]>
@@ -788,6 +850,8 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
+  readonly plan: Prisma.FieldRef<"User", 'Plan'>
+  readonly lastExportData: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly refreshToken: Prisma.FieldRef<"User", 'String'>
 }

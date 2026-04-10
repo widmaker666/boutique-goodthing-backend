@@ -8,6 +8,7 @@ import { StatsModule } from './stats/stats.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
 import * as Joi from 'joi';
 
 //- Module racine de l'application — c'est le point d'entrée de NestJS
@@ -45,6 +46,8 @@ import * as Joi from 'joi';
         GOOGLE_CALLBACK_URL: Joi.string().required(),
       }),
     }),
+
+    UserModule,
   ],
 
   controllers: [AppController],

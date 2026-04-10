@@ -76,6 +76,8 @@ export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   password: 'password',
+  plan: 'plan',
+  lastExportData: 'lastExportData',
   createdAt: 'createdAt',
   refreshToken: 'refreshToken'
 } as const

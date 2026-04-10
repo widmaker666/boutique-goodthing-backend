@@ -13,11 +13,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  refreshToken String?
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  plan           Plan     @default(FREE)
+  lastExportData DateTime?
+  createdAt      DateTime @default(now())
+  refreshToken   String?
 }
 
 model Creatrice {
@@ -43,4 +45,9 @@ model Vente {
 enum ModePaiement {
   ESPECES
   CARTE
+}
+
+enum Plan {
+  FREE
+  PRO
 }
