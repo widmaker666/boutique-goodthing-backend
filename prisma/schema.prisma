@@ -28,8 +28,8 @@ model User {
 model Boutique {
   id              String           @id @default(uuid())
   nom             String
-  email           String
-  telephone       String
+  email           String?
+  telephone       String?
   createdAt       DateTime         @default(now())
   gerante         User             @relation(fields: [geranteId], references: [id])
   geranteId       String
@@ -45,6 +45,8 @@ model BoutiqueMember {
   planMember       Plan     @default(FREE)
   createdAt        DateTime @default(now())
   status           Status   @default(INVITE)
+
+  @@unique([memberId, boutiqueMemberId])
 }
 
 model Creatrice {

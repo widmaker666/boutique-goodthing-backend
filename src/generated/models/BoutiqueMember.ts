@@ -207,6 +207,7 @@ export type BoutiqueMemberOrderByWithRelationInput = {
 
 export type BoutiqueMemberWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  memberId_boutiqueMemberId?: Prisma.BoutiqueMemberMemberIdBoutiqueMemberIdCompoundUniqueInput
   AND?: Prisma.BoutiqueMemberWhereInput | Prisma.BoutiqueMemberWhereInput[]
   OR?: Prisma.BoutiqueMemberWhereInput[]
   NOT?: Prisma.BoutiqueMemberWhereInput | Prisma.BoutiqueMemberWhereInput[]
@@ -217,7 +218,7 @@ export type BoutiqueMemberWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumStatusFilter<"BoutiqueMember"> | $Enums.Status
   member?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   boutiqueMember?: Prisma.XOR<Prisma.BoutiqueScalarRelationFilter, Prisma.BoutiqueWhereInput>
-}, "id">
+}, "id" | "memberId_boutiqueMemberId">
 
 export type BoutiqueMemberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -312,6 +313,11 @@ export type BoutiqueMemberListRelationFilter = {
 
 export type BoutiqueMemberOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type BoutiqueMemberMemberIdBoutiqueMemberIdCompoundUniqueInput = {
+  memberId: string
+  boutiqueMemberId: string
 }
 
 export type BoutiqueMemberCountOrderByAggregateInput = {

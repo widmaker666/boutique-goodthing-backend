@@ -156,8 +156,8 @@ export type BoutiqueGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type BoutiqueGroupByOutputType = {
   id: string
   nom: string
-  email: string
-  telephone: string
+  email: string | null
+  telephone: string | null
   createdAt: Date
   geranteId: string
   _count: BoutiqueCountAggregateOutputType | null
@@ -186,8 +186,8 @@ export type BoutiqueWhereInput = {
   NOT?: Prisma.BoutiqueWhereInput | Prisma.BoutiqueWhereInput[]
   id?: Prisma.StringFilter<"Boutique"> | string
   nom?: Prisma.StringFilter<"Boutique"> | string
-  email?: Prisma.StringFilter<"Boutique"> | string
-  telephone?: Prisma.StringFilter<"Boutique"> | string
+  email?: Prisma.StringNullableFilter<"Boutique"> | string | null
+  telephone?: Prisma.StringNullableFilter<"Boutique"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Boutique"> | Date | string
   geranteId?: Prisma.StringFilter<"Boutique"> | string
   gerante?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -197,8 +197,8 @@ export type BoutiqueWhereInput = {
 export type BoutiqueOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   nom?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  telephone?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  telephone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   geranteId?: Prisma.SortOrder
   gerante?: Prisma.UserOrderByWithRelationInput
@@ -211,8 +211,8 @@ export type BoutiqueWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BoutiqueWhereInput[]
   NOT?: Prisma.BoutiqueWhereInput | Prisma.BoutiqueWhereInput[]
   nom?: Prisma.StringFilter<"Boutique"> | string
-  email?: Prisma.StringFilter<"Boutique"> | string
-  telephone?: Prisma.StringFilter<"Boutique"> | string
+  email?: Prisma.StringNullableFilter<"Boutique"> | string | null
+  telephone?: Prisma.StringNullableFilter<"Boutique"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Boutique"> | Date | string
   geranteId?: Prisma.StringFilter<"Boutique"> | string
   gerante?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -222,8 +222,8 @@ export type BoutiqueWhereUniqueInput = Prisma.AtLeast<{
 export type BoutiqueOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   nom?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  telephone?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  telephone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   geranteId?: Prisma.SortOrder
   _count?: Prisma.BoutiqueCountOrderByAggregateInput
@@ -237,8 +237,8 @@ export type BoutiqueScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BoutiqueScalarWhereWithAggregatesInput | Prisma.BoutiqueScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Boutique"> | string
   nom?: Prisma.StringWithAggregatesFilter<"Boutique"> | string
-  email?: Prisma.StringWithAggregatesFilter<"Boutique"> | string
-  telephone?: Prisma.StringWithAggregatesFilter<"Boutique"> | string
+  email?: Prisma.StringNullableWithAggregatesFilter<"Boutique"> | string | null
+  telephone?: Prisma.StringNullableWithAggregatesFilter<"Boutique"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Boutique"> | Date | string
   geranteId?: Prisma.StringWithAggregatesFilter<"Boutique"> | string
 }
@@ -246,8 +246,8 @@ export type BoutiqueScalarWhereWithAggregatesInput = {
 export type BoutiqueCreateInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   gerante: Prisma.UserCreateNestedOneWithoutBoutiquesInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutBoutiqueMemberInput
@@ -256,8 +256,8 @@ export type BoutiqueCreateInput = {
 export type BoutiqueUncheckedCreateInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   geranteId: string
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutBoutiqueMemberInput
@@ -266,8 +266,8 @@ export type BoutiqueUncheckedCreateInput = {
 export type BoutiqueUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gerante?: Prisma.UserUpdateOneRequiredWithoutBoutiquesNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutBoutiqueMemberNestedInput
@@ -276,8 +276,8 @@ export type BoutiqueUpdateInput = {
 export type BoutiqueUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   geranteId?: Prisma.StringFieldUpdateOperationsInput | string
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutBoutiqueMemberNestedInput
@@ -286,8 +286,8 @@ export type BoutiqueUncheckedUpdateInput = {
 export type BoutiqueCreateManyInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   geranteId: string
 }
@@ -295,16 +295,16 @@ export type BoutiqueCreateManyInput = {
 export type BoutiqueUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BoutiqueUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   geranteId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -410,8 +410,8 @@ export type BoutiqueUpdateOneRequiredWithoutBoutiqueMembersNestedInput = {
 export type BoutiqueCreateWithoutGeranteInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutBoutiqueMemberInput
 }
@@ -419,8 +419,8 @@ export type BoutiqueCreateWithoutGeranteInput = {
 export type BoutiqueUncheckedCreateWithoutGeranteInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutBoutiqueMemberInput
 }
@@ -457,8 +457,8 @@ export type BoutiqueScalarWhereInput = {
   NOT?: Prisma.BoutiqueScalarWhereInput | Prisma.BoutiqueScalarWhereInput[]
   id?: Prisma.StringFilter<"Boutique"> | string
   nom?: Prisma.StringFilter<"Boutique"> | string
-  email?: Prisma.StringFilter<"Boutique"> | string
-  telephone?: Prisma.StringFilter<"Boutique"> | string
+  email?: Prisma.StringNullableFilter<"Boutique"> | string | null
+  telephone?: Prisma.StringNullableFilter<"Boutique"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Boutique"> | Date | string
   geranteId?: Prisma.StringFilter<"Boutique"> | string
 }
@@ -466,8 +466,8 @@ export type BoutiqueScalarWhereInput = {
 export type BoutiqueCreateWithoutBoutiqueMembersInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   gerante: Prisma.UserCreateNestedOneWithoutBoutiquesInput
 }
@@ -475,8 +475,8 @@ export type BoutiqueCreateWithoutBoutiqueMembersInput = {
 export type BoutiqueUncheckedCreateWithoutBoutiqueMembersInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
   geranteId: string
 }
@@ -500,8 +500,8 @@ export type BoutiqueUpdateToOneWithWhereWithoutBoutiqueMembersInput = {
 export type BoutiqueUpdateWithoutBoutiqueMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gerante?: Prisma.UserUpdateOneRequiredWithoutBoutiquesNestedInput
 }
@@ -509,8 +509,8 @@ export type BoutiqueUpdateWithoutBoutiqueMembersInput = {
 export type BoutiqueUncheckedUpdateWithoutBoutiqueMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   geranteId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -518,16 +518,16 @@ export type BoutiqueUncheckedUpdateWithoutBoutiqueMembersInput = {
 export type BoutiqueCreateManyGeranteInput = {
   id?: string
   nom: string
-  email: string
-  telephone: string
+  email?: string | null
+  telephone?: string | null
   createdAt?: Date | string
 }
 
 export type BoutiqueUpdateWithoutGeranteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutBoutiqueMemberNestedInput
 }
@@ -535,8 +535,8 @@ export type BoutiqueUpdateWithoutGeranteInput = {
 export type BoutiqueUncheckedUpdateWithoutGeranteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutBoutiqueMemberNestedInput
 }
@@ -544,8 +544,8 @@ export type BoutiqueUncheckedUpdateWithoutGeranteInput = {
 export type BoutiqueUncheckedUpdateManyWithoutGeranteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nom?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -643,8 +643,8 @@ export type $BoutiquePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     nom: string
-    email: string
-    telephone: string
+    email: string | null
+    telephone: string | null
     createdAt: Date
     geranteId: string
   }, ExtArgs["result"]["boutique"]>

@@ -16,15 +16,15 @@ export class CreateCreatriceDto {
     message: 'Le nom est trop long',
   })
   @IsString()
-  nom: string;
+  nom!: string;
   @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @IsPhoneNumber('FR')
-  telephone: string;
+  telephone?: string;
 
   @IsNumber()
-  tauxDeCommission: number;
+  tauxDeCommission!: number;
 }
