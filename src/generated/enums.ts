@@ -23,3 +23,20 @@ export const Plan = {
 } as const
 
 export type Plan = (typeof Plan)[keyof typeof Plan]
+
+
+export const Role = {
+  CREATRICE: 'CREATRICE',
+  GERANTE: 'GERANTE'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const Status = {
+  ACTIVE: 'ACTIVE',
+  INVITE: 'INVITE',
+  SUSPENDUE: 'SUSPENDUE'
+} as const
+
+export type Status = (typeof Status)[keyof typeof Status]

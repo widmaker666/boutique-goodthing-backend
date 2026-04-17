@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Plan, Role } from 'src/generated/enums';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,7 +17,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   //- Cette méthode est appelée après validation du token
   //- Le payload contient les données qu'on a mises dans le token (sub, email)
   //- Ce qu'on retourne ici sera accessible via @Req() dans les controllers
-  validate(payload: { sub: string; email: string }) {
-    return { id: payload.sub, email: payload.email };
+  validate(payload: { sub: string; email: string; role: Role; plan: Plan }) {
+    return {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      plan: payload.plan,
+    };
   }
 }

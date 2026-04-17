@@ -13,13 +13,38 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  password       String
-  plan           Plan     @default(FREE)
-  lastExportData DateTime?
-  createdAt      DateTime @default(now())
-  refreshToken   String?
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String
+  plan            Plan             @default(FREE)
+  role            Role             @default(CREATRICE)
+  lastExportData  DateTime?
+  createdAt       DateTime         @default(now())
+  refreshToken    String?
+  boutiques       Boutique[]
+  boutiqueMembers BoutiqueMember[]
+}
+
+model Boutique {
+  id              String           @id @default(uuid())
+  nom             String
+  email           String
+  telephone       String
+  createdAt       DateTime         @default(now())
+  gerante         User             @relation(fields: [geranteId], references: [id])
+  geranteId       String
+  boutiqueMembers BoutiqueMember[]
+}
+
+model BoutiqueMember {
+  id               String   @id @default(uuid())
+  member           User     @relation(fields: [memberId], references: [id])
+  memberId         String
+  boutiqueMember   Boutique @relation(fields: [boutiqueMemberId], references: [id])
+  boutiqueMemberId String
+  planMember       Plan     @default(FREE)
+  createdAt        DateTime @default(now())
+  status           Status   @default(INVITE)
 }
 
 model Creatrice {
@@ -50,4 +75,15 @@ enum ModePaiement {
 enum Plan {
   FREE
   PRO
+}
+
+enum Role {
+  CREATRICE
+  GERANTE
+}
+
+enum Status {
+  ACTIVE
+  INVITE
+  SUSPENDUE
 }

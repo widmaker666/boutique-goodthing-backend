@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { ExportModule } from './export/export.module';
+import { BoutiqueModule } from './boutique/boutique.module';
 import * as Joi from 'joi';
 
 //- Module racine de l'application — c'est le point d'entrée de NestJS
@@ -48,6 +50,10 @@ import * as Joi from 'joi';
     }),
 
     UserModule,
+
+    ExportModule,
+
+    BoutiqueModule,
   ],
 
   controllers: [AppController],

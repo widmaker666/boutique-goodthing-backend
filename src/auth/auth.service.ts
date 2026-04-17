@@ -79,7 +79,12 @@ export class AuthService {
     //- Contient l'id et l'email pour identifier l'utilisateur sur les routes protégées
     //- Expire vite pour limiter les dégâts en cas de vol
     const accessToken = this.jwtService.sign(
-      { sub: isEmailUserExist.id, email: isEmailUserExist.email },
+      {
+        sub: isEmailUserExist.id,
+        email: isEmailUserExist.email,
+        role: isEmailUserExist.role,
+        plan: isEmailUserExist.plan,
+      },
       { expiresIn: '15m' },
     );
 
@@ -180,7 +185,7 @@ export class AuthService {
     }
 
     const accessToken = this.jwtService.sign(
-      { sub: user.id, email: user?.email },
+      { sub: user.id, email: user?.email, plan: user.plan, role: user.role },
       { expiresIn: '15m' },
     );
 

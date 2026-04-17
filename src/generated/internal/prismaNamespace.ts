@@ -385,6 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  Boutique: 'Boutique',
+  BoutiqueMember: 'BoutiqueMember',
   Creatrice: 'Creatrice',
   Vente: 'Vente'
 } as const
@@ -402,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "creatrice" | "vente"
+    modelProps: "user" | "boutique" | "boutiqueMember" | "creatrice" | "vente"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -477,6 +479,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    Boutique: {
+      payload: Prisma.$BoutiquePayload<ExtArgs>
+      fields: Prisma.BoutiqueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BoutiqueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BoutiqueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        findFirst: {
+          args: Prisma.BoutiqueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BoutiqueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        findMany: {
+          args: Prisma.BoutiqueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>[]
+        }
+        create: {
+          args: Prisma.BoutiqueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        createMany: {
+          args: Prisma.BoutiqueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BoutiqueCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>[]
+        }
+        delete: {
+          args: Prisma.BoutiqueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        update: {
+          args: Prisma.BoutiqueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        deleteMany: {
+          args: Prisma.BoutiqueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BoutiqueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BoutiqueUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>[]
+        }
+        upsert: {
+          args: Prisma.BoutiqueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiquePayload>
+        }
+        aggregate: {
+          args: Prisma.BoutiqueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBoutique>
+        }
+        groupBy: {
+          args: Prisma.BoutiqueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoutiqueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BoutiqueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoutiqueCountAggregateOutputType> | number
+        }
+      }
+    }
+    BoutiqueMember: {
+      payload: Prisma.$BoutiqueMemberPayload<ExtArgs>
+      fields: Prisma.BoutiqueMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BoutiqueMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BoutiqueMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.BoutiqueMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BoutiqueMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        findMany: {
+          args: Prisma.BoutiqueMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>[]
+        }
+        create: {
+          args: Prisma.BoutiqueMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        createMany: {
+          args: Prisma.BoutiqueMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BoutiqueMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.BoutiqueMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        update: {
+          args: Prisma.BoutiqueMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.BoutiqueMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BoutiqueMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BoutiqueMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.BoutiqueMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoutiqueMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.BoutiqueMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBoutiqueMember>
+        }
+        groupBy: {
+          args: Prisma.BoutiqueMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoutiqueMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BoutiqueMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoutiqueMemberCountAggregateOutputType> | number
         }
       }
     }
@@ -672,12 +822,37 @@ export const UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   plan: 'plan',
+  role: 'role',
   lastExportData: 'lastExportData',
   createdAt: 'createdAt',
   refreshToken: 'refreshToken'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const BoutiqueScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  email: 'email',
+  telephone: 'telephone',
+  createdAt: 'createdAt',
+  geranteId: 'geranteId'
+} as const
+
+export type BoutiqueScalarFieldEnum = (typeof BoutiqueScalarFieldEnum)[keyof typeof BoutiqueScalarFieldEnum]
+
+
+export const BoutiqueMemberScalarFieldEnum = {
+  id: 'id',
+  memberId: 'memberId',
+  boutiqueMemberId: 'boutiqueMemberId',
+  planMember: 'planMember',
+  createdAt: 'createdAt',
+  status: 'status'
+} as const
+
+export type BoutiqueMemberScalarFieldEnum = (typeof BoutiqueMemberScalarFieldEnum)[keyof typeof BoutiqueMemberScalarFieldEnum]
 
 
 export const CreatriceScalarFieldEnum = {
@@ -763,6 +938,20 @@ export type ListEnumPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Role'
+ */
+export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+    
+
+
+/**
+ * Reference to a field of type 'Role[]'
+ */
+export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -773,6 +962,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Status'
+ */
+export type EnumStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Status'>
+    
+
+
+/**
+ * Reference to a field of type 'Status[]'
+ */
+export type ListEnumStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Status[]'>
     
 
 
@@ -913,6 +1116,8 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  boutique?: Prisma.BoutiqueOmit
+  boutiqueMember?: Prisma.BoutiqueMemberOmit
   creatrice?: Prisma.CreatriceOmit
   vente?: Prisma.VenteOmit
 }
