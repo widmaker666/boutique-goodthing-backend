@@ -1,11 +1,12 @@
-# 🛍️ # Encaissly - backend
+# 🛍️ Encaissly - backend
+
 > La caisse intelligente des boutiques de créateurs
 
 Application mobile de suivi des ventes
 
 ![NestJS](https://img.shields.io/badge/NestJS-v11-E0234E?logo=nestjs) ![Prisma](https://img.shields.io/badge/Prisma-v7-2D3748?logo=prisma) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql) ![Node](https://img.shields.io/badge/Node.js-v22-339933?logo=nodedotjs)
 
-API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer les créatrices, d'enregistrer les ventes et de calculer automatiquement les commissions.
+API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer les créatrices, d'enregistrer les ventes, de calculer automatiquement les commissions et de contrôler les accès par rôle et par plan d'abonnement.
 
 ---
 
@@ -30,16 +31,25 @@ API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer l
 Requête HTTP
      │
      ▼
- Controller        ← reçoit la requête, délègue au service
+ JwtGuard           ← vérifie le token JWT
      │
      ▼
-  Service          ← logique métier, calculs de commission
+ RolesGuard         ← vérifie le rôle (GERANTE / CREATRICE)
      │
      ▼
-PrismaService      ← accès à la base de données
+ PlanGuard          ← vérifie le plan (FREE / PRO)
      │
      ▼
- PostgreSQL        ← Neon (cloud)
+ Controller         ← reçoit la requête, délègue au service
+     │
+     ▼
+  Service           ← logique métier, calculs de commission
+     │
+     ▼
+PrismaService       ← accès à la base de données
+     │
+     ▼
+ PostgreSQL         ← Neon (cloud)
 ```
 
 ---
@@ -81,6 +91,9 @@ npm run start:dev
 
 ```env
 DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=verify-full"
+JWT_SECRET="votre-secret-jwt"
+GOOGLE_CLIENT_ID="votre-google-client-id"
+GOOGLE_CLIENT_SECRET="votre-google-client-secret"
 ```
 
 ---
@@ -102,7 +115,61 @@ npx prisma studio      # Interface graphique de la BDD
 
 ---
 
+## Sécurité
+
+| Mécanisme       | Rôle                                                     |
+| --------------- | -------------------------------------------------------- |
+| `JwtGuard`      | Vérifie la présence et la validité du token JWT          |
+| `RolesGuard`    | Contrôle l'accès selon le rôle (`GERANTE` / `CREATRICE`) |
+| `PlanGuard`     | Contrôle l'accès selon le plan (`FREE` / `PRO`)          |
+| `@Roles()`      | Décorateur pour annoter les routes avec les rôles requis |
+| `@Plans()`      | Décorateur pour annoter les routes avec les plans requis |
+| Helmet          | Headers HTTP sécurisés                                   |
+| ThrottlerModule | Rate limiting                                            |
+| Joi             | Validation des variables d'environnement                 |
+
+---
+
 ## Modules
+
+### Auth `/auth`
+
+Inscription, connexion, déconnexion, refresh tokens et Google OAuth.
+
+| Méthode | Route            | Description                    |
+| ------- | ---------------- | ------------------------------ |
+| POST    | `/auth/register` | Crée un compte                 |
+| POST    | `/auth/login`    | Connexion, retourne les tokens |
+| POST    | `/auth/logout`   | Déconnexion, invalide le token |
+| POST    | `/auth/refresh`  | Renouvelle l'access token      |
+| GET     | `/auth/google`   | Connexion via Google OAuth     |
+
+---
+
+### User `/user`
+
+Profil utilisateur et gestion du plan d'abonnement.
+
+| Méthode | Route           | Description                        |
+| ------- | --------------- | ---------------------------------- |
+| GET     | `/user/profile` | Récupère le profil connecté        |
+| PATCH   | `/user/plan`    | Met à jour le plan (GERANTE seule) |
+
+---
+
+### Boutique `/boutique`
+
+Gestion des boutiques et des créatrices membres.
+
+| Méthode | Route                                   | Description                                   |
+| ------- | --------------------------------------- | --------------------------------------------- |
+| POST    | `/boutique`                             | Crée une boutique (GERANTE)                   |
+| POST    | `/boutique/:id/membre`                  | Ajoute une créatrice à la boutique (GERANTE)  |
+| PATCH   | `/boutique/:id/membre/:membreId/status` | Change le statut d'une créatrice (GERANTE)    |
+| PATCH   | `/boutique/:id/membre/:membreId/plan`   | Change le plan d'une créatrice (GERANTE)      |
+| GET     | `/boutique`                             | Liste les boutiques de la créatrice connectée |
+
+---
 
 ### Creatrice `/creatrice`
 
@@ -121,17 +188,6 @@ Gestion des créatrices et de leurs taux de commission.
 - `nom` — recherche par nom exact
 - `minCommision` / `maxCommision` — filtre par intervalle de commission
 
-**Exemple de body (POST) :**
-
-```json
-{
-  "nom": "Marie",
-  "email": "marie@example.com",
-  "telephone": "0612345678",
-  "tauxDeCommission": 30
-}
-```
-
 ---
 
 ### Vente `/vente`
@@ -145,23 +201,6 @@ Enregistrement des ventes avec calcul automatique des commissions.
 | POST    | `/vente`     | Crée une vente          |
 | PATCH   | `/vente/:id` | Met à jour une vente    |
 | DELETE  | `/vente/:id` | Supprime une vente      |
-
-**Filtres disponibles** sur `GET /vente` :
-
-- `nomArticle` — recherche par nom d'article
-- `minPrixVente` / `maxPrixVente` — filtre par intervalle de prix
-- `modePaiement` — `ESPECES` ou `CARTE`
-
-**Exemple de body (POST) :**
-
-```json
-{
-  "nomArticle": "Collier fleurs",
-  "prixVente": 25,
-  "modePaiement": "CARTE",
-  "creatriceId": "uuid-de-la-creatrice"
-}
-```
 
 **Exemple de réponse :**
 
@@ -180,6 +219,24 @@ Enregistrement des ventes avec calcul automatique des commissions.
 
 ---
 
+### Stats `/stats`
+
+Bilan global et par créatrice.
+
+---
+
+### Export `/export` _(en cours)_
+
+Export des données selon le plan d'abonnement.
+
+| Format | FREE                       | PRO          |
+| ------ | -------------------------- | ------------ |
+| PDF    | ✓ (1/mois, avec filigrane) | ✓ (illimité) |
+| Excel  | ✗                          | ✓            |
+| CSV    | ✗                          | ✓            |
+
+---
+
 ## Gestion des erreurs
 
 | Code HTTP | Description                            |
@@ -187,7 +244,10 @@ Enregistrement des ventes avec calcul automatique des commissions.
 | 200       | Succès                                 |
 | 201       | Ressource créée                        |
 | 400       | Données invalides (validation échouée) |
+| 401       | Non authentifié ou token invalide      |
+| 403       | Accès interdit (rôle ou plan)          |
 | 404       | Ressource introuvable                  |
+| 409       | Conflit (email déjà utilisé)           |
 | 500       | Erreur serveur interne                 |
 
 ---
@@ -195,6 +255,41 @@ Enregistrement des ventes avec calcul automatique des commissions.
 ## Modèle de données
 
 ```prisma
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String
+  plan            Plan             @default(FREE)
+  role            Role             @default(CREATRICE)
+  lastExportData  DateTime?
+  createdAt       DateTime         @default(now())
+  refreshToken    String?
+  boutiques       Boutique[]
+  boutiqueMembers BoutiqueMember[]
+}
+
+model Boutique {
+  id              String           @id @default(uuid())
+  nom             String
+  email           String
+  telephone       String
+  createdAt       DateTime         @default(now())
+  gerante         User             @relation(fields: [geranteId], references: [id])
+  geranteId       String
+  boutiqueMembers BoutiqueMember[]
+}
+
+model BoutiqueMember {
+  id               String   @id @default(uuid())
+  member           User     @relation(fields: [memberId], references: [id])
+  memberId         String
+  boutique         Boutique @relation(fields: [boutiqueMemberId], references: [id])
+  boutiqueMemberId String
+  planMember       Plan     @default(FREE)
+  createdAt        DateTime @default(now())
+  status           Status   @default(INVITE)
+}
+
 model Creatrice {
   id               String   @id @default(uuid())
   nom              String
@@ -218,6 +313,22 @@ model Vente {
 enum ModePaiement {
   ESPECES
   CARTE
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum Role {
+  CREATRICE
+  GERANTE
+}
+
+enum Status {
+  ACTIVE
+  INVITE
+  SUSPENDUE
 }
 ```
 
@@ -247,10 +358,12 @@ enum ModePaiement {
 - [x] Module `vente` — CRUD + filtres + calcul commission automatique
 - [x] Module `stats` — bilan global et par créatrice
 - [x] Module `auth` — inscription, connexion, JWT, Google OAuth, refresh tokens
+- [x] Module `user` — profil, gestion du plan (`FREE` / `PRO`), `lastExportDate`
 - [x] Sécurité — Helmet, rate limiting, validation des variables d'env
-- [ ] Tests unitaires et e2e — Jest + Supertest
-- [ ] Module `user` — profil, gestion du plan (`FREE` / `PRO`), `lastExportDate`
-- [ ] `PlanGuard` — vérification du plan sur les routes d'export
+- [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE`)
+- [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO`)
+- [x] Module `boutique` — modèle Prisma + structure de base (CRUD en cours)
+- [ ] Module `boutique` — logique métier complète (invitations, gestion membres)
 - [ ] Module `export`
   - [ ] PDF global et par créatrice (avec filigrane si FREE)
   - [ ] Excel global et par créatrice (PRO uniquement)
@@ -258,8 +371,8 @@ enum ModePaiement {
   - [ ] Limitation 1 export/mois pour FREE + mise à jour `lastExportDate`
 - [ ] Module `email` — envoi des récaps mensuels (Nodemailer ou Resend)
 - [ ] Cron job — récap automatique mensuel par créatrice (PRO uniquement)
-- [ ] Module `boutique` — multi-boutiques
 - [ ] Module `stripe` — abonnements mensuel/annuel
+- [ ] Tests unitaires et e2e — Jest + Supertest
 
 **Mobile**
 
