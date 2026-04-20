@@ -24,7 +24,7 @@ export class ExportService {
 
     const FONT = 'src/export/fonts/Archivo-Regular.ttf';
     const FONT_BOLD = 'src/export/fonts/Archivo-Bold.ttf';
-    const PRIMARY = '#311b42';
+    const PRIMARY = '#451e64';
     const ACCENT = '#eb7f45';
 
     //- Mode paysage
@@ -190,8 +190,8 @@ export class ExportService {
 
     const FONT = 'src/export/fonts/Archivo-Regular.ttf';
     const FONT_BOLD = 'src/export/fonts/Archivo-Bold.ttf';
-    const PRIMARY = '#1a1a2e';
-    const ACCENT = '#e94560';
+    const PRIMARY = '#451e64';
+    const ACCENT = '#eb7f45';
 
     const doc = new PDFDocument({ margin: 40 });
 
