@@ -2,6 +2,7 @@ import { PrismaService } from './../prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { Response } from 'express';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ExportService {
@@ -236,8 +237,118 @@ export class ExportService {
     res.send('\uFEFF' + csv);
   }
 
-  async getExportExcel() {}
+  async getExportExcel(user, res: Response) {
+    const creatrice = await this.prismaService.creatrice.findFirst({
+      where: { userId: user.id },
+    });
 
+    if (!creatrice) {
+      throw new NotFoundException('Aucune créatrice liée à ce compte');
+    }
+
+    const allData = await this.prismaService.vente.findMany({
+      where: { creatriceId: creatrice.id },
+      include: { creatrice: true },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Ventes');
+
+    //- Largeurs des colonnes
+    sheet.columns = [
+      { header: 'Article', key: 'article', width: 25 },
+      { header: 'Créatrice', key: 'creatrice', width: 20 },
+      { header: 'Taux com.', key: 'taux', width: 12 },
+      { header: 'Prix vente', key: 'prixVente', width: 14 },
+      { header: 'Commission', key: 'commission', width: 14 },
+      { header: 'Net créatrice', key: 'net', width: 14 },
+      { header: 'Paiement', key: 'paiement', width: 12 },
+      { header: 'Date', key: 'date', width: 14 },
+    ];
+
+    //- Style en-têtes
+    sheet.getRow(1).eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFEB7F45' },
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center' };
+    });
+
+    let totalPrixVente = 0;
+    let totalCommission = 0;
+    let totalNet = 0;
+
+    //- Lignes de données
+    for (const [index, vente] of allData.entries()) {
+      const montantCommission =
+        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const netCreatrice = vente.prixVente - montantCommission;
+
+      const row = sheet.addRow({
+        article: vente.nomArticle,
+        creatrice: vente.creatrice.nom,
+        taux: `${vente.creatrice.tauxDeCommission}%`,
+        prixVente: vente.prixVente,
+        commission: -montantCommission,
+        net: netCreatrice,
+        paiement: vente.modePaiement,
+        date: new Date(vente.createdAt).toLocaleDateString('fr-FR'),
+      });
+
+      //- Alternance couleur fond
+      if (index % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF7F7F7' },
+          };
+        });
+      }
+
+      //- Couleur rouge pour commission
+      row.getCell('commission').font = { color: { argb: 'FFCC0000' } };
+      //- Couleur verte pour net
+      row.getCell('net').font = { color: { argb: 'FF1A7A4A' }, bold: true };
+
+      totalPrixVente += vente.prixVente;
+      totalCommission += montantCommission;
+      totalNet += netCreatrice;
+    }
+
+    //- Ligne vide
+    sheet.addRow({});
+
+    //- Ligne totaux
+    const totalRow = sheet.addRow({
+      article: 'TOTAL',
+      prixVente: totalPrixVente,
+      commission: -totalCommission,
+      net: totalNet,
+    });
+
+    totalRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF311B42' },
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename=export.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+  }
   //* DOCUMENTS BOUTIQUE *//
   async getExportPdfBoutique(user, res: Response, boutiqueId: string) {
     const allData = await this.prismaService.vente.findMany({
@@ -476,5 +587,128 @@ export class ExportService {
     res.send('\uFEFF' + csv);
   }
 
-  async getExportExcelBoutique(boutiqueId: string, res: Response) {}
+  async getExportExcelBoutique(boutiqueId: string, res: Response) {
+    const allData = await this.prismaService.vente.findMany({
+      where: { boutiqueId },
+      include: { creatrice: true },
+    });
+
+    const resumeParCreatrice: Record<
+      string,
+      {
+        nom: string;
+        taux: number;
+        total: number;
+        commission: number;
+        net: number;
+      }
+    > = {};
+
+    let totalCA = 0;
+    let totalCommission = 0;
+    let totalNet = 0;
+
+    for (const vente of allData) {
+      const montantCommission =
+        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const netCreatrice = vente.prixVente - montantCommission;
+
+      if (!resumeParCreatrice[vente.creatriceId]) {
+        resumeParCreatrice[vente.creatriceId] = {
+          nom: vente.creatrice.nom,
+          taux: vente.creatrice.tauxDeCommission,
+          total: 0,
+          commission: 0,
+          net: 0,
+        };
+      }
+
+      resumeParCreatrice[vente.creatriceId].total += vente.prixVente;
+      resumeParCreatrice[vente.creatriceId].commission += montantCommission;
+      resumeParCreatrice[vente.creatriceId].net += netCreatrice;
+
+      totalCA += vente.prixVente;
+      totalCommission += montantCommission;
+      totalNet += netCreatrice;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Rapport boutique');
+
+    //- Colonnes
+    sheet.columns = [
+      { header: 'Créatrice', key: 'creatrice', width: 25 },
+      { header: 'Taux com.', key: 'taux', width: 12 },
+      { header: 'CA total', key: 'total', width: 14 },
+      { header: 'Commission', key: 'commission', width: 14 },
+      { header: 'Net créatrice', key: 'net', width: 14 },
+    ];
+
+    //- Style en-têtes
+    sheet.getRow(1).eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFEB7F45' },
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center' };
+    });
+
+    //- Lignes par créatrice
+    Object.values(resumeParCreatrice).forEach((c, index) => {
+      const row = sheet.addRow({
+        creatrice: c.nom,
+        taux: `${c.taux}%`,
+        total: c.total,
+        commission: -c.commission,
+        net: c.net,
+      });
+
+      if (index % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF7F7F7' },
+          };
+        });
+      }
+
+      row.getCell('commission').font = { color: { argb: 'FFCC0000' } };
+      row.getCell('net').font = { color: { argb: 'FF1A7A4A' }, bold: true };
+    });
+
+    //- Ligne vide
+    sheet.addRow({});
+
+    //- Total boutique
+    const totalRow = sheet.addRow({
+      creatrice: 'TOTAL BOUTIQUE',
+      total: totalCA,
+      commission: -totalCommission,
+      net: totalNet,
+    });
+
+    totalRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF311B42' },
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=export-boutique.xlsx',
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  }
 }

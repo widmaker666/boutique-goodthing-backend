@@ -22,8 +22,8 @@ export class ExportController {
 
   @Plans(Plan.PRO)
   @Get('excel')
-  getexportExcel() {
-    return this.exportService.getExportExcel();
+  getexportExcel(@Req() req, @Res() res: Response) {
+    return this.exportService.getExportExcel(req.user, res);
   }
 
   @Plans(Plan.PRO)
