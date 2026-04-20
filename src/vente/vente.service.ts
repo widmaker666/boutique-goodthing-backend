@@ -3,11 +3,14 @@ import { CreateVenteDto } from './dto/create-vente.dto';
 import { UpdateVenteDto } from './dto/update-vente.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QueryVente } from './dto/query-vente.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class VenteService {
-  constructor(private readonly prisma: PrismaService) {}
-
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
   async create(createVenteDto: CreateVenteDto, photoUrl?: string) {
     //- Vérifie que la créatrice liée à cette vente existe bien en base
     //- Évite de créer une vente orpheline avec un creatriceId invalide
@@ -33,6 +36,24 @@ export class VenteService {
 
     const montantCommission = (prixVente * txCommission) / 100;
     const netCreatrice = prixVente - montantCommission;
+
+    //- Envoi email si la créatrice a un compte User avec notifications activées
+    if (createVente.creatrice.userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: createVente.creatrice.userId },
+      });
+
+      if (user && user.notificationsEmail && user.email) {
+        await this.emailService.sendVenteNotification(
+          user.email,
+          createVente.creatrice.nom,
+          createVente.nomArticle,
+          createVente.prixVente,
+          montantCommission,
+          netCreatrice,
+        );
+      }
+    }
 
     //- Retourne la vente enrichie avec les calculs de commission
     return { ...createVente, montantCommission, netCreatrice };

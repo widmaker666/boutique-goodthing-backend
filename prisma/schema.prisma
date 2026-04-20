@@ -24,6 +24,7 @@ model User {
   boutiques       Boutique[]
   boutiqueMembers BoutiqueMember[]
   creatrices      Creatrice[]
+  notificationsEmail Boolean @default(true)
 }
 
 model Boutique {

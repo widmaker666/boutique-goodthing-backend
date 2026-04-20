@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { ExportModule } from './export/export.module';
 import { BoutiqueModule } from './boutique/boutique.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { EmailModule } from './email/email.module';
 import * as Joi from 'joi';
 
 //- Module racine de l'application — c'est le point d'entrée de NestJS
@@ -57,6 +58,8 @@ import * as Joi from 'joi';
     BoutiqueModule,
 
     CloudinaryModule,
+
+    EmailModule,
   ],
 
   controllers: [AppController],
