@@ -7,6 +7,7 @@ import { Response } from 'express';
 export class ExportService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  //* Documents CREATRICE *//
   async getExportPdf(user, res: Response) {
     //- Trouve la créatrice liée au user connecté
     const creatrice = await this.prismaService.creatrice.findFirst({
@@ -182,6 +183,62 @@ export class ExportService {
     doc.end();
   }
 
+  async getExportCsv(user, res: Response) {
+    //- Trouve la créatrice liée au user connecté
+    const creatrice = await this.prismaService.creatrice.findFirst({
+      where: { userId: user.id },
+    });
+
+    if (!creatrice) {
+      throw new NotFoundException('Aucune créatrice liée à ce compte');
+    }
+
+    const allData = await this.prismaService.vente.findMany({
+      where: { creatriceId: creatrice.id },
+      include: { creatrice: true },
+    });
+
+    //- En-têtes CSV
+    const lignes = [
+      '"Article";"Créatrice";"Taux com.";"Prix vente";"Commission";"Net créatrice";"Paiement";"Date"',
+    ];
+
+    let totalPrixVente = 0;
+    let totalCommission = 0;
+    let totalNet = 0;
+
+    //- Lignes de données
+    for (const vente of allData) {
+      const montantCommission =
+        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const netCreatrice = vente.prixVente - montantCommission;
+
+      lignes.push(
+        `${vente.nomArticle};${vente.creatrice.nom};${vente.creatrice.tauxDeCommission}%;${vente.prixVente.toFixed(2)}€;-${montantCommission.toFixed(2)}€;${netCreatrice.toFixed(2)}€;${vente.modePaiement};${new Date(vente.createdAt).toLocaleDateString('fr-FR')}`,
+      );
+
+      totalPrixVente += vente.prixVente;
+      totalCommission += montantCommission;
+      totalNet += netCreatrice;
+    }
+
+    //- Ligne vide + totaux
+    lignes.push('');
+    lignes.push(
+      `TOTAL;;;${totalPrixVente.toFixed(2)}€;-${totalCommission.toFixed(2)}€;${totalNet.toFixed(2)}€;;`,
+    );
+
+    const csv = lignes.join('\n');
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
+    //- BOM UTF-8 pour que Excel ouvre correctement les accents
+    res.send('\uFEFF' + csv);
+  }
+
+  async getExportExcel() {}
+
+  //* DOCUMENTS BOUTIQUE *//
   async getExportPdfBoutique(user, res: Response, boutiqueId: string) {
     const allData = await this.prismaService.vente.findMany({
       where: { boutiqueId },
@@ -345,9 +402,79 @@ export class ExportService {
     doc.end();
   }
 
-  async getExportExcel() {}
-  async getExportExcelBoutique(boutiqueId) {}
+  async getExportCsvBoutique(boutiqueId: string, res: Response) {
+    const allData = await this.prismaService.vente.findMany({
+      where: { boutiqueId },
+      include: { creatrice: true },
+    });
 
-  async getExportCsv() {}
-  async getExportCsvBoutique(boutiqueId) {}
+    //- Calcul résumé par créatrice
+    const resumeParCreatrice: Record<
+      string,
+      {
+        nom: string;
+        taux: number;
+        total: number;
+        commission: number;
+        net: number;
+      }
+    > = {};
+
+    let totalCA = 0;
+    let totalCommission = 0;
+    let totalNet = 0;
+
+    for (const vente of allData) {
+      const montantCommission =
+        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const netCreatrice = vente.prixVente - montantCommission;
+
+      if (!resumeParCreatrice[vente.creatriceId]) {
+        resumeParCreatrice[vente.creatriceId] = {
+          nom: vente.creatrice.nom,
+          taux: vente.creatrice.tauxDeCommission,
+          total: 0,
+          commission: 0,
+          net: 0,
+        };
+      }
+
+      resumeParCreatrice[vente.creatriceId].total += vente.prixVente;
+      resumeParCreatrice[vente.creatriceId].commission += montantCommission;
+      resumeParCreatrice[vente.creatriceId].net += netCreatrice;
+
+      totalCA += vente.prixVente;
+      totalCommission += montantCommission;
+      totalNet += netCreatrice;
+    }
+
+    //- En-têtes
+    const lignes = [
+      '"Créatrice";"Taux com.";"CA total";"Commission";"Net créatrice"',
+    ];
+
+    //- Lignes par créatrice
+    for (const c of Object.values(resumeParCreatrice)) {
+      lignes.push(
+        `${c.nom};${c.taux}%;${c.total.toFixed(2)}€;-${c.commission.toFixed(2)}€;${c.net.toFixed(2)}€`,
+      );
+    }
+
+    //- Ligne vide + totaux
+    lignes.push('');
+    lignes.push(
+      `"TOTAL BOUTIQUE";;${totalCA.toFixed(2)}€;-${totalCommission.toFixed(2)}€;${totalNet.toFixed(2)}€`,
+    );
+
+    const csv = lignes.join('\n');
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=export-boutique.csv',
+    );
+    res.send('\uFEFF' + csv);
+  }
+
+  async getExportExcelBoutique(boutiqueId: string, res: Response) {}
 }

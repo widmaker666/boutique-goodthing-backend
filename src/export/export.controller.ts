@@ -28,8 +28,8 @@ export class ExportController {
 
   @Plans(Plan.PRO)
   @Get('csv')
-  getexportCsv() {
-    return this.exportService.getExportCsv();
+  getexportCsv(@Req() req, @Res() res: Response) {
+    return this.exportService.getExportCsv(req.user, res);
   }
 
   //* GET BOUTIQUE *//
@@ -47,14 +47,22 @@ export class ExportController {
   @Roles(Role.GERANTE)
   @Plans(Plan.PRO)
   @Get('excel/boutique')
-  getexportExcelBoutique(@Query('boutiqueId') boutiqueId: string) {
-    return this.exportService.getExportExcelBoutique(boutiqueId);
+  getexportExcelBoutique(
+    @Req() req,
+    @Res() res: Response,
+    @Query('boutiqueId') boutiqueId: string,
+  ) {
+    return this.exportService.getExportExcelBoutique(boutiqueId, res);
   }
 
   @Roles(Role.GERANTE)
   @Plans(Plan.PRO)
   @Get('csv/boutique')
-  getexportCsvBoutique(@Query('boutiqueId') boutiqueId: string) {
-    return this.exportService.getExportCsvBoutique(boutiqueId);
+  getexportCsvBoutique(
+    @Req() req,
+    @Res() res: Response,
+    @Query('boutiqueId') boutiqueId: string,
+  ) {
+    return this.exportService.getExportCsvBoutique(boutiqueId, res);
   }
 }
