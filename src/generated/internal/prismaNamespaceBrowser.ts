@@ -126,6 +126,7 @@ export type CreatriceScalarFieldEnum = (typeof CreatriceScalarFieldEnum)[keyof t
 
 export const VenteScalarFieldEnum = {
   id: 'id',
+  photo: 'photo',
   nomArticle: 'nomArticle',
   prixVente: 'prixVente',
   modePaiement: 'modePaiement',

@@ -73,7 +73,6 @@ npm install --legacy-peer-deps
 
 # Configurer les variables d'environnement
 cp .env.example .env
-# Renseigner DATABASE_URL avec votre URL Neon
 
 # Générer le client Prisma
 npx prisma generate
@@ -128,46 +127,350 @@ npx prisma studio      # Interface graphique de la BDD
 | ThrottlerModule | Rate limiting                                            |
 | Joi             | Validation des variables d'environnement                 |
 
+> **Important** : Toutes les routes protégées nécessitent un header `Authorization: Bearer <accessToken>`.
+> L'`accessToken` est obtenu via `POST /auth/login`.
+
 ---
 
-## Modules
+## Documentation des routes
+
+---
 
 ### Auth `/auth`
 
-Inscription, connexion, déconnexion, refresh tokens et Google OAuth.
+Gère l'inscription, la connexion, la déconnexion et le renouvellement des tokens.
+Les routes Auth sont **publiques** — aucun token requis.
 
-| Méthode | Route            | Description                    |
-| ------- | ---------------- | ------------------------------ |
-| POST    | `/auth/register` | Crée un compte                 |
-| POST    | `/auth/login`    | Connexion, retourne les tokens |
-| POST    | `/auth/logout`   | Déconnexion, invalide le token |
-| POST    | `/auth/refresh`  | Renouvelle l'access token      |
-| GET     | `/auth/google`   | Connexion via Google OAuth     |
+---
+
+#### `POST /auth/register` — Créer un compte
+
+Crée un nouvel utilisateur. Le rôle par défaut est `CREATRICE`, le plan par défaut est `FREE`.
+
+**Body :**
+
+```json
+{
+  "email": "gerante@test.com",
+  "password": "Test1234!"
+}
+```
+
+**Réponse 201 :**
+
+```json
+{
+  "id": "abffa9c1-2178-4232-8e0a-e88c868dc200",
+  "email": "gerante@test.com",
+  "plan": "FREE",
+  "role": "CREATRICE",
+  "lastExportData": null,
+  "createdAt": "2026-04-17T14:07:07.540Z"
+}
+```
+
+> ⚠️ Note le champ `id` dans la réponse — il sera nécessaire pour ajouter un membre à une boutique.
+> Le mot de passe n'est jamais retourné dans la réponse.
+> Pour passer un user en `GERANTE`, modifie le champ `role` directement dans Neon.
+
+---
+
+#### `POST /auth/login` — Se connecter
+
+Vérifie les credentials et retourne un `accessToken` (15 min) et un `refreshToken` (7 jours).
+
+**Body :**
+
+```json
+{
+  "email": "gerante@test.com",
+  "password": "Test1234!"
+}
+```
+
+**Réponse 200 :**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+> L'`accessToken` contient `id`, `email`, `role` et `plan` de l'utilisateur.
+> Utilise l'`accessToken` dans le header `Authorization: Bearer <token>` pour toutes les routes protégées.
+
+---
+
+#### `POST /auth/logout` — Se déconnecter
+
+Invalide le refresh token en base. L'utilisateur devra se reconnecter pour obtenir de nouveaux tokens.
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Body :** aucun
+
+**Réponse 200 :**
+
+```json
+{
+  "message": "Déconnexion réussie"
+}
+```
+
+---
+
+#### `POST /auth/refresh` — Renouveler l'access token
+
+Génère un nouvel `accessToken` à partir du `refreshToken`.
+
+**Body :**
+
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Réponse 200 :**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+---
+
+#### `GET /auth/google` — Connexion Google OAuth
+
+Redirige vers la page de connexion Google. Aucun body requis.
 
 ---
 
 ### User `/user`
 
-Profil utilisateur et gestion du plan d'abonnement.
+Gère le profil et le plan de l'utilisateur connecté.
+Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
-| Méthode | Route           | Description                        |
-| ------- | --------------- | ---------------------------------- |
-| GET     | `/user/profile` | Récupère le profil connecté        |
-| PATCH   | `/user/plan`    | Met à jour le plan (GERANTE seule) |
+---
+
+#### `GET /user/profile` — Récupérer son profil
+
+Retourne les informations du compte connecté.
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Réponse 200 :**
+
+```json
+{
+  "id": "abffa9c1-2178-4232-8e0a-e88c868dc200",
+  "email": "gerante@test.com",
+  "plan": "FREE",
+  "role": "GERANTE",
+  "lastExportData": null,
+  "createdAt": "2026-04-17T14:07:07.540Z"
+}
+```
+
+---
+
+#### `PATCH /user/plan` — Mettre à jour son plan
+
+Réservé aux `GERANTE`. Permet de passer le plan de `FREE` à `PRO` ou inversement.
+
+**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
+
+**Body :**
+
+```json
+{
+  "plan": "PRO"
+}
+```
+
+**Valeurs acceptées :** `FREE`, `PRO`
+
+**Réponse 200 :**
+
+```json
+{
+  "id": "abffa9c1-2178-4232-8e0a-e88c868dc200",
+  "email": "gerante@test.com",
+  "plan": "PRO",
+  "role": "GERANTE",
+  "lastExportData": null,
+  "createdAt": "2026-04-17T14:07:07.540Z"
+}
+```
 
 ---
 
 ### Boutique `/boutique`
 
-Gestion des boutiques et des créatrices membres.
+Gère les boutiques et leurs membres.
+Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
-| Méthode | Route                                   | Description                                   |
-| ------- | --------------------------------------- | --------------------------------------------- |
-| POST    | `/boutique`                             | Crée une boutique (GERANTE)                   |
-| POST    | `/boutique/:id/membre`                  | Ajoute une créatrice à la boutique (GERANTE)  |
-| PATCH   | `/boutique/:id/membre/:membreId/status` | Change le statut d'une créatrice (GERANTE)    |
-| PATCH   | `/boutique/:id/membre/:membreId/plan`   | Change le plan d'une créatrice (GERANTE)      |
-| GET     | `/boutique`                             | Liste les boutiques de la créatrice connectée |
+---
+
+#### `POST /boutique` — Créer une boutique
+
+Réservé aux `GERANTE`. La boutique est automatiquement liée à la gérante connectée — le `geranteId` est lu depuis le token JWT, pas besoin de l'envoyer dans le body.
+
+**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
+
+**Body :**
+
+```json
+{
+  "nom": "Ma Boutique",
+  "email": "boutique@test.com",
+  "telephone": "0612345678"
+}
+```
+
+> `email` et `telephone` sont optionnels.
+
+**Réponse 201 :**
+
+```json
+{
+  "id": "3810828a-dc08-4dc6-810f-a104a4731a2d",
+  "nom": "Ma Boutique",
+  "email": "boutique@test.com",
+  "telephone": "0612345678",
+  "createdAt": "2026-04-17T14:08:54.172Z",
+  "geranteId": "abffa9c1-2178-4232-8e0a-e88c868dc200"
+}
+```
+
+> ⚠️ Note le champ `id` — c'est l'id de la boutique, nécessaire pour toutes les routes suivantes.
+
+---
+
+#### `POST /boutique/:boutiqueId/member` — Ajouter une créatrice à la boutique
+
+Réservé aux `GERANTE`. Ajoute une créatrice existante à la boutique. Le statut par défaut est `INVITE` et le plan par défaut est `FREE`.
+
+**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
+
+**URL :** remplace `:boutiqueId` par l'`id` de la boutique
+
+**Body :**
+
+```json
+{
+  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746"
+}
+```
+
+> `memberId` = l'`id` du compte `User` de la créatrice.
+> Cet `id` est retourné lors du `POST /auth/register` ou visible dans la table `User` sur Neon.
+
+**Réponse 201 :**
+
+```json
+{
+  "id": "c595c1a7-e8dc-4ddc-bb6f-590abdf0195f",
+  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746",
+  "boutiqueMemberId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
+  "planMember": "FREE",
+  "createdAt": "2026-04-20T07:16:37.558Z",
+  "status": "INVITE"
+}
+```
+
+---
+
+#### `PATCH /boutique/:boutiqueId/member/:memberId/status` — Changer le statut d'une créatrice
+
+Réservé aux `GERANTE`. Permet d'activer, d'inviter ou de suspendre une créatrice dans la boutique.
+
+**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
+
+**URL :** remplace `:boutiqueId` par l'id de la boutique et `:memberId` par l'id du `User` créatrice
+
+**Body :**
+
+```json
+{
+  "status": "ACTIVE"
+}
+```
+
+**Valeurs acceptées :** `ACTIVE`, `INVITE`, `SUSPENDUE`
+
+**Réponse 200 :**
+
+```json
+{
+  "id": "c595c1a7-e8dc-4ddc-bb6f-590abdf0195f",
+  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746",
+  "boutiqueMemberId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
+  "planMember": "FREE",
+  "createdAt": "2026-04-20T07:16:37.558Z",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+#### `PATCH /boutique/:boutiqueId/member/:memberId/plan` — Changer le plan d'une créatrice
+
+Réservé aux `GERANTE`. Permet de passer une créatrice en `PRO` pour lui donner accès aux exports avancés dans cette boutique.
+
+**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
+
+**URL :** remplace `:boutiqueId` par l'id de la boutique et `:memberId` par l'id du `User` créatrice
+
+**Body :**
+
+```json
+{
+  "plan": "PRO"
+}
+```
+
+**Valeurs acceptées :** `FREE`, `PRO`
+
+**Réponse 200 :**
+
+```json
+{
+  "id": "c595c1a7-e8dc-4ddc-bb6f-590abdf0195f",
+  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746",
+  "boutiqueMemberId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
+  "planMember": "PRO",
+  "createdAt": "2026-04-20T07:16:37.558Z",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+#### `GET /boutique` — Lister ses boutiques
+
+Accessible à tous les rôles connectés. Retourne les boutiques dont l'utilisateur connecté est membre.
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Body :** aucun
+
+**Réponse 200 :**
+
+```json
+[
+  {
+    "id": "3810828a-dc08-4dc6-810f-a104a4731a2d",
+    "nom": "Ma Boutique",
+    "email": "boutique@test.com",
+    "telephone": "0612345678",
+    "createdAt": "2026-04-17T14:08:54.172Z",
+    "geranteId": "abffa9c1-2178-4232-8e0a-e88c868dc200"
+  }
+]
+```
 
 ---
 
@@ -271,8 +574,8 @@ model User {
 model Boutique {
   id              String           @id @default(uuid())
   nom             String
-  email           String
-  telephone       String
+  email           String?
+  telephone       String?
   createdAt       DateTime         @default(now())
   gerante         User             @relation(fields: [geranteId], references: [id])
   geranteId       String
@@ -288,6 +591,7 @@ model BoutiqueMember {
   planMember       Plan     @default(FREE)
   createdAt        DateTime @default(now())
   status           Status   @default(INVITE)
+  @@unique([memberId, boutiqueMemberId])
 }
 
 model Creatrice {
@@ -362,8 +666,7 @@ enum Status {
 - [x] Sécurité — Helmet, rate limiting, validation des variables d'env
 - [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE`)
 - [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO`)
-- [x] Module `boutique` — modèle Prisma + structure de base (CRUD en cours)
-- [ ] Module `boutique` — logique métier complète (invitations, gestion membres)
+- [x] Module `boutique` — CRUD complet + gestion des membres (statut, plan)
 - [ ] Module `export`
   - [ ] PDF global et par créatrice (avec filigrane si FREE)
   - [ ] Excel global et par créatrice (PRO uniquement)

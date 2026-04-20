@@ -61,6 +61,7 @@ model Creatrice {
 
 model Vente {
   id           String       @id @default(uuid())
+  photo        String?
   nomArticle   String
   prixVente    Float
   modePaiement ModePaiement

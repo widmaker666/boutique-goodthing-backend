@@ -8,21 +8,37 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { VenteService } from './vente.service';
 import { CreateVenteDto } from './dto/create-vente.dto';
 import { UpdateVenteDto } from './dto/update-vente.dto';
 import { QueryVente } from './dto/query-vente.dto';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtGuard)
 @Controller('vente')
 export class VenteController {
-  constructor(private readonly venteService: VenteService) {}
-
+  // Dans le constructor, ajoute CloudinaryService :
+  constructor(
+    private readonly venteService: VenteService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
   @Post()
-  create(@Body() createVenteDto: CreateVenteDto) {
-    return this.venteService.create(createVenteDto);
+  @UseInterceptors(FileInterceptor('photo'))
+  async create(
+    @Body() createVenteDto: CreateVenteDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    let photoUrl: string | undefined;
+    if (file) {
+      const uploaded = await this.cloudinaryService.uploadImage(file);
+      photoUrl = uploaded.secure_url;
+    }
+    return this.venteService.create(createVenteDto, photoUrl);
   }
 
   @Get()

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
@@ -16,13 +17,15 @@ export class CreateVenteDto {
   @MaxLength(100, {
     message: 'Le nom est trop long',
   })
-  nomArticle: string;
+  nomArticle!: string;
 
+  @Type(() => Number)
   @IsNumber()
-  prixVente: number;
+  prixVente!: number;
+
   @IsEnum(ModePaiement)
-  modePaiement: ModePaiement;
+  modePaiement!: ModePaiement;
 
   @IsUUID()
-  creatriceId: string;
+  creatriceId!: string;
 }

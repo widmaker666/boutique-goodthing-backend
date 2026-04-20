@@ -8,7 +8,7 @@ import { QueryVente } from './dto/query-vente.dto';
 export class VenteService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createVenteDto: CreateVenteDto) {
+  async create(createVenteDto: CreateVenteDto, photoUrl?: string) {
     //- Vérifie que la créatrice liée à cette vente existe bien en base
     //- Évite de créer une vente orpheline avec un creatriceId invalide
     const isCreatriceExist = await this.prisma.creatrice.findUnique({
@@ -23,7 +23,7 @@ export class VenteService {
     //- Crée la vente en base et inclut les données de la créatrice
     //- include: { creatrice: true } permet d'accéder au taux de commission
     const createVente = await this.prisma.vente.create({
-      data: createVenteDto,
+      data: { ...createVenteDto, photo: photoUrl },
       include: { creatrice: true },
     });
 
