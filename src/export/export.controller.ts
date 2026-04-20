@@ -1,16 +1,19 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { ExportService } from './export.service';
-import { Plan } from 'src/generated/enums';
+import { Plan, Role } from 'src/generated/enums';
 import { Plans } from 'src/auth/guard/plan.decorateur';
 import { PlanGuard } from 'src/auth/guard/plan.guard';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
+import { Roles } from 'src/auth/guard/role.decorateur';
 
 @UseGuards(JwtGuard, PlanGuard)
 @Controller('export')
 export class ExportController {
   constructor(private readonly exportService: ExportService) {}
+
+  //* GET CREATRICE *//
 
   @Get('pdf')
   getexportPdf(@Req() req, @Res() res: Response) {
@@ -27,5 +30,31 @@ export class ExportController {
   @Get('csv')
   getexportCsv() {
     return this.exportService.getExportCsv();
+  }
+
+  //* GET BOUTIQUE *//
+
+  @Roles(Role.GERANTE)
+  @Get('pdf/boutique')
+  getexportPdfBoutique(
+    @Req() req,
+    @Res() res: Response,
+    @Query('boutiqueId') boutiqueId: string,
+  ) {
+    return this.exportService.getExportPdfBoutique(req.user, res, boutiqueId);
+  }
+
+  @Roles(Role.GERANTE)
+  @Plans(Plan.PRO)
+  @Get('excel/boutique')
+  getexportExcelBoutique(@Query('boutiqueId') boutiqueId: string) {
+    return this.exportService.getExportExcelBoutique(boutiqueId);
+  }
+
+  @Roles(Role.GERANTE)
+  @Plans(Plan.PRO)
+  @Get('csv/boutique')
+  getexportCsvBoutique(@Query('boutiqueId') boutiqueId: string) {
+    return this.exportService.getExportCsvBoutique(boutiqueId);
   }
 }
