@@ -38,4 +38,11 @@ export class UserService {
     console.log('userWithoutPassword', userWithoutPassword);
     return userWithoutPassword;
   }
+
+  async updateNotifications(userId: string, notificationsEmail: boolean) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { notificationsEmail },
+    });
+  }
 }

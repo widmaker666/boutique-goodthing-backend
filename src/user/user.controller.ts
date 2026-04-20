@@ -19,4 +19,15 @@ export class UserController {
   updatePlan(@Req() req, @Body('plan') plan: Plan) {
     return this.userService.updatePlan(req.user.id, plan);
   }
+
+  @Patch('notifications')
+  updateNotifications(
+    @Req() req,
+    @Body('notificationsEmail') notificationsEmail: boolean,
+  ) {
+    return this.userService.updateNotifications(
+      req.user.id,
+      notificationsEmail,
+    );
+  }
 }
