@@ -18,6 +18,7 @@ API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer l
 | Prisma v7           | ORM                              |
 | PostgreSQL (Neon)   | Base de données cloud            |
 | Cloudinary          | Stockage des photos de ventes    |
+| Resend              | Envoi d'emails transactionnels   |
 | class-validator     | Validation des DTOs              |
 | class-transformer   | Transformation des types         |
 | Jest + Supertest    | Tests unitaires et e2e           |
@@ -60,6 +61,7 @@ PrismaService       ← accès à la base de données
 - Node.js v18+
 - Un compte [Neon](https://neon.tech) pour la base de données
 - Un compte [Cloudinary](https://cloudinary.com) pour le stockage des photos
+- Un compte [Resend](https://resend.com) pour l'envoi d'emails
 
 ---
 
@@ -98,6 +100,7 @@ GOOGLE_CLIENT_SECRET="votre-google-client-secret"
 CLOUDINARY_CLOUD_NAME="votre-cloud-name"
 CLOUDINARY_API_KEY="votre-api-key"
 CLOUDINARY_API_SECRET="votre-api-secret"
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxx"
 ```
 
 ---
@@ -258,7 +261,7 @@ Redirige vers la page de connexion Google. Aucun body requis.
 
 ### User `/user`
 
-Gère le profil et le plan de l'utilisateur connecté.
+Gère le profil, le plan et les préférences de l'utilisateur connecté.
 Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 ---
@@ -275,6 +278,7 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
   "email": "gerante@test.com",
   "plan": "FREE",
   "role": "GERANTE",
+  "notificationsEmail": true,
   "lastExportData": null,
   "createdAt": "2026-04-17T14:07:07.540Z"
 }
@@ -298,18 +302,23 @@ Réservé aux `GERANTE`.
 
 **Valeurs acceptées :** `FREE`, `PRO`
 
-**Réponse 200 :**
+---
+
+#### `PATCH /user/notifications` — Activer/désactiver les notifications email
+
+Permet à n'importe quel utilisateur connecté d'activer ou désactiver les emails de notification de vente.
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Body :**
 
 ```json
 {
-  "id": "abffa9c1-2178-4232-8e0a-e88c868dc200",
-  "email": "gerante@test.com",
-  "plan": "PRO",
-  "role": "GERANTE",
-  "lastExportData": null,
-  "createdAt": "2026-04-17T14:07:07.540Z"
+  "notificationsEmail": false
 }
 ```
+
+**Réponse 200 :** l'objet `User` mis à jour.
 
 ---
 
@@ -406,19 +415,6 @@ Réservé aux `GERANTE`.
 
 **Valeurs acceptées :** `ACTIVE`, `INVITE`, `SUSPENDUE`
 
-**Réponse 200 :**
-
-```json
-{
-  "id": "c595c1a7-e8dc-4ddc-bb6f-590abdf0195f",
-  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746",
-  "boutiqueMemberId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
-  "planMember": "FREE",
-  "createdAt": "2026-04-20T07:16:37.558Z",
-  "status": "ACTIVE"
-}
-```
-
 ---
 
 #### `PATCH /boutique/:boutiqueId/member/:memberId/plan` — Changer le plan d'une créatrice
@@ -438,19 +434,6 @@ Réservé aux `GERANTE`.
 ```
 
 **Valeurs acceptées :** `FREE`, `PRO`
-
-**Réponse 200 :**
-
-```json
-{
-  "id": "c595c1a7-e8dc-4ddc-bb6f-590abdf0195f",
-  "memberId": "14f6d596-64aa-400c-8b81-d3002e08d746",
-  "boutiqueMemberId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
-  "planMember": "PRO",
-  "createdAt": "2026-04-20T07:16:37.558Z",
-  "status": "ACTIVE"
-}
-```
 
 ---
 
@@ -500,7 +483,7 @@ Gestion des créatrices et de leurs taux de commission.
 
 ### Vente `/vente`
 
-Enregistrement des ventes avec calcul automatique des commissions et upload photo optionnel.
+Enregistrement des ventes avec calcul automatique des commissions, upload photo optionnel et notification email à la créatrice.
 
 | Méthode | Route        | Description             |
 | ------- | ------------ | ----------------------- |
@@ -532,6 +515,7 @@ Enregistrement des ventes avec calcul automatique des commissions et upload phot
 | prixVente    | Text | ✓           | Prix de vente (nombre)           |
 | modePaiement | Text | ✓           | `ESPECES` ou `CARTE`             |
 | creatriceId  | Text | ✓           | UUID de la créatrice             |
+| boutiqueId   | Text | ✗           | UUID de la boutique (optionnel)  |
 | photo        | File | ✗           | Photo de l'article (optionnelle) |
 
 **Réponse 201 :**
@@ -543,6 +527,7 @@ Enregistrement des ventes avec calcul automatique des commissions et upload phot
   "nomArticle": "Boucle oreille",
   "prixVente": 25,
   "modePaiement": "CARTE",
+  "boutiqueId": "3810828a-dc08-4dc6-810f-a104a4731a2d",
   "createdAt": "2026-04-20T08:26:25.191Z",
   "creatriceId": "e158e704-1788-4c56-87d3-51671c128fe9",
   "creatrice": { "nom": "Marie", "tauxDeCommission": 30 },
@@ -552,6 +537,7 @@ Enregistrement des ventes avec calcul automatique des commissions et upload phot
 ```
 
 > La photo est uploadée sur Cloudinary et seule l'URL est stockée en base.
+> Si la créatrice a un compte `User` lié avec `notificationsEmail: true`, un email de notification lui est envoyé automatiquement.
 
 ---
 
@@ -561,15 +547,47 @@ Bilan global et par créatrice.
 
 ---
 
-### Export `/export` _(en cours)_
+### Export `/export`
 
 Export des données selon le plan d'abonnement.
 
-| Format | FREE                       | PRO          |
-| ------ | -------------------------- | ------------ |
-| PDF    | ✓ (1/mois, avec filigrane) | ✓ (illimité) |
-| Excel  | ✗                          | ✓            |
-| CSV    | ✗                          | ✓            |
+| Format | FREE               | PRO          |
+| ------ | ------------------ | ------------ |
+| PDF    | ✓ (avec filigrane) | ✓ (illimité) |
+| Excel  | ✗                  | ✓            |
+| CSV    | ✗                  | ✓            |
+
+---
+
+#### Routes export créatrice
+
+| Méthode | Route           | Description                              | Accès |
+| ------- | --------------- | ---------------------------------------- | ----- |
+| GET     | `/export/pdf`   | PDF des ventes de la créatrice connectée | Tous  |
+| GET     | `/export/excel` | Excel des ventes                         | PRO   |
+| GET     | `/export/csv`   | CSV des ventes                           | PRO   |
+
+---
+
+#### Routes export boutique
+
+| Méthode | Route                    | Description                | Accès         |
+| ------- | ------------------------ | -------------------------- | ------------- |
+| GET     | `/export/pdf/boutique`   | PDF résumé par créatrice   | GERANTE       |
+| GET     | `/export/excel/boutique` | Excel résumé par créatrice | GERANTE + PRO |
+| GET     | `/export/csv/boutique`   | CSV résumé par créatrice   | GERANTE + PRO |
+
+> Les routes boutique nécessitent un query param `?boutiqueId=<id>`.
+> Exemple : `GET /export/pdf/boutique?boutiqueId=3810828a-dc08-4dc6-810f-a104a4731a2d`
+
+---
+
+### Email `/email`
+
+Gestion des notifications email via Resend.
+
+- **Notification de vente** — envoyée automatiquement à la créatrice lors de la création d'une vente si `notificationsEmail: true`
+- **Activation/désactivation** — via `PATCH /user/notifications`
 
 ---
 
@@ -592,16 +610,18 @@ Export des données selon le plan d'abonnement.
 
 ```prisma
 model User {
-  id              String           @id @default(uuid())
-  email           String           @unique
-  password        String
-  plan            Plan             @default(FREE)
-  role            Role             @default(CREATRICE)
-  lastExportData  DateTime?
-  createdAt       DateTime         @default(now())
-  refreshToken    String?
-  boutiques       Boutique[]
-  boutiqueMembers BoutiqueMember[]
+  id                  String           @id @default(uuid())
+  email               String           @unique
+  password            String
+  plan                Plan             @default(FREE)
+  role                Role             @default(CREATRICE)
+  notificationsEmail  Boolean          @default(true)
+  lastExportData      DateTime?
+  createdAt           DateTime         @default(now())
+  refreshToken        String?
+  boutiques           Boutique[]
+  boutiqueMembers     BoutiqueMember[]
+  creatrices          Creatrice[]
 }
 
 model Boutique {
@@ -613,6 +633,7 @@ model Boutique {
   gerante         User             @relation(fields: [geranteId], references: [id])
   geranteId       String
   boutiqueMembers BoutiqueMember[]
+  ventes          Vente[]
 }
 
 model BoutiqueMember {
@@ -635,6 +656,8 @@ model Creatrice {
   tauxDeCommission Float
   createdAt        DateTime @default(now())
   vente            Vente[]
+  user             User?    @relation(fields: [userId], references: [id])
+  userId           String?
 }
 
 model Vente {
@@ -646,6 +669,8 @@ model Vente {
   createdAt    DateTime     @default(now())
   creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])
   creatriceId  String
+  boutique     Boutique?    @relation(fields: [boutiqueId], references: [id])
+  boutiqueId   String?
 }
 
 enum ModePaiement {
@@ -696,18 +721,14 @@ enum Status {
 - [x] Module `vente` — CRUD + filtres + calcul commission + upload photo (Cloudinary)
 - [x] Module `stats` — bilan global et par créatrice
 - [x] Module `auth` — inscription, connexion, JWT, Google OAuth, refresh tokens
-- [x] Module `user` — profil, gestion du plan (`FREE` / `PRO`), `lastExportDate`
+- [x] Module `user` — profil, gestion du plan (`FREE` / `PRO`), notifications email
 - [x] Sécurité — Helmet, rate limiting, validation des variables d'env
 - [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE`)
 - [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO`)
 - [x] Module `boutique` — CRUD complet + gestion des membres (statut, plan)
 - [x] Module `cloudinary` — upload et stockage des photos de ventes
-- [ ] Module `export`
-  - [ ] PDF global et par créatrice (avec filigrane si FREE)
-  - [ ] Excel global et par créatrice (PRO uniquement)
-  - [ ] CSV global et par créatrice (PRO uniquement)
-  - [ ] Limitation 1 export/mois pour FREE + mise à jour `lastExportDate`
-- [ ] Module `email` — envoi des récaps mensuels (Nodemailer ou Resend)
+- [x] Module `export` — PDF, Excel, CSV par créatrice et par boutique (avec filigrane FREE)
+- [x] Module `email` — notification email à la créatrice lors d'une vente (Resend)
 - [ ] Cron job — récap automatique mensuel par créatrice (PRO uniquement)
 - [ ] Module `stripe` — abonnements mensuel/annuel
 - [ ] Tests unitaires et e2e — Jest + Supertest
