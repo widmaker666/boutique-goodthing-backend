@@ -17,6 +17,7 @@ API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer l
 | NestJS              | Framework backend                |
 | Prisma v7           | ORM                              |
 | PostgreSQL (Neon)   | Base de données cloud            |
+| Cloudinary          | Stockage des photos de ventes    |
 | class-validator     | Validation des DTOs              |
 | class-transformer   | Transformation des types         |
 | Jest + Supertest    | Tests unitaires et e2e           |
@@ -58,6 +59,7 @@ PrismaService       ← accès à la base de données
 
 - Node.js v18+
 - Un compte [Neon](https://neon.tech) pour la base de données
+- Un compte [Cloudinary](https://cloudinary.com) pour le stockage des photos
 
 ---
 
@@ -93,6 +95,9 @@ DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=verify-fu
 JWT_SECRET="votre-secret-jwt"
 GOOGLE_CLIENT_ID="votre-google-client-id"
 GOOGLE_CLIENT_SECRET="votre-google-client-secret"
+CLOUDINARY_CLOUD_NAME="votre-cloud-name"
+CLOUDINARY_API_KEY="votre-api-key"
+CLOUDINARY_API_SECRET="votre-api-secret"
 ```
 
 ---
@@ -107,10 +112,13 @@ npm run lint           # Vérification ESLint
 npm run test           # Tests unitaires
 npm run test:e2e       # Tests end-to-end
 
-npx prisma generate    # Générer le client Prisma
-npx prisma migrate dev # Créer et appliquer une migration
-npx prisma studio      # Interface graphique de la BDD
+npx prisma generate           # Générer le client Prisma (à faire après chaque migrate)
+npx prisma migrate dev        # Créer et appliquer une migration
+npx prisma migrate deploy     # Appliquer les migrations en production
+npx prisma studio             # Interface graphique de la BDD
 ```
+
+> ⚠️ Toujours lancer `npx prisma generate` après un `npx prisma migrate dev`.
 
 ---
 
@@ -257,8 +265,6 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 #### `GET /user/profile` — Récupérer son profil
 
-Retourne les informations du compte connecté.
-
 **Header requis :** `Authorization: Bearer <accessToken>`
 
 **Réponse 200 :**
@@ -278,7 +284,7 @@ Retourne les informations du compte connecté.
 
 #### `PATCH /user/plan` — Mettre à jour son plan
 
-Réservé aux `GERANTE`. Permet de passer le plan de `FREE` à `PRO` ou inversement.
+Réservé aux `GERANTE`.
 
 **Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
@@ -316,7 +322,7 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 #### `POST /boutique` — Créer une boutique
 
-Réservé aux `GERANTE`. La boutique est automatiquement liée à la gérante connectée — le `geranteId` est lu depuis le token JWT, pas besoin de l'envoyer dans le body.
+Réservé aux `GERANTE`. Le `geranteId` est lu automatiquement depuis le token JWT.
 
 **Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
@@ -351,7 +357,7 @@ Réservé aux `GERANTE`. La boutique est automatiquement liée à la gérante co
 
 #### `POST /boutique/:boutiqueId/member` — Ajouter une créatrice à la boutique
 
-Réservé aux `GERANTE`. Ajoute une créatrice existante à la boutique. Le statut par défaut est `INVITE` et le plan par défaut est `FREE`.
+Réservé aux `GERANTE`. Statut par défaut : `INVITE`. Plan par défaut : `FREE`.
 
 **Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
@@ -365,8 +371,7 @@ Réservé aux `GERANTE`. Ajoute une créatrice existante à la boutique. Le stat
 }
 ```
 
-> `memberId` = l'`id` du compte `User` de la créatrice.
-> Cet `id` est retourné lors du `POST /auth/register` ou visible dans la table `User` sur Neon.
+> `memberId` = l'`id` du compte `User` de la créatrice, retourné lors du `POST /auth/register` ou visible dans Neon.
 
 **Réponse 201 :**
 
@@ -385,11 +390,11 @@ Réservé aux `GERANTE`. Ajoute une créatrice existante à la boutique. Le stat
 
 #### `PATCH /boutique/:boutiqueId/member/:memberId/status` — Changer le statut d'une créatrice
 
-Réservé aux `GERANTE`. Permet d'activer, d'inviter ou de suspendre une créatrice dans la boutique.
+Réservé aux `GERANTE`.
 
 **Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
-**URL :** remplace `:boutiqueId` par l'id de la boutique et `:memberId` par l'id du `User` créatrice
+**URL :** remplace `:boutiqueId` et `:memberId` par leurs ids respectifs
 
 **Body :**
 
@@ -418,11 +423,11 @@ Réservé aux `GERANTE`. Permet d'activer, d'inviter ou de suspendre une créatr
 
 #### `PATCH /boutique/:boutiqueId/member/:memberId/plan` — Changer le plan d'une créatrice
 
-Réservé aux `GERANTE`. Permet de passer une créatrice en `PRO` pour lui donner accès aux exports avancés dans cette boutique.
+Réservé aux `GERANTE`.
 
 **Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
-**URL :** remplace `:boutiqueId` par l'id de la boutique et `:memberId` par l'id du `User` créatrice
+**URL :** remplace `:boutiqueId` et `:memberId` par leurs ids respectifs
 
 **Body :**
 
@@ -451,7 +456,7 @@ Réservé aux `GERANTE`. Permet de passer une créatrice en `PRO` pour lui donne
 
 #### `GET /boutique` — Lister ses boutiques
 
-Accessible à tous les rôles connectés. Retourne les boutiques dont l'utilisateur connecté est membre.
+Accessible à tous les rôles. Retourne les boutiques dont l'utilisateur connecté est membre.
 
 **Header requis :** `Authorization: Bearer <accessToken>`
 
@@ -495,7 +500,7 @@ Gestion des créatrices et de leurs taux de commission.
 
 ### Vente `/vente`
 
-Enregistrement des ventes avec calcul automatique des commissions.
+Enregistrement des ventes avec calcul automatique des commissions et upload photo optionnel.
 
 | Méthode | Route        | Description             |
 | ------- | ------------ | ----------------------- |
@@ -505,20 +510,48 @@ Enregistrement des ventes avec calcul automatique des commissions.
 | PATCH   | `/vente/:id` | Met à jour une vente    |
 | DELETE  | `/vente/:id` | Supprime une vente      |
 
-**Exemple de réponse :**
+**Filtres disponibles** sur `GET /vente` :
+
+- `nomArticle` — recherche par nom d'article
+- `minPrixVente` / `maxPrixVente` — filtre par intervalle de prix
+- `modePaiement` — `ESPECES` ou `CARTE`
+
+---
+
+#### `POST /vente` — Créer une vente
+
+> ⚠️ Cette route utilise `form-data` (pas `raw JSON`) car elle accepte un fichier photo.
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Body (form-data) :**
+
+| Clé          | Type | Obligatoire | Description                      |
+| ------------ | ---- | ----------- | -------------------------------- |
+| nomArticle   | Text | ✓           | Nom de l'article vendu           |
+| prixVente    | Text | ✓           | Prix de vente (nombre)           |
+| modePaiement | Text | ✓           | `ESPECES` ou `CARTE`             |
+| creatriceId  | Text | ✓           | UUID de la créatrice             |
+| photo        | File | ✗           | Photo de l'article (optionnelle) |
+
+**Réponse 201 :**
 
 ```json
 {
-  "id": "...",
-  "nomArticle": "Collier fleurs",
+  "id": "ac4eb9d4-2c81-4e27-9a81-54d587e667a5",
+  "photo": "https://res.cloudinary.com/xxx/image/upload/v1/encaissly/ventes/xxx.webp",
+  "nomArticle": "Boucle oreille",
   "prixVente": 25,
   "modePaiement": "CARTE",
-  "createdAt": "2026-03-30T15:09:47.767Z",
+  "createdAt": "2026-04-20T08:26:25.191Z",
+  "creatriceId": "e158e704-1788-4c56-87d3-51671c128fe9",
   "creatrice": { "nom": "Marie", "tauxDeCommission": 30 },
   "montantCommission": 7.5,
   "netCreatrice": 17.5
 }
 ```
+
+> La photo est uploadée sur Cloudinary et seule l'URL est stockée en base.
 
 ---
 
@@ -606,6 +639,7 @@ model Creatrice {
 
 model Vente {
   id           String       @id @default(uuid())
+  photo        String?
   nomArticle   String
   prixVente    Float
   modePaiement ModePaiement
@@ -659,7 +693,7 @@ enum Status {
 **Backend**
 
 - [x] Module `creatrice` — CRUD + filtres + validation
-- [x] Module `vente` — CRUD + filtres + calcul commission automatique
+- [x] Module `vente` — CRUD + filtres + calcul commission + upload photo (Cloudinary)
 - [x] Module `stats` — bilan global et par créatrice
 - [x] Module `auth` — inscription, connexion, JWT, Google OAuth, refresh tokens
 - [x] Module `user` — profil, gestion du plan (`FREE` / `PRO`), `lastExportDate`
@@ -667,6 +701,7 @@ enum Status {
 - [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE`)
 - [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO`)
 - [x] Module `boutique` — CRUD complet + gestion des membres (statut, plan)
+- [x] Module `cloudinary` — upload et stockage des photos de ventes
 - [ ] Module `export`
   - [ ] PDF global et par créatrice (avec filigrane si FREE)
   - [ ] Excel global et par créatrice (PRO uniquement)

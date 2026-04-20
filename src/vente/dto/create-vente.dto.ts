@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -28,4 +29,8 @@ export class CreateVenteDto {
 
   @IsUUID()
   creatriceId!: string;
+
+  @IsOptional()
+  @IsUUID()
+  boutiqueId?: string;
 }

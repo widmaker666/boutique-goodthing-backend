@@ -118,7 +118,8 @@ export const CreatriceScalarFieldEnum = {
   email: 'email',
   telephone: 'telephone',
   tauxDeCommission: 'tauxDeCommission',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  userId: 'userId'
 } as const
 
 export type CreatriceScalarFieldEnum = (typeof CreatriceScalarFieldEnum)[keyof typeof CreatriceScalarFieldEnum]
@@ -131,7 +132,8 @@ export const VenteScalarFieldEnum = {
   prixVente: 'prixVente',
   modePaiement: 'modePaiement',
   createdAt: 'createdAt',
-  creatriceId: 'creatriceId'
+  creatriceId: 'creatriceId',
+  boutiqueId: 'boutiqueId'
 } as const
 
 export type VenteScalarFieldEnum = (typeof VenteScalarFieldEnum)[keyof typeof VenteScalarFieldEnum]

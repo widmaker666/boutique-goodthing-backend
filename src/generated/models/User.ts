@@ -208,6 +208,7 @@ export type UserWhereInput = {
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
+  creatrices?: Prisma.CreatriceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -221,6 +222,7 @@ export type UserOrderByWithRelationInput = {
   refreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   boutiques?: Prisma.BoutiqueOrderByRelationAggregateInput
   boutiqueMembers?: Prisma.BoutiqueMemberOrderByRelationAggregateInput
+  creatrices?: Prisma.CreatriceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -237,6 +239,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
+  creatrices?: Prisma.CreatriceListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -278,6 +281,7 @@ export type UserCreateInput = {
   refreshToken?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -291,6 +295,7 @@ export type UserUncheckedCreateInput = {
   refreshToken?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -304,6 +309,7 @@ export type UserUpdateInput = {
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -317,6 +323,7 @@ export type UserUncheckedUpdateInput = {
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -390,6 +397,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -442,6 +454,22 @@ export type UserUpdateOneRequiredWithoutBoutiqueMembersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBoutiqueMembersInput, Prisma.UserUpdateWithoutBoutiqueMembersInput>, Prisma.UserUncheckedUpdateWithoutBoutiqueMembersInput>
 }
 
+export type UserCreateNestedOneWithoutCreatricesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatricesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatricesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatricesInput
+  upsert?: Prisma.UserUpsertWithoutCreatricesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatricesInput, Prisma.UserUpdateWithoutCreatricesInput>, Prisma.UserUncheckedUpdateWithoutCreatricesInput>
+}
+
 export type UserCreateWithoutBoutiquesInput = {
   id?: string
   email: string
@@ -452,6 +480,7 @@ export type UserCreateWithoutBoutiquesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBoutiquesInput = {
@@ -464,6 +493,7 @@ export type UserUncheckedCreateWithoutBoutiquesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBoutiquesInput = {
@@ -492,6 +522,7 @@ export type UserUpdateWithoutBoutiquesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoutiquesInput = {
@@ -504,6 +535,7 @@ export type UserUncheckedUpdateWithoutBoutiquesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBoutiqueMembersInput = {
@@ -516,6 +548,7 @@ export type UserCreateWithoutBoutiqueMembersInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
+  creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
@@ -528,6 +561,7 @@ export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
+  creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBoutiqueMembersInput = {
@@ -556,6 +590,7 @@ export type UserUpdateWithoutBoutiqueMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
+  creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
@@ -568,6 +603,75 @@ export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
+  creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatricesInput = {
+  id?: string
+  email: string
+  password: string
+  plan?: $Enums.Plan
+  role?: $Enums.Role
+  lastExportData?: Date | string | null
+  createdAt?: Date | string
+  refreshToken?: string | null
+  boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
+  boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
+}
+
+export type UserUncheckedCreateWithoutCreatricesInput = {
+  id?: string
+  email: string
+  password: string
+  plan?: $Enums.Plan
+  role?: $Enums.Role
+  lastExportData?: Date | string | null
+  createdAt?: Date | string
+  refreshToken?: string | null
+  boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type UserCreateOrConnectWithoutCreatricesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
+}
+
+export type UserUpsertWithoutCreatricesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatricesInput, Prisma.UserUncheckedUpdateWithoutCreatricesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatricesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatricesInput, Prisma.UserUncheckedUpdateWithoutCreatricesInput>
+}
+
+export type UserUpdateWithoutCreatricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 
@@ -578,11 +682,13 @@ export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
 export type UserCountOutputType = {
   boutiques: number
   boutiqueMembers: number
+  creatrices: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   boutiques?: boolean | UserCountOutputTypeCountBoutiquesArgs
   boutiqueMembers?: boolean | UserCountOutputTypeCountBoutiqueMembersArgs
+  creatrices?: boolean | UserCountOutputTypeCountCreatricesArgs
 }
 
 /**
@@ -609,6 +715,13 @@ export type UserCountOutputTypeCountBoutiqueMembersArgs<ExtArgs extends runtime.
   where?: Prisma.BoutiqueMemberWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreatriceWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -621,6 +734,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   refreshToken?: boolean
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
+  creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -661,6 +775,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
+  creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -671,6 +786,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     boutiques: Prisma.$BoutiquePayload<ExtArgs>[]
     boutiqueMembers: Prisma.$BoutiqueMemberPayload<ExtArgs>[]
+    creatrices: Prisma.$CreatricePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1077,6 +1193,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   boutiques<T extends Prisma.User$boutiquesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boutiquesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoutiquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   boutiqueMembers<T extends Prisma.User$boutiqueMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boutiqueMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoutiqueMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  creatrices<T extends Prisma.User$creatricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$creatricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1552,6 +1669,30 @@ export type User$boutiqueMembersArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.BoutiqueMemberScalarFieldEnum | Prisma.BoutiqueMemberScalarFieldEnum[]
+}
+
+/**
+ * User.creatrices
+ */
+export type User$creatricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Creatrice
+   */
+  select?: Prisma.CreatriceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Creatrice
+   */
+  omit?: Prisma.CreatriceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreatriceInclude<ExtArgs> | null
+  where?: Prisma.CreatriceWhereInput
+  orderBy?: Prisma.CreatriceOrderByWithRelationInput | Prisma.CreatriceOrderByWithRelationInput[]
+  cursor?: Prisma.CreatriceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreatriceScalarFieldEnum | Prisma.CreatriceScalarFieldEnum[]
 }
 
 /**

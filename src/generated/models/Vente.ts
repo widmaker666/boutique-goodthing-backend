@@ -42,6 +42,7 @@ export type VenteMinAggregateOutputType = {
   modePaiement: $Enums.ModePaiement | null
   createdAt: Date | null
   creatriceId: string | null
+  boutiqueId: string | null
 }
 
 export type VenteMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type VenteMaxAggregateOutputType = {
   modePaiement: $Enums.ModePaiement | null
   createdAt: Date | null
   creatriceId: string | null
+  boutiqueId: string | null
 }
 
 export type VenteCountAggregateOutputType = {
@@ -62,6 +64,7 @@ export type VenteCountAggregateOutputType = {
   modePaiement: number
   createdAt: number
   creatriceId: number
+  boutiqueId: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type VenteMinAggregateInputType = {
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
+  boutiqueId?: true
 }
 
 export type VenteMaxAggregateInputType = {
@@ -92,6 +96,7 @@ export type VenteMaxAggregateInputType = {
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
+  boutiqueId?: true
 }
 
 export type VenteCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type VenteCountAggregateInputType = {
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
+  boutiqueId?: true
   _all?: true
 }
 
@@ -199,6 +205,7 @@ export type VenteGroupByOutputType = {
   modePaiement: $Enums.ModePaiement
   createdAt: Date
   creatriceId: string
+  boutiqueId: string | null
   _count: VenteCountAggregateOutputType | null
   _avg: VenteAvgAggregateOutputType | null
   _sum: VenteSumAggregateOutputType | null
@@ -232,7 +239,9 @@ export type VenteWhereInput = {
   modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringFilter<"Vente"> | string
+  boutiqueId?: Prisma.StringNullableFilter<"Vente"> | string | null
   creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
+  boutique?: Prisma.XOR<Prisma.BoutiqueNullableScalarRelationFilter, Prisma.BoutiqueWhereInput> | null
 }
 
 export type VenteOrderByWithRelationInput = {
@@ -243,7 +252,9 @@ export type VenteOrderByWithRelationInput = {
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  boutiqueId?: Prisma.SortOrderInput | Prisma.SortOrder
   creatrice?: Prisma.CreatriceOrderByWithRelationInput
+  boutique?: Prisma.BoutiqueOrderByWithRelationInput
 }
 
 export type VenteWhereUniqueInput = Prisma.AtLeast<{
@@ -257,7 +268,9 @@ export type VenteWhereUniqueInput = Prisma.AtLeast<{
   modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringFilter<"Vente"> | string
+  boutiqueId?: Prisma.StringNullableFilter<"Vente"> | string | null
   creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
+  boutique?: Prisma.XOR<Prisma.BoutiqueNullableScalarRelationFilter, Prisma.BoutiqueWhereInput> | null
 }, "id">
 
 export type VenteOrderByWithAggregationInput = {
@@ -268,6 +281,7 @@ export type VenteOrderByWithAggregationInput = {
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  boutiqueId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.VenteCountOrderByAggregateInput
   _avg?: Prisma.VenteAvgOrderByAggregateInput
   _max?: Prisma.VenteMaxOrderByAggregateInput
@@ -286,6 +300,7 @@ export type VenteScalarWhereWithAggregatesInput = {
   modePaiement?: Prisma.EnumModePaiementWithAggregatesFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringWithAggregatesFilter<"Vente"> | string
+  boutiqueId?: Prisma.StringNullableWithAggregatesFilter<"Vente"> | string | null
 }
 
 export type VenteCreateInput = {
@@ -296,6 +311,7 @@ export type VenteCreateInput = {
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutVenteInput
+  boutique?: Prisma.BoutiqueCreateNestedOneWithoutVentesInput
 }
 
 export type VenteUncheckedCreateInput = {
@@ -306,6 +322,7 @@ export type VenteUncheckedCreateInput = {
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
+  boutiqueId?: string | null
 }
 
 export type VenteUpdateInput = {
@@ -316,6 +333,7 @@ export type VenteUpdateInput = {
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutVenteNestedInput
+  boutique?: Prisma.BoutiqueUpdateOneWithoutVentesNestedInput
 }
 
 export type VenteUncheckedUpdateInput = {
@@ -326,6 +344,7 @@ export type VenteUncheckedUpdateInput = {
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VenteCreateManyInput = {
@@ -336,6 +355,7 @@ export type VenteCreateManyInput = {
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
+  boutiqueId?: string | null
 }
 
 export type VenteUpdateManyMutationInput = {
@@ -355,6 +375,7 @@ export type VenteUncheckedUpdateManyInput = {
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VenteListRelationFilter = {
@@ -375,6 +396,7 @@ export type VenteCountOrderByAggregateInput = {
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  boutiqueId?: Prisma.SortOrder
 }
 
 export type VenteAvgOrderByAggregateInput = {
@@ -389,6 +411,7 @@ export type VenteMaxOrderByAggregateInput = {
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  boutiqueId?: Prisma.SortOrder
 }
 
 export type VenteMinOrderByAggregateInput = {
@@ -399,10 +422,53 @@ export type VenteMinOrderByAggregateInput = {
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  boutiqueId?: Prisma.SortOrder
 }
 
 export type VenteSumOrderByAggregateInput = {
   prixVente?: Prisma.SortOrder
+}
+
+export type VenteCreateNestedManyWithoutBoutiqueInput = {
+  create?: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput> | Prisma.VenteCreateWithoutBoutiqueInput[] | Prisma.VenteUncheckedCreateWithoutBoutiqueInput[]
+  connectOrCreate?: Prisma.VenteCreateOrConnectWithoutBoutiqueInput | Prisma.VenteCreateOrConnectWithoutBoutiqueInput[]
+  createMany?: Prisma.VenteCreateManyBoutiqueInputEnvelope
+  connect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+}
+
+export type VenteUncheckedCreateNestedManyWithoutBoutiqueInput = {
+  create?: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput> | Prisma.VenteCreateWithoutBoutiqueInput[] | Prisma.VenteUncheckedCreateWithoutBoutiqueInput[]
+  connectOrCreate?: Prisma.VenteCreateOrConnectWithoutBoutiqueInput | Prisma.VenteCreateOrConnectWithoutBoutiqueInput[]
+  createMany?: Prisma.VenteCreateManyBoutiqueInputEnvelope
+  connect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+}
+
+export type VenteUpdateManyWithoutBoutiqueNestedInput = {
+  create?: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput> | Prisma.VenteCreateWithoutBoutiqueInput[] | Prisma.VenteUncheckedCreateWithoutBoutiqueInput[]
+  connectOrCreate?: Prisma.VenteCreateOrConnectWithoutBoutiqueInput | Prisma.VenteCreateOrConnectWithoutBoutiqueInput[]
+  upsert?: Prisma.VenteUpsertWithWhereUniqueWithoutBoutiqueInput | Prisma.VenteUpsertWithWhereUniqueWithoutBoutiqueInput[]
+  createMany?: Prisma.VenteCreateManyBoutiqueInputEnvelope
+  set?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  disconnect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  delete?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  connect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  update?: Prisma.VenteUpdateWithWhereUniqueWithoutBoutiqueInput | Prisma.VenteUpdateWithWhereUniqueWithoutBoutiqueInput[]
+  updateMany?: Prisma.VenteUpdateManyWithWhereWithoutBoutiqueInput | Prisma.VenteUpdateManyWithWhereWithoutBoutiqueInput[]
+  deleteMany?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
+}
+
+export type VenteUncheckedUpdateManyWithoutBoutiqueNestedInput = {
+  create?: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput> | Prisma.VenteCreateWithoutBoutiqueInput[] | Prisma.VenteUncheckedCreateWithoutBoutiqueInput[]
+  connectOrCreate?: Prisma.VenteCreateOrConnectWithoutBoutiqueInput | Prisma.VenteCreateOrConnectWithoutBoutiqueInput[]
+  upsert?: Prisma.VenteUpsertWithWhereUniqueWithoutBoutiqueInput | Prisma.VenteUpsertWithWhereUniqueWithoutBoutiqueInput[]
+  createMany?: Prisma.VenteCreateManyBoutiqueInputEnvelope
+  set?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  disconnect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  delete?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  connect?: Prisma.VenteWhereUniqueInput | Prisma.VenteWhereUniqueInput[]
+  update?: Prisma.VenteUpdateWithWhereUniqueWithoutBoutiqueInput | Prisma.VenteUpdateWithWhereUniqueWithoutBoutiqueInput[]
+  updateMany?: Prisma.VenteUpdateManyWithWhereWithoutBoutiqueInput | Prisma.VenteUpdateManyWithWhereWithoutBoutiqueInput[]
+  deleteMany?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
 }
 
 export type VenteCreateNestedManyWithoutCreatriceInput = {
@@ -451,6 +517,66 @@ export type EnumModePaiementFieldUpdateOperationsInput = {
   set?: $Enums.ModePaiement
 }
 
+export type VenteCreateWithoutBoutiqueInput = {
+  id?: string
+  photo?: string | null
+  nomArticle: string
+  prixVente: number
+  modePaiement: $Enums.ModePaiement
+  createdAt?: Date | string
+  creatrice: Prisma.CreatriceCreateNestedOneWithoutVenteInput
+}
+
+export type VenteUncheckedCreateWithoutBoutiqueInput = {
+  id?: string
+  photo?: string | null
+  nomArticle: string
+  prixVente: number
+  modePaiement: $Enums.ModePaiement
+  createdAt?: Date | string
+  creatriceId: string
+}
+
+export type VenteCreateOrConnectWithoutBoutiqueInput = {
+  where: Prisma.VenteWhereUniqueInput
+  create: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput>
+}
+
+export type VenteCreateManyBoutiqueInputEnvelope = {
+  data: Prisma.VenteCreateManyBoutiqueInput | Prisma.VenteCreateManyBoutiqueInput[]
+  skipDuplicates?: boolean
+}
+
+export type VenteUpsertWithWhereUniqueWithoutBoutiqueInput = {
+  where: Prisma.VenteWhereUniqueInput
+  update: Prisma.XOR<Prisma.VenteUpdateWithoutBoutiqueInput, Prisma.VenteUncheckedUpdateWithoutBoutiqueInput>
+  create: Prisma.XOR<Prisma.VenteCreateWithoutBoutiqueInput, Prisma.VenteUncheckedCreateWithoutBoutiqueInput>
+}
+
+export type VenteUpdateWithWhereUniqueWithoutBoutiqueInput = {
+  where: Prisma.VenteWhereUniqueInput
+  data: Prisma.XOR<Prisma.VenteUpdateWithoutBoutiqueInput, Prisma.VenteUncheckedUpdateWithoutBoutiqueInput>
+}
+
+export type VenteUpdateManyWithWhereWithoutBoutiqueInput = {
+  where: Prisma.VenteScalarWhereInput
+  data: Prisma.XOR<Prisma.VenteUpdateManyMutationInput, Prisma.VenteUncheckedUpdateManyWithoutBoutiqueInput>
+}
+
+export type VenteScalarWhereInput = {
+  AND?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
+  OR?: Prisma.VenteScalarWhereInput[]
+  NOT?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
+  id?: Prisma.StringFilter<"Vente"> | string
+  photo?: Prisma.StringNullableFilter<"Vente"> | string | null
+  nomArticle?: Prisma.StringFilter<"Vente"> | string
+  prixVente?: Prisma.FloatFilter<"Vente"> | number
+  modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
+  createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
+  creatriceId?: Prisma.StringFilter<"Vente"> | string
+  boutiqueId?: Prisma.StringNullableFilter<"Vente"> | string | null
+}
+
 export type VenteCreateWithoutCreatriceInput = {
   id?: string
   photo?: string | null
@@ -458,6 +584,7 @@ export type VenteCreateWithoutCreatriceInput = {
   prixVente: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
+  boutique?: Prisma.BoutiqueCreateNestedOneWithoutVentesInput
 }
 
 export type VenteUncheckedCreateWithoutCreatriceInput = {
@@ -467,6 +594,7 @@ export type VenteUncheckedCreateWithoutCreatriceInput = {
   prixVente: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
+  boutiqueId?: string | null
 }
 
 export type VenteCreateOrConnectWithoutCreatriceInput = {
@@ -495,17 +623,44 @@ export type VenteUpdateManyWithWhereWithoutCreatriceInput = {
   data: Prisma.XOR<Prisma.VenteUpdateManyMutationInput, Prisma.VenteUncheckedUpdateManyWithoutCreatriceInput>
 }
 
-export type VenteScalarWhereInput = {
-  AND?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
-  OR?: Prisma.VenteScalarWhereInput[]
-  NOT?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
-  id?: Prisma.StringFilter<"Vente"> | string
-  photo?: Prisma.StringNullableFilter<"Vente"> | string | null
-  nomArticle?: Prisma.StringFilter<"Vente"> | string
-  prixVente?: Prisma.FloatFilter<"Vente"> | number
-  modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
-  createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
-  creatriceId?: Prisma.StringFilter<"Vente"> | string
+export type VenteCreateManyBoutiqueInput = {
+  id?: string
+  photo?: string | null
+  nomArticle: string
+  prixVente: number
+  modePaiement: $Enums.ModePaiement
+  createdAt?: Date | string
+  creatriceId: string
+}
+
+export type VenteUpdateWithoutBoutiqueInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
+  prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutVenteNestedInput
+}
+
+export type VenteUncheckedUpdateWithoutBoutiqueInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
+  prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type VenteUncheckedUpdateManyWithoutBoutiqueInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
+  prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VenteCreateManyCreatriceInput = {
@@ -515,6 +670,7 @@ export type VenteCreateManyCreatriceInput = {
   prixVente: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
+  boutiqueId?: string | null
 }
 
 export type VenteUpdateWithoutCreatriceInput = {
@@ -524,6 +680,7 @@ export type VenteUpdateWithoutCreatriceInput = {
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  boutique?: Prisma.BoutiqueUpdateOneWithoutVentesNestedInput
 }
 
 export type VenteUncheckedUpdateWithoutCreatriceInput = {
@@ -533,6 +690,7 @@ export type VenteUncheckedUpdateWithoutCreatriceInput = {
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VenteUncheckedUpdateManyWithoutCreatriceInput = {
@@ -542,6 +700,7 @@ export type VenteUncheckedUpdateManyWithoutCreatriceInput = {
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -554,7 +713,9 @@ export type VenteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
+  boutiqueId?: boolean
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }, ExtArgs["result"]["vente"]>
 
 export type VenteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -565,7 +726,9 @@ export type VenteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
+  boutiqueId?: boolean
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }, ExtArgs["result"]["vente"]>
 
 export type VenteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -576,7 +739,9 @@ export type VenteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
+  boutiqueId?: boolean
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }, ExtArgs["result"]["vente"]>
 
 export type VenteSelectScalar = {
@@ -587,23 +752,28 @@ export type VenteSelectScalar = {
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
+  boutiqueId?: boolean
 }
 
-export type VenteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "photo" | "nomArticle" | "prixVente" | "modePaiement" | "createdAt" | "creatriceId", ExtArgs["result"]["vente"]>
+export type VenteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "photo" | "nomArticle" | "prixVente" | "modePaiement" | "createdAt" | "creatriceId" | "boutiqueId", ExtArgs["result"]["vente"]>
 export type VenteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }
 export type VenteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }
 export type VenteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
 }
 
 export type $VentePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Vente"
   objects: {
     creatrice: Prisma.$CreatricePayload<ExtArgs>
+    boutique: Prisma.$BoutiquePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -613,6 +783,7 @@ export type $VentePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     modePaiement: $Enums.ModePaiement
     createdAt: Date
     creatriceId: string
+    boutiqueId: string | null
   }, ExtArgs["result"]["vente"]>
   composites: {}
 }
@@ -1008,6 +1179,7 @@ readonly fields: VenteFieldRefs;
 export interface Prisma__VenteClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   creatrice<T extends Prisma.CreatriceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CreatriceDefaultArgs<ExtArgs>>): Prisma.Prisma__CreatriceClient<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  boutique<T extends Prisma.Vente$boutiqueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vente$boutiqueArgs<ExtArgs>>): Prisma.Prisma__BoutiqueClient<runtime.Types.Result.GetResult<Prisma.$BoutiquePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1044,6 +1216,7 @@ export interface VenteFieldRefs {
   readonly modePaiement: Prisma.FieldRef<"Vente", 'ModePaiement'>
   readonly createdAt: Prisma.FieldRef<"Vente", 'DateTime'>
   readonly creatriceId: Prisma.FieldRef<"Vente", 'String'>
+  readonly boutiqueId: Prisma.FieldRef<"Vente", 'String'>
 }
     
 
@@ -1442,6 +1615,25 @@ export type VenteDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Ventes to delete.
    */
   limit?: number
+}
+
+/**
+ * Vente.boutique
+ */
+export type Vente$boutiqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Boutique
+   */
+  select?: Prisma.BoutiqueSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Boutique
+   */
+  omit?: Prisma.BoutiqueOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoutiqueInclude<ExtArgs> | null
+  where?: Prisma.BoutiqueWhereInput
 }
 
 /**
