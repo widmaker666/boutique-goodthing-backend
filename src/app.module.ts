@@ -14,20 +14,22 @@ import { BoutiqueModule } from './boutique/boutique.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { EmailModule } from './email/email.module';
 import * as Joi from 'joi';
+import { ScheduleModule } from '@nestjs/schedule';
 
 //- Module racine de l'application — c'est le point d'entrée de NestJS
 //- Tous les modules métier sont importés ici pour être disponibles dans l'app
 @Module({
   imports: [
-    CreatriceModule, //- Gestion des créatrices et leurs taux de commission
-    VenteModule, //- Enregistrement des ventes et calcul des commissions
-    StatsModule, //- Statistiques globales et par créatrice
-    AuthModule, //- Inscription, connexion et gestion des JWT
+    CreatriceModule, // Gestion des créatrices et leurs taux de commission
+    VenteModule, // Enregistrement des ventes et calcul des commissions
+    StatsModule, // Statistiques globales et par créatrice
+    AuthModule, // Inscription, connexion et gestion des JWT
+    ScheduleModule.forRoot(), //ScheduleModule.forRoot() initialise le système de tâches planifiées dans NestJS — sans ça, le décorateur @Cron()
 
-    //- Protection contre le brute force et les attaques par déni de service
-    //- ttl: 60000 = fenêtre de temps de 60 secondes (en millisecondes)
-    //- limit: 10 = maximum 10 requêtes par IP dans cette fenêtre
-    //- Au-delà → erreur 429 Too Many Requests automatiquement
+    // Protection contre le brute force et les attaques par déni de service
+    // ttl: 60000 = fenêtre de temps de 60 secondes (en millisecondes)
+    // limit: 10 = maximum 10 requêtes par IP dans cette fenêtre
+    // Au-delà → erreur 429 Too Many Requests automatiquement
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
@@ -35,30 +37,25 @@ import * as Joi from 'joi';
       },
     ]),
 
-    //- Validation des variables d'environnement au démarrage de l'app
-    //- isGlobal: true = ConfigModule accessible partout sans réimporter
-    //- validationSchema vérifie que toutes les variables requises sont présentes
-    //- Si une variable manque → l'app refuse de démarrer avec un message explicite
+    // Validation des variables d'environnement au démarrage de l'app
+    // isGlobal: true = ConfigModule accessible partout sans réimporter
+    // validationSchema vérifie que toutes les variables requises sont présentes
+    // Si une variable manque → l'app refuse de démarrer avec un message explicite
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        DATABASE_URL: Joi.string().required(), //- URL de connexion à la base Neon
-        JWT_SECRET: Joi.string().required(), //- Clé secrète pour signer les tokens JWT
-        PORT: Joi.number().default(3000), //- Port du serveur (3000 par défaut)
+        DATABASE_URL: Joi.string().required(), // URL de connexion à la base Neon
+        JWT_SECRET: Joi.string().required(), // Clé secrète pour signer les tokens JWT
+        PORT: Joi.number().default(3000), // Port du serveur (3000 par défaut)
         GOOGLE_CLIENT_ID: Joi.string().required(),
         GOOGLE_CLIENT_SECRET: Joi.string().required(),
         GOOGLE_CALLBACK_URL: Joi.string().required(),
       }),
     }),
-
     UserModule,
-
     ExportModule,
-
     BoutiqueModule,
-
     CloudinaryModule,
-
     EmailModule,
   ],
 
