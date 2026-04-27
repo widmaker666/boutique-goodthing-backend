@@ -19,10 +19,10 @@ API REST de suivi des ventes pour une boutique de créateurs. Permet de gérer l
 | PostgreSQL (Neon)   | Base de données cloud            |
 | Cloudinary          | Stockage des photos de ventes    |
 | Resend              | Envoi d'emails transactionnels   |
+| Stripe              | Paiements et abonnements         |
 | class-validator     | Validation des DTOs              |
 | class-transformer   | Transformation des types         |
 | Jest + Supertest    | Tests unitaires et e2e           |
-| Stripe              | Paiements et abonnements         |
 | React Native + Expo | Application mobile iOS & Android |
 
 ---
@@ -62,6 +62,7 @@ PrismaService       ← accès à la base de données
 - Un compte [Neon](https://neon.tech) pour la base de données
 - Un compte [Cloudinary](https://cloudinary.com) pour le stockage des photos
 - Un compte [Resend](https://resend.com) pour l'envoi d'emails
+- Un compte [Stripe](https://stripe.com) pour les paiements
 
 ---
 
@@ -93,14 +94,42 @@ npm run start:dev
 ## Variables d'environnement
 
 ```env
+# ============================================================
+# BASE DE DONNÉES
+# ============================================================
 DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=verify-full"
+
+# ============================================================
+# AUTHENTIFICATION JWT
+# ============================================================
 JWT_SECRET="votre-secret-jwt"
+
+# ============================================================
+# GOOGLE OAUTH
+# ============================================================
 GOOGLE_CLIENT_ID="votre-google-client-id"
 GOOGLE_CLIENT_SECRET="votre-google-client-secret"
+GOOGLE_CALLBACK_URL="http://localhost:3000/auth/google/callback"
+
+# ============================================================
+# CLOUDINARY — Stockage des photos
+# ============================================================
 CLOUDINARY_CLOUD_NAME="votre-cloud-name"
 CLOUDINARY_API_KEY="votre-api-key"
 CLOUDINARY_API_SECRET="votre-api-secret"
+
+# ============================================================
+# RESEND — Envoi d'emails
+# ============================================================
 RESEND_API_KEY="re_xxxxxxxxxxxxxxxx"
+
+# ============================================================
+# STRIPE — Paiements et abonnements
+# ============================================================
+STRIPE_SECRET_KEY="sk_test_xxxxxxxxxxxxxxxx"
+STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxxxxxxxxx"
+STRIPE_PRICE_MENSUEL="price_xxxxxxxxxxxxxxxx"
+STRIPE_PRICE_ANNUEL="price_xxxxxxxxxxxxxxxx"
 ```
 
 ---
@@ -215,7 +244,7 @@ Vérifie les credentials et retourne un `accessToken` (15 min) et un `refreshTok
 
 #### `POST /auth/logout` — Se déconnecter
 
-Invalide le refresh token en base. L'utilisateur devra se reconnecter pour obtenir de nouveaux tokens.
+Invalide le refresh token en base.
 
 **Header requis :** `Authorization: Bearer <accessToken>`
 
@@ -232,8 +261,6 @@ Invalide le refresh token en base. L'utilisateur devra se reconnecter pour obten
 ---
 
 #### `POST /auth/refresh` — Renouveler l'access token
-
-Génère un nouvel `accessToken` à partir du `refreshToken`.
 
 **Body :**
 
@@ -268,8 +295,6 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 #### `GET /user/profile` — Récupérer son profil
 
-**Header requis :** `Authorization: Bearer <accessToken>`
-
 **Réponse 200 :**
 
 ```json
@@ -290,8 +315,6 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 Réservé aux `GERANTE`.
 
-**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
-
 **Body :**
 
 ```json
@@ -306,10 +329,6 @@ Réservé aux `GERANTE`.
 
 #### `PATCH /user/notifications` — Activer/désactiver les notifications email
 
-Permet à n'importe quel utilisateur connecté d'activer ou désactiver les emails de notification de vente.
-
-**Header requis :** `Authorization: Bearer <accessToken>`
-
 **Body :**
 
 ```json
@@ -317,8 +336,6 @@ Permet à n'importe quel utilisateur connecté d'activer ou désactiver les emai
   "notificationsEmail": false
 }
 ```
-
-**Réponse 200 :** l'objet `User` mis à jour.
 
 ---
 
@@ -332,8 +349,6 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 #### `POST /boutique` — Créer une boutique
 
 Réservé aux `GERANTE`. Le `geranteId` est lu automatiquement depuis le token JWT.
-
-**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
 
 **Body :**
 
@@ -360,17 +375,11 @@ Réservé aux `GERANTE`. Le `geranteId` est lu automatiquement depuis le token J
 }
 ```
 
-> ⚠️ Note le champ `id` — c'est l'id de la boutique, nécessaire pour toutes les routes suivantes.
-
 ---
 
-#### `POST /boutique/:boutiqueId/member` — Ajouter une créatrice à la boutique
+#### `POST /boutique/:boutiqueId/member` — Ajouter une créatrice
 
 Réservé aux `GERANTE`. Statut par défaut : `INVITE`. Plan par défaut : `FREE`.
-
-**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
-
-**URL :** remplace `:boutiqueId` par l'`id` de la boutique
 
 **Body :**
 
@@ -380,7 +389,7 @@ Réservé aux `GERANTE`. Statut par défaut : `INVITE`. Plan par défaut : `FREE
 }
 ```
 
-> `memberId` = l'`id` du compte `User` de la créatrice, retourné lors du `POST /auth/register` ou visible dans Neon.
+> `memberId` = l'`id` du compte `User` de la créatrice.
 
 **Réponse 201 :**
 
@@ -397,13 +406,9 @@ Réservé aux `GERANTE`. Statut par défaut : `INVITE`. Plan par défaut : `FREE
 
 ---
 
-#### `PATCH /boutique/:boutiqueId/member/:memberId/status` — Changer le statut d'une créatrice
+#### `PATCH /boutique/:boutiqueId/member/:memberId/status` — Changer le statut
 
 Réservé aux `GERANTE`.
-
-**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
-
-**URL :** remplace `:boutiqueId` et `:memberId` par leurs ids respectifs
 
 **Body :**
 
@@ -417,13 +422,9 @@ Réservé aux `GERANTE`.
 
 ---
 
-#### `PATCH /boutique/:boutiqueId/member/:memberId/plan` — Changer le plan d'une créatrice
+#### `PATCH /boutique/:boutiqueId/member/:memberId/plan` — Changer le plan
 
 Réservé aux `GERANTE`.
-
-**Header requis :** `Authorization: Bearer <accessToken>` (rôle `GERANTE` obligatoire)
-
-**URL :** remplace `:boutiqueId` et `:memberId` par leurs ids respectifs
 
 **Body :**
 
@@ -440,10 +441,6 @@ Réservé aux `GERANTE`.
 #### `GET /boutique` — Lister ses boutiques
 
 Accessible à tous les rôles. Retourne les boutiques dont l'utilisateur connecté est membre.
-
-**Header requis :** `Authorization: Bearer <accessToken>`
-
-**Body :** aucun
 
 **Réponse 200 :**
 
@@ -557,8 +554,6 @@ Export des données selon le plan d'abonnement.
 | Excel  | ✗                  | ✓            |
 | CSV    | ✗                  | ✓            |
 
----
-
 #### Routes export créatrice
 
 | Méthode | Route           | Description                              | Accès |
@@ -566,8 +561,6 @@ Export des données selon le plan d'abonnement.
 | GET     | `/export/pdf`   | PDF des ventes de la créatrice connectée | Tous  |
 | GET     | `/export/excel` | Excel des ventes                         | PRO   |
 | GET     | `/export/csv`   | CSV des ventes                           | PRO   |
-
----
 
 #### Routes export boutique
 
@@ -586,8 +579,59 @@ Export des données selon le plan d'abonnement.
 
 Gestion des notifications email via Resend.
 
-- **Notification de vente** — envoyée automatiquement à la créatrice lors de la création d'une vente si `notificationsEmail: true`
+- **Notification de vente** — envoyée automatiquement lors de la création d'une vente si `notificationsEmail: true`
+- **Récap mensuel créatrice** — envoyé automatiquement le 1er de chaque mois aux créatrices PRO
+- **Récap mensuel boutique** — envoyé automatiquement le 1er de chaque mois aux gérantes avec notifications activées
 - **Activation/désactivation** — via `PATCH /user/notifications`
+
+---
+
+### Stripe `/stripe`
+
+Gestion des abonnements PRO via Stripe.
+
+| Méthode | Route              | Description                           | Accès    |
+| ------- | ------------------ | ------------------------------------- | -------- |
+| POST    | `/stripe/checkout` | Crée une session de paiement Stripe   | Connecté |
+| POST    | `/stripe/cancel`   | Annule l'abonnement actif             | Connecté |
+| POST    | `/stripe/webhook`  | Reçoit les événements Stripe (public) | Public   |
+
+#### `POST /stripe/checkout` — Créer une session de paiement
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Body :**
+
+```json
+{
+  "priceId": "price_xxxxxxxxxxxxxxxx"
+}
+```
+
+**Réponse 200 :**
+
+```json
+{
+  "url": "https://checkout.stripe.com/pay/cs_test_..."
+}
+```
+
+> Redirige l'utilisateur vers cette URL pour effectuer le paiement.
+> Après paiement réussi, Stripe envoie un webhook `checkout.session.completed` qui passe automatiquement le plan en `PRO`.
+
+#### `POST /stripe/cancel` — Annuler l'abonnement
+
+**Header requis :** `Authorization: Bearer <accessToken>`
+
+**Réponse 200 :**
+
+```json
+{
+  "message": "Abonnement annulé avec succès"
+}
+```
+
+> Stripe envoie un webhook `customer.subscription.deleted` qui repasse automatiquement le plan en `FREE`.
 
 ---
 
@@ -616,6 +660,7 @@ model User {
   plan                Plan             @default(FREE)
   role                Role             @default(CREATRICE)
   notificationsEmail  Boolean          @default(true)
+  stripeCustomerId    String?
   lastExportData      DateTime?
   createdAt           DateTime         @default(now())
   refreshToken        String?
@@ -728,9 +773,9 @@ enum Status {
 - [x] Module `boutique` — CRUD complet + gestion des membres (statut, plan)
 - [x] Module `cloudinary` — upload et stockage des photos de ventes
 - [x] Module `export` — PDF, Excel, CSV par créatrice et par boutique (avec filigrane FREE)
-- [x] Module `email` — notification email à la créatrice lors d'une vente (Resend)
-- [ ] Cron job — récap automatique mensuel par créatrice (PRO uniquement)
-- [ ] Module `stripe` — abonnements mensuel/annuel
+- [x] Module `email` — notifications vente + récaps mensuels automatiques (Resend)
+- [x] Cron jobs — récap mensuel créatrice PRO + récap mensuel boutique
+- [x] Module `stripe` — abonnements mensuel/annuel + webhooks
 - [ ] Tests unitaires et e2e — Jest + Supertest
 
 **Mobile**
