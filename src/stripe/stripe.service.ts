@@ -58,6 +58,7 @@ export class StripeService {
   }
 
   async handleWebhook(signature: string, body: Buffer) {
+    console.log('Webhook reçu', signature);
     try {
       //- Vérifie que la requête vient bien de Stripe grâce à la signature
       const event = this.stripe.webhooks.constructEvent(
@@ -93,11 +94,14 @@ export class StripeService {
           const subscription = event.data.object as unknown as {
             customer: string;
           };
+          console.log('subscription.customer:', subscription.customer);
 
           //- Retrouve le user via son stripeCustomerId stocké en base
           const user = await this.prisma.user.findFirst({
             where: { stripeCustomerId: subscription.customer },
           });
+
+          console.log('user trouvé:', user);
 
           if (user) {
             await this.prisma.user.update({
