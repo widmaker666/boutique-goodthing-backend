@@ -25,6 +25,7 @@ model User {
   boutiqueMembers BoutiqueMember[]
   creatrices      Creatrice[]
   notificationsEmail Boolean @default(true)
+  stripeCustomerId String? 
 }
 
 model Boutique {

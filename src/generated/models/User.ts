@@ -34,6 +34,7 @@ export type UserMinAggregateOutputType = {
   createdAt: Date | null
   refreshToken: string | null
   notificationsEmail: boolean | null
+  stripeCustomerId: string | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type UserMaxAggregateOutputType = {
   createdAt: Date | null
   refreshToken: string | null
   notificationsEmail: boolean | null
+  stripeCustomerId: string | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type UserCountAggregateOutputType = {
   createdAt: number
   refreshToken: number
   notificationsEmail: number
+  stripeCustomerId: number
   _all: number
 }
 
@@ -72,6 +75,7 @@ export type UserMinAggregateInputType = {
   createdAt?: true
   refreshToken?: true
   notificationsEmail?: true
+  stripeCustomerId?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -84,6 +88,7 @@ export type UserMaxAggregateInputType = {
   createdAt?: true
   refreshToken?: true
   notificationsEmail?: true
+  stripeCustomerId?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type UserCountAggregateInputType = {
   createdAt?: true
   refreshToken?: true
   notificationsEmail?: true
+  stripeCustomerId?: true
   _all?: true
 }
 
@@ -181,6 +187,7 @@ export type UserGroupByOutputType = {
   createdAt: Date
   refreshToken: string | null
   notificationsEmail: boolean
+  stripeCustomerId: string | null
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -214,6 +221,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   notificationsEmail?: Prisma.BoolFilter<"User"> | boolean
+  stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
@@ -229,6 +237,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   notificationsEmail?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   boutiques?: Prisma.BoutiqueOrderByRelationAggregateInput
   boutiqueMembers?: Prisma.BoutiqueMemberOrderByRelationAggregateInput
   creatrices?: Prisma.CreatriceOrderByRelationAggregateInput
@@ -247,6 +256,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableFilter<"User"> | string | null
   notificationsEmail?: Prisma.BoolFilter<"User"> | boolean
+  stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
@@ -262,6 +272,7 @@ export type UserOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   notificationsEmail?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -280,6 +291,7 @@ export type UserScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   refreshToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   notificationsEmail?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
 }
 
 export type UserCreateInput = {
@@ -292,6 +304,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
@@ -307,6 +320,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
@@ -322,6 +336,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
@@ -337,6 +352,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
@@ -352,6 +368,7 @@ export type UserCreateManyInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -364,6 +381,7 @@ export type UserUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -376,6 +394,7 @@ export type UserUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -388,6 +407,7 @@ export type UserCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
   notificationsEmail?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -400,6 +420,7 @@ export type UserMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
   notificationsEmail?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -412,6 +433,7 @@ export type UserMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   refreshToken?: Prisma.SortOrder
   notificationsEmail?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -506,6 +528,7 @@ export type UserCreateWithoutBoutiquesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
 }
@@ -520,6 +543,7 @@ export type UserUncheckedCreateWithoutBoutiquesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
 }
@@ -550,6 +574,7 @@ export type UserUpdateWithoutBoutiquesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
 }
@@ -564,6 +589,7 @@ export type UserUncheckedUpdateWithoutBoutiquesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -578,6 +604,7 @@ export type UserCreateWithoutBoutiqueMembersInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
 }
@@ -592,6 +619,7 @@ export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
 }
@@ -622,6 +650,7 @@ export type UserUpdateWithoutBoutiqueMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
 }
@@ -636,6 +665,7 @@ export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -650,6 +680,7 @@ export type UserCreateWithoutCreatricesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
 }
@@ -664,6 +695,7 @@ export type UserUncheckedCreateWithoutCreatricesInput = {
   createdAt?: Date | string
   refreshToken?: string | null
   notificationsEmail?: boolean
+  stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
 }
@@ -694,6 +726,7 @@ export type UserUpdateWithoutCreatricesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
 }
@@ -708,6 +741,7 @@ export type UserUncheckedUpdateWithoutCreatricesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
 }
@@ -771,6 +805,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   refreshToken?: boolean
   notificationsEmail?: boolean
+  stripeCustomerId?: boolean
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
   creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
@@ -787,6 +822,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   refreshToken?: boolean
   notificationsEmail?: boolean
+  stripeCustomerId?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -799,6 +835,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   refreshToken?: boolean
   notificationsEmail?: boolean
+  stripeCustomerId?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -811,9 +848,10 @@ export type UserSelectScalar = {
   createdAt?: boolean
   refreshToken?: boolean
   notificationsEmail?: boolean
+  stripeCustomerId?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "plan" | "role" | "lastExportData" | "createdAt" | "refreshToken" | "notificationsEmail", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "plan" | "role" | "lastExportData" | "createdAt" | "refreshToken" | "notificationsEmail" | "stripeCustomerId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
@@ -840,6 +878,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdAt: Date
     refreshToken: string | null
     notificationsEmail: boolean
+    stripeCustomerId: string | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -1275,6 +1314,7 @@ export interface UserFieldRefs {
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly refreshToken: Prisma.FieldRef<"User", 'String'>
   readonly notificationsEmail: Prisma.FieldRef<"User", 'Boolean'>
+  readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
 }
     
 
