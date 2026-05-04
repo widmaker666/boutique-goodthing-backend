@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { CreatriceService } from './creatrice.service';
 import { CreatriceController } from './creatrice.controller';
 import { PrismaService } from 'src/prisma.service';
+import { EmailService } from 'src/email/email.service';
 
 @Module({
   controllers: [CreatriceController],
-  providers: [CreatriceService, PrismaService],
+  providers: [CreatriceService, PrismaService, EmailService],
 })
 export class CreatriceModule {}

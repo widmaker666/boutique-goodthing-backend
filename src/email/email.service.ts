@@ -292,4 +292,31 @@ export class EmailService {
       });
     }
   }
+
+  async sendInvitation(email: string, nomCreatrice: string) {
+    await this.resend.emails.send({
+      from: 'Encaissly <onboarding@resend.dev>',
+      to: email,
+      subject: `🎉 Vous avez été invitée sur Encaissly`,
+      html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #311b42; padding: 20px; border-radius: 8px 8px 0 0;">
+          <h1 style="color: white; margin: 0;">Encaissly</h1>
+          <p style="color: #eb7f45; margin: 5px 0 0 0;">Invitation créatrice</p>
+        </div>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px;">
+          <p>Bonjour <strong>${nomCreatrice}</strong>,</p>
+          <p>Vous avez été invitée à rejoindre une boutique sur <strong>Encaissly</strong>.</p>
+          <p>Téléchargez l'application et créez votre compte avec cette adresse email pour accéder à vos ventes et commissions.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="#" style="background: #7a41bb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Créer mon compte
+            </a>
+          </div>
+          <p style="color: #888; font-size: 12px; margin-top: 20px;">Encaissly — La caisse intelligente des boutiques de créateurs</p>
+        </div>
+      </div>
+    `,
+    });
+  }
 }

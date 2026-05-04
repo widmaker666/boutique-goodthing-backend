@@ -15,6 +15,8 @@ import { CreateCreatriceDto } from './dto/create-creatrice.dto';
 import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { QueryCreatrice } from './dto/query-creatrice.dto';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { Roles } from 'src/auth/guard/role.decorateur';
+import { Role } from 'src/generated/enums';
 
 @UseGuards(JwtGuard)
 @Controller('creatrice')
@@ -47,5 +49,15 @@ export class CreatriceController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.creatriceService.remove(id);
+  }
+
+  @Roles(Role.GERANTE)
+  @Post(':id/invite')
+  inviteCreatrice(
+    @Param('id') id: string,
+    @Body('email') email: string,
+    @Body('boutiqueId') boutiqueId: string,
+  ) {
+    return this.creatriceService.inviteCreatrice(id, email, boutiqueId);
   }
 }

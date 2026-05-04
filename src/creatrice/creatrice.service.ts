@@ -3,10 +3,14 @@ import { CreateCreatriceDto } from './dto/create-creatrice.dto';
 import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QueryCreatrice } from './dto/query-creatrice.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class CreatriceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
 
   async create(createCreatriceDto: CreateCreatriceDto, userId: string) {
     const newCreateur = await this.prisma.creatrice.create({
@@ -82,5 +86,42 @@ export class CreatriceService {
       where: { id },
     });
     return removeCreateur;
+  }
+
+  //- Invite créatrice par mail
+  async inviteCreatrice(
+    creatriceId: string,
+    email: string,
+    boutiqueId: string,
+  ) {
+    //- Vérifie que la créatrice existe
+    const creatrice = await this.prisma.creatrice.findUnique({
+      where: { id: creatriceId },
+    });
+    if (!creatrice) throw new NotFoundException('Créatrice introuvable');
+
+    //- Cherche si un User avec cet email existe déjà
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (user) {
+      //- Lie directement le User au profil Creatrice
+      await this.prisma.creatrice.update({
+        where: { id: creatriceId },
+        data: { userId: user.id },
+      });
+
+      //- Ajoute en BoutiqueMember
+      await this.prisma.boutiqueMember.create({
+        data: { memberId: user.id, boutiqueMemberId: boutiqueId },
+      });
+
+      return { message: 'Créatrice liée avec succès', linked: true };
+    }
+
+    //- Si pas de compte → envoie un email d'invitation
+    await this.emailService.sendInvitation(email, creatrice.nom);
+    return { message: 'Invitation envoyée', linked: false };
   }
 }
