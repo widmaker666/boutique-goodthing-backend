@@ -42,6 +42,17 @@ model Boutique {
   ventes          Vente[]
 }
 
+model Evenement {
+  id          String    @id @default(uuid())
+  nom         String
+  dateDebut   DateTime
+  dateFin     DateTime?
+  createdAt   DateTime  @default(now())
+  creatrice   Creatrice @relation(fields: [creatriceId], references: [id])
+  creatriceId String
+  ventes      Vente[]
+}
+
 model BoutiqueMember {
   id               String   @id @default(uuid())
   member           User     @relation(fields: [memberId], references: [id])
@@ -56,15 +67,16 @@ model BoutiqueMember {
 }
 
 model Creatrice {
-  id               String   @id @default(uuid())
+  id               String      @id @default(uuid())
   nom              String
   email            String?
   telephone        String?
   tauxDeCommission Float
-  createdAt        DateTime @default(now())
+  createdAt        DateTime    @default(now())
   vente            Vente[]
-  user             User?    @relation(fields: [userId], references: [id])
+  user             User?       @relation(fields: [userId], references: [id])
   userId           String?
+  evenements       Evenement[]
 }
 
 model Vente {
@@ -78,6 +90,8 @@ model Vente {
   creatriceId  String
   boutique     Boutique?    @relation(fields: [boutiqueId], references: [id])
   boutiqueId   String?
+  evenement    Evenement?   @relation(fields: [evenementId], references: [id])
+  evenementId  String?
 }
 
 enum ModePaiement {

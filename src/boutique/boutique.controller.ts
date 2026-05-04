@@ -23,6 +23,11 @@ import { UpdatePlanMemberDto } from './dto/update-memberPlan.dto';
 export class BoutiqueController {
   constructor(private readonly boutiqueService: BoutiqueService) {}
 
+  @Get('mes-boutiques/count')
+  getNbBoutiquesCreatrice(@Req() req) {
+    return this.boutiqueService.getNbBoutiquesCreatrice(req.user.id);
+  }
+
   @Roles(Role.GERANTE)
   @Get('avec-stats')
   getBoutiquesAvecStats(@Req() req) {

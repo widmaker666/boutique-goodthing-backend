@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Boutique: 'Boutique',
+  Evenement: 'Evenement',
   BoutiqueMember: 'BoutiqueMember',
   Creatrice: 'Creatrice',
   Vente: 'Vente'
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "boutique" | "boutiqueMember" | "creatrice" | "vente"
+    modelProps: "user" | "boutique" | "evenement" | "boutiqueMember" | "creatrice" | "vente"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BoutiqueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BoutiqueCountAggregateOutputType> | number
+        }
+      }
+    }
+    Evenement: {
+      payload: Prisma.$EvenementPayload<ExtArgs>
+      fields: Prisma.EvenementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EvenementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EvenementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        findFirst: {
+          args: Prisma.EvenementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EvenementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        findMany: {
+          args: Prisma.EvenementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>[]
+        }
+        create: {
+          args: Prisma.EvenementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        createMany: {
+          args: Prisma.EvenementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EvenementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>[]
+        }
+        delete: {
+          args: Prisma.EvenementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        update: {
+          args: Prisma.EvenementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        deleteMany: {
+          args: Prisma.EvenementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EvenementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EvenementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>[]
+        }
+        upsert: {
+          args: Prisma.EvenementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvenementPayload>
+        }
+        aggregate: {
+          args: Prisma.EvenementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEvenement>
+        }
+        groupBy: {
+          args: Prisma.EvenementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EvenementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EvenementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EvenementCountAggregateOutputType> | number
         }
       }
     }
@@ -847,6 +922,18 @@ export const BoutiqueScalarFieldEnum = {
 export type BoutiqueScalarFieldEnum = (typeof BoutiqueScalarFieldEnum)[keyof typeof BoutiqueScalarFieldEnum]
 
 
+export const EvenementScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  dateDebut: 'dateDebut',
+  dateFin: 'dateFin',
+  createdAt: 'createdAt',
+  creatriceId: 'creatriceId'
+} as const
+
+export type EvenementScalarFieldEnum = (typeof EvenementScalarFieldEnum)[keyof typeof EvenementScalarFieldEnum]
+
+
 export const BoutiqueMemberScalarFieldEnum = {
   id: 'id',
   memberId: 'memberId',
@@ -880,7 +967,8 @@ export const VenteScalarFieldEnum = {
   modePaiement: 'modePaiement',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId',
-  boutiqueId: 'boutiqueId'
+  boutiqueId: 'boutiqueId',
+  evenementId: 'evenementId'
 } as const
 
 export type VenteScalarFieldEnum = (typeof VenteScalarFieldEnum)[keyof typeof VenteScalarFieldEnum]
@@ -1131,6 +1219,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   boutique?: Prisma.BoutiqueOmit
+  evenement?: Prisma.EvenementOmit
   boutiqueMember?: Prisma.BoutiqueMemberOmit
   creatrice?: Prisma.CreatriceOmit
   vente?: Prisma.VenteOmit

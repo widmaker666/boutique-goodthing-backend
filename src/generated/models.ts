@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/Boutique'
+export type * from './models/Evenement'
 export type * from './models/BoutiqueMember'
 export type * from './models/Creatrice'
 export type * from './models/Vente'

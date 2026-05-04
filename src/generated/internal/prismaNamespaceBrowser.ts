@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Boutique: 'Boutique',
+  Evenement: 'Evenement',
   BoutiqueMember: 'BoutiqueMember',
   Creatrice: 'Creatrice',
   Vente: 'Vente'
@@ -104,6 +105,18 @@ export const BoutiqueScalarFieldEnum = {
 export type BoutiqueScalarFieldEnum = (typeof BoutiqueScalarFieldEnum)[keyof typeof BoutiqueScalarFieldEnum]
 
 
+export const EvenementScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  dateDebut: 'dateDebut',
+  dateFin: 'dateFin',
+  createdAt: 'createdAt',
+  creatriceId: 'creatriceId'
+} as const
+
+export type EvenementScalarFieldEnum = (typeof EvenementScalarFieldEnum)[keyof typeof EvenementScalarFieldEnum]
+
+
 export const BoutiqueMemberScalarFieldEnum = {
   id: 'id',
   memberId: 'memberId',
@@ -137,7 +150,8 @@ export const VenteScalarFieldEnum = {
   modePaiement: 'modePaiement',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId',
-  boutiqueId: 'boutiqueId'
+  boutiqueId: 'boutiqueId',
+  evenementId: 'evenementId'
 } as const
 
 export type VenteScalarFieldEnum = (typeof VenteScalarFieldEnum)[keyof typeof VenteScalarFieldEnum]

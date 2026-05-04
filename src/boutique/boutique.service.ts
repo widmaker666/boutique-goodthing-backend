@@ -140,4 +140,11 @@ export class BoutiqueService {
       nbVentes: boutique.ventes.length,
     }));
   }
+
+  async getNbBoutiquesCreatrice(userId: string) {
+    const nb = await this.prisma.boutiqueMember.count({
+      where: { memberId: userId },
+    });
+    return { nbBoutiques: nb };
+  }
 }
