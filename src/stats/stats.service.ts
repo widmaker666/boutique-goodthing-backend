@@ -5,32 +5,59 @@ import { PrismaService } from 'src/prisma.service';
 export class StatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGlobalStats() {
-    //- Agrège les données de toutes les ventes :
-    //- CA total, nombre de ventes, vente la moins chère et la plus chère
+  async getGlobalStats(userId: string, role: string) {
+    //- Construit le filtre selon le rôle
+    //- GERANTE → stats de sa boutique, CREATRICE → ses propres ventes
+    let where = {};
+
+    if (role === 'GERANTE') {
+      //- Récupère la boutique de la gérante
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { geranteId: userId },
+      });
+      where = boutique ? { boutiqueId: boutique.id } : {};
+    } else {
+      const creatrice = await this.prisma.creatrice.findFirst({
+        where: { userId },
+      });
+
+      //- Si aucune créatrice liée → retourne des stats vides
+      if (!creatrice) {
+        return {
+          stats: {
+            _sum: { prixVente: 0 },
+            _count: 0,
+            _min: { prixVente: 0 },
+            _max: { prixVente: 0 },
+          },
+          paiement: [],
+          totalCommissions: 0,
+        };
+      }
+
+      where = { creatriceId: creatrice.id };
+    }
+
     const stats = await this.prisma.vente.aggregate({
       _sum: { prixVente: true },
       _count: true,
       _min: { prixVente: true },
       _max: { prixVente: true },
+      where,
     });
 
-    //- Groupe les ventes par mode de paiement (ESPECES / CARTE)
-    //- pour connaître le CA et le nombre de ventes par type
     const paiement = await this.prisma.vente.groupBy({
       by: ['modePaiement'],
       _count: true,
       _sum: { prixVente: true },
+      where,
     });
 
-    //- Récupère toutes les ventes avec leur créatrice
-    //- nécessaire pour accéder au taux de commission de chaque créatrice
     const ventes = await this.prisma.vente.findMany({
       include: { creatrice: true },
+      where,
     });
 
-    //- Calcule le total des commissions reversées à toutes les créatrices
-    //- reduce() accumule les commissions vente par vente jusqu'à la dernière
     const totalCommissions = ventes.reduce((acc, vente) => {
       return acc + (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
     }, 0);

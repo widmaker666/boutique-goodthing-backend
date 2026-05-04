@@ -32,6 +32,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('google/mobile')
+  googleMobile(@Body('accessToken') accessToken: string) {
+    return this.authService.googleLoginMobile(accessToken);
+  }
+
   @Post('refresh')
   refresh(@Body('refreshToken') refreshToken: string) {
     return this.authService.refresh(refreshToken);

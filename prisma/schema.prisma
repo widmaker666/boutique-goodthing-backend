@@ -13,19 +13,21 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(uuid())
-  email           String           @unique
-  password        String
-  plan            Plan             @default(FREE)
-  role            Role             @default(CREATRICE)
-  lastExportData  DateTime?
-  createdAt       DateTime         @default(now())
-  refreshToken    String?
-  boutiques       Boutique[]
-  boutiqueMembers BoutiqueMember[]
-  creatrices      Creatrice[]
-  notificationsEmail Boolean @default(true)
-  stripeCustomerId String? 
+  id                 String           @id @default(uuid())
+  email              String           @unique
+  nom                String?
+  prenom             String?
+  password           String
+  plan               Plan             @default(FREE)
+  role               Role             @default(CREATRICE)
+  lastExportData     DateTime?
+  createdAt          DateTime         @default(now())
+  refreshToken       String?
+  boutiques          Boutique[]
+  boutiqueMembers    BoutiqueMember[]
+  creatrices         Creatrice[]
+  notificationsEmail Boolean          @default(true)
+  stripeCustomerId   String?
 }
 
 model Boutique {
@@ -74,7 +76,7 @@ model Vente {
   createdAt    DateTime     @default(now())
   creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])
   creatriceId  String
-  boutique     Boutique?     @relation(fields: [boutiqueId], references: [id])
+  boutique     Boutique?    @relation(fields: [boutiqueId], references: [id])
   boutiqueId   String?
 }
 

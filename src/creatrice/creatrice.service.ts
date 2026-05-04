@@ -8,10 +8,12 @@ import { QueryCreatrice } from './dto/query-creatrice.dto';
 export class CreatriceService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCreatriceDto: CreateCreatriceDto) {
-    //- Crée une nouvelle créatrice en base avec les données du DTO
+  async create(createCreatriceDto: CreateCreatriceDto, userId: string) {
     const newCreateur = await this.prisma.creatrice.create({
-      data: createCreatriceDto,
+      data: {
+        ...createCreatriceDto,
+        userId,
+      },
     });
     return newCreateur;
   }

@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CreatriceService } from './creatrice.service';
 import { CreateCreatriceDto } from './dto/create-creatrice.dto';
@@ -21,8 +22,8 @@ export class CreatriceController {
   constructor(private readonly creatriceService: CreatriceService) {}
 
   @Post()
-  async create(@Body() createCreatriceDto: CreateCreatriceDto) {
-    return this.creatriceService.create(createCreatriceDto);
+  async create(@Body() createCreatriceDto: CreateCreatriceDto, @Req() req) {
+    return this.creatriceService.create(createCreatriceDto, req.user.id);
   }
 
   @Get()

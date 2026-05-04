@@ -39,6 +39,8 @@ export class AuthService {
       data: {
         email: dto.email,
         password: hashedPassword,
+        nom: dto.nom,
+        prenom: dto.prenom,
       },
     });
 
@@ -202,5 +204,26 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  async googleLoginMobile(googleAccessToken: string) {
+    //- Vérifie le token Google en appelant l'API Google
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v3/userinfo`,
+      { headers: { Authorization: `Bearer ${googleAccessToken}` } },
+    );
+
+    if (!response.ok) {
+      throw new UnauthorizedException('Token Google invalide');
+    }
+
+    const googleUser = await response.json();
+
+    //- Réutilise la logique existante
+    return this.googleLogin({
+      email: googleUser.email,
+      firstName: googleUser.given_name,
+      lastName: googleUser.family_name,
+    });
   }
 }

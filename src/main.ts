@@ -7,6 +7,7 @@ import express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' });
 
   //- Nécessaire pour Stripe — le webhook a besoin du body brut (non parsé) pour vérifier la signature
   app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
