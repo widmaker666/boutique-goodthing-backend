@@ -102,4 +102,24 @@ export class BoutiqueService {
     });
     return updatedMember;
   }
+
+  async getBoutiqueStats(geranteId: string) {
+    //- Récupère la boutique de la gérante
+    const boutique = await this.prisma.boutique.findFirst({
+      where: { geranteId },
+      include: {
+        _count: {
+          select: { boutiqueMembers: true },
+        },
+      },
+    });
+
+    if (!boutique) return { nbCreatrices: 0, maxCreatrices: 3 };
+
+    return {
+      nbCreatrices: boutique._count.boutiqueMembers,
+      maxCreatrices: 3,
+      boutiqueNom: boutique.nom,
+    };
+  }
 }

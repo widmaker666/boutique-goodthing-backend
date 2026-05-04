@@ -9,9 +9,12 @@ export class StatsController {
 
   @Get()
   getGlobalStats(@Req() req) {
-    return this.statService.getGlobalStats(req.user.id, req.user.role);
+    return this.statService.getGlobalStats(
+      req.user.id,
+      req.user.role,
+      req.user.plan,
+    );
   }
-
   @Get('creatrice/:id')
   getStatsByCreatrice(@Param('id') id: string) {
     return this.statService.getStatsByCreatrice(id);

@@ -23,6 +23,12 @@ import { UpdatePlanMemberDto } from './dto/update-memberPlan.dto';
 export class BoutiqueController {
   constructor(private readonly boutiqueService: BoutiqueService) {}
 
+  @Roles(Role.GERANTE)
+  @Get('stats')
+  getBoutiqueStats(@Req() req) {
+    return this.boutiqueService.getBoutiqueStats(req.user.id);
+  }
+
   @Get()
   findAll(@Req() req) {
     return this.boutiqueService.findAll(req.user.id);

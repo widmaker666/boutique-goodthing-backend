@@ -5,23 +5,36 @@ import { PrismaService } from 'src/prisma.service';
 export class StatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGlobalStats(userId: string, role: string) {
-    //- Construit le filtre selon le rôle
-    //- GERANTE → stats de sa boutique, CREATRICE → ses propres ventes
-    let where = {};
+  async getGlobalStats(userId: string, role: string, plan: string) {
+    let where: any = {};
+
+    //- Filtre par mois en cours pour les FREE
+    const dateFilter =
+      plan === 'FREE'
+        ? {
+            createdAt: {
+              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+              lte: new Date(
+                new Date().getFullYear(),
+                new Date().getMonth() + 1,
+                0,
+              ),
+            },
+          }
+        : {};
 
     if (role === 'GERANTE') {
-      //- Récupère la boutique de la gérante
       const boutique = await this.prisma.boutique.findFirst({
         where: { geranteId: userId },
       });
-      where = boutique ? { boutiqueId: boutique.id } : {};
+      where = boutique
+        ? { boutiqueId: boutique.id, ...dateFilter }
+        : { ...dateFilter };
     } else {
       const creatrice = await this.prisma.creatrice.findFirst({
         where: { userId },
       });
 
-      //- Si aucune créatrice liée → retourne des stats vides
       if (!creatrice) {
         return {
           stats: {
@@ -35,7 +48,7 @@ export class StatsService {
         };
       }
 
-      where = { creatriceId: creatrice.id };
+      where = { creatriceId: creatrice.id, ...dateFilter };
     }
 
     const stats = await this.prisma.vente.aggregate({
@@ -66,8 +79,6 @@ export class StatsService {
   }
 
   async getStatsByCreatrice(id: string) {
-    //- Agrège uniquement les ventes de cette créatrice :
-    //- son CA, nombre de ventes, vente min et max
     const stats = await this.prisma.vente.aggregate({
       _sum: { prixVente: true },
       _count: true,
@@ -76,7 +87,6 @@ export class StatsService {
       where: { creatriceId: id },
     });
 
-    //- Répartition espèces / carte uniquement pour cette créatrice
     const paiement = await this.prisma.vente.groupBy({
       by: ['modePaiement'],
       _count: true,
@@ -84,19 +94,15 @@ export class StatsService {
       where: { creatriceId: id },
     });
 
-    //- Récupère toutes les ventes de cette créatrice avec ses infos
-    //- pour calculer ses commissions et son net à reverser
     const ventesByCreatrice = await this.prisma.vente.findMany({
       include: { creatrice: true },
       where: { creatriceId: id },
     });
 
-    //- Calcule le total des commissions à reverser à cette créatrice
     const totalCommissions = ventesByCreatrice.reduce((acc, vente) => {
       return acc + (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
     }, 0);
 
-    //- Net à reverser = CA total - commissions boutique
     const netCreatrice = (stats._sum.prixVente ?? 0) - totalCommissions;
 
     return { stats, paiement, totalCommissions, netCreatrice };
