@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { VenteService } from './vente.service';
 import { CreateVenteDto } from './dto/create-vente.dto';
@@ -44,6 +45,11 @@ export class VenteController {
   @Get()
   findAll(@Query() filters: QueryVente) {
     return this.venteService.findAll(filters);
+  }
+
+  @Get('recent')
+  getRecent(@Req() req) {
+    return this.venteService.getRecentVentes(req.user.id, req.user.role);
   }
 
   @Get(':id')

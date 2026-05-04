@@ -140,4 +140,35 @@ export class VenteService {
 
     return deleteVente;
   }
+
+  async getRecentVentes(userId: string, role: string, limit = 5) {
+    //- Construit le filtre selon le rôle comme dans les stats
+    let where = {};
+
+    if (role === 'GERANTE') {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { geranteId: userId },
+      });
+      where = boutique ? { boutiqueId: boutique.id } : { id: 'none' };
+    } else {
+      const creatrice = await this.prisma.creatrice.findFirst({
+        where: { userId },
+      });
+      where = creatrice ? { creatriceId: creatrice.id } : { id: 'none' };
+    }
+
+    const ventes = await this.prisma.vente.findMany({
+      where,
+      include: { creatrice: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return ventes.map((vente) => {
+      const montantCommission =
+        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const netCreatrice = vente.prixVente - montantCommission;
+      return { ...vente, montantCommission, netCreatrice };
+    });
+  }
 }
