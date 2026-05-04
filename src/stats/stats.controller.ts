@@ -15,6 +15,12 @@ export class StatsController {
       req.user.plan,
     );
   }
+
+  @Get('historique')
+  getHistorique(@Req() req) {
+    return this.statService.getHistorique(req.user.id, req.user.role);
+  }
+
   @Get('creatrice/:id')
   getStatsByCreatrice(@Param('id') id: string) {
     return this.statService.getStatsByCreatrice(id);

@@ -24,6 +24,12 @@ export class BoutiqueController {
   constructor(private readonly boutiqueService: BoutiqueService) {}
 
   @Roles(Role.GERANTE)
+  @Get('avec-stats')
+  getBoutiquesAvecStats(@Req() req) {
+    return this.boutiqueService.getBoutiquesAvecStats(req.user.id);
+  }
+
+  @Roles(Role.GERANTE)
   @Get('stats')
   getBoutiqueStats(@Req() req) {
     return this.boutiqueService.getBoutiqueStats(req.user.id);

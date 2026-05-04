@@ -107,4 +107,48 @@ export class StatsService {
 
     return { stats, paiement, totalCommissions, netCreatrice };
   }
+
+  async getHistorique(userId: string, role: string) {
+    let where: any = {};
+
+    if (role === 'GERANTE') {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { geranteId: userId },
+      });
+      where = boutique ? { boutiqueId: boutique.id } : {};
+    } else {
+      const creatrice = await this.prisma.creatrice.findFirst({
+        where: { userId },
+      });
+      where = creatrice ? { creatriceId: creatrice.id } : {};
+    }
+
+    //- Génère les 3 derniers mois
+    const mois: { mois: string; ca: number; nbVentes: number }[] = [];
+    for (let i = 2; i >= 0; i--) {
+      const date = new Date();
+      const debut = new Date(date.getFullYear(), date.getMonth() - i, 1);
+      const fin = new Date(date.getFullYear(), date.getMonth() - i + 1, 0);
+
+      const stats = await this.prisma.vente.aggregate({
+        _sum: { prixVente: true },
+        _count: true,
+        where: {
+          ...where,
+          createdAt: { gte: debut, lte: fin },
+        },
+      });
+
+      mois.push({
+        mois: debut.toLocaleDateString('fr-FR', {
+          month: 'long',
+          year: 'numeric',
+        }),
+        ca: stats._sum.prixVente ?? 0,
+        nbVentes: stats._count,
+      });
+    }
+
+    return mois;
+  }
 }

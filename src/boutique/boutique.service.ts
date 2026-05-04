@@ -122,4 +122,22 @@ export class BoutiqueService {
       boutiqueNom: boutique.nom,
     };
   }
+
+  async getBoutiquesAvecStats(geranteId: string) {
+    const boutiques = await this.prisma.boutique.findMany({
+      where: { geranteId },
+      include: {
+        _count: { select: { boutiqueMembers: true } },
+        ventes: true,
+      },
+    });
+
+    return boutiques.map((boutique) => ({
+      id: boutique.id,
+      nom: boutique.nom,
+      nbCreatrices: boutique._count.boutiqueMembers,
+      ca: boutique.ventes.reduce((acc, v) => acc + v.prixVente, 0),
+      nbVentes: boutique.ventes.length,
+    }));
+  }
 }
