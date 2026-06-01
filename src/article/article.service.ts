@@ -76,6 +76,23 @@ export class ArticleService {
     const get = (obj: Record<string, string>, keys: string[]): string =>
       keys.map(k => obj[k]).find(v => v !== undefined && v !== '') ?? '';
 
+    //- Parse une valeur en float — gère number natif, string, objets complexes ExcelJS
+    const toFloat = (val: unknown): number | undefined => {
+      if (val == null || val === '') return undefined;
+      if (typeof val === 'number') return isNaN(val) ? undefined : val;
+      const str = String(val).replace(',', '.').replace(/[^\d.-]/g, '');
+      const n = parseFloat(str);
+      return isNaN(n) ? undefined : n;
+    };
+
+    //- Parse une valeur en entier
+    const toInt = (val: unknown): number | undefined => {
+      if (val == null || val === '') return undefined;
+      if (typeof val === 'number') return isNaN(val) ? undefined : Math.round(val);
+      const n = parseInt(String(val).replace(/[^\d]/g, ''), 10);
+      return isNaN(n) ? undefined : n;
+    };
+
     const ext = file.originalname.split('.').pop()?.toLowerCase();
     const rows: { nom: string; description?: string; prixIndicatif?: number; quantite?: number }[] = [];
 
@@ -94,12 +111,11 @@ export class ArticleService {
         const nom = get(row, COLS.nom);
         if (!nom) continue;
 
-        const prixRaw = get(row, COLS.prix);
         rows.push({
           nom,
           description: get(row, COLS.description) || undefined,
-          prixIndicatif: prixRaw ? parseFloat(prixRaw.replace(',', '.')) : undefined,
-          quantite: get(row, COLS.quantite) ? parseInt(get(row, COLS.quantite), 10) : undefined,
+          prixIndicatif: toFloat(get(row, COLS.prix)),
+          quantite: toInt(get(row, COLS.quantite)),
         });
       }
     } else {
@@ -124,18 +140,18 @@ export class ArticleService {
           return;
         }
         const values = (row.values as ExcelJS.CellValue[]).slice(1);
-        const obj: Record<string, string> = {};
-        headers.forEach((h, i) => (obj[h] = values[i] != null ? String(values[i]) : ''));
+        //- Garder les valeurs brutes pour que toFloat/toInt gèrent les vrais types Excel
+        const obj: Record<string, unknown> = {};
+        headers.forEach((h, i) => (obj[h] = values[i] ?? ''));
 
-        const nom = get(obj, COLS.nom);
+        const nom = obj[headers.find(h => COLS.nom.includes(h)) ?? ''];
         if (!nom) return;
 
-        const prixRaw = get(obj, COLS.prix);
         rows.push({
-          nom,
-          description: get(obj, COLS.description) || undefined,
-          prixIndicatif: prixRaw ? parseFloat(prixRaw.replace(',', '.')) : undefined,
-          quantite: get(obj, COLS.quantite) ? parseInt(get(obj, COLS.quantite), 10) : undefined,
+          nom: String(nom),
+          description: String(obj[headers.find(h => COLS.description.includes(h)) ?? ''] ?? '') || undefined,
+          prixIndicatif: toFloat(obj[headers.find(h => COLS.prix.includes(h)) ?? '']),
+          quantite: toInt(obj[headers.find(h => COLS.quantite.includes(h)) ?? '']),
         });
       });
     }
