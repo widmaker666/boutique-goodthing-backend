@@ -17,9 +17,11 @@ export class EmailService {
     montantCommission: number,
     netCreatrice: number,
   ) {
+    //- En dev/sandbox : rediriger vers l'adresse de test si configurée
+    const recipient = process.env.RESEND_OVERRIDE_EMAIL ?? email;
     const { data, error } = await this.resend.emails.send({
       from: 'Encaissly <onboarding@resend.dev>',
-      to: email,
+      to: recipient,
       subject: `💰 Nouvelle vente enregistrée — ${nomArticle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -50,9 +52,9 @@ export class EmailService {
       `,
     });
     if (error) {
-      console.error(`[Email] sendVenteNotification ERREUR → ${email}:`, error);
+      console.error(`[Email] sendVenteNotification ERREUR → ${recipient}:`, error);
     } else {
-      console.log(`[Email] sendVenteNotification OK → ${email} (id: ${data?.id})`);
+      console.log(`[Email] sendVenteNotification OK → ${recipient} (id: ${data?.id})`);
     }
   }
 
@@ -131,9 +133,11 @@ export class EmailService {
         year: 'numeric',
       });
 
+      //- En dev/sandbox : rediriger vers l'adresse de test si configurée
+      const recipientRecap = process.env.RESEND_OVERRIDE_EMAIL ?? creatrice.user!.email;
       await this.resend.emails.send({
         from: 'Encaissly <onboarding@resend.dev>',
-        to: creatrice.user!.email,
+        to: recipientRecap,
         subject: `📊 Récap de vos ventes — ${moisNom}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -261,9 +265,11 @@ export class EmailService {
         year: 'numeric',
       });
 
+      //- En dev/sandbox : rediriger vers l'adresse de test si configurée
+      const recipientBoutique = process.env.RESEND_OVERRIDE_EMAIL ?? boutiques.gerante.email;
       await this.resend.emails.send({
         from: 'Encaissly <onboarding@resend.dev>',
-        to: boutiques.gerante.email,
+        to: recipientBoutique,
         subject: `📊 Récap boutique — ${boutiques.nom} — ${moisNom}`,
         html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -299,9 +305,11 @@ export class EmailService {
   }
 
   async sendInvitation(email: string, nomCreatrice: string) {
+    //- En dev/sandbox : rediriger vers l'adresse de test si configurée
+    const recipient = process.env.RESEND_OVERRIDE_EMAIL ?? email;
     await this.resend.emails.send({
       from: 'Encaissly <onboarding@resend.dev>',
-      to: email,
+      to: recipient,
       subject: `🎉 Vous avez été invitée sur Encaissly`,
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
