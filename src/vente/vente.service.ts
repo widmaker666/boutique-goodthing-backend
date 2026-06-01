@@ -23,12 +23,25 @@ export class VenteService {
       throw new NotFoundException("La créatrice avec cet id n'existe pas");
     }
 
+    //- Extrait articleId du DTO — ce champ n'existe pas sur le modèle Vente
+    //- Les autres champs sont passés à Prisma via venteData
+    const { articleId, ...venteData } = createVenteDto;
+
     //- Crée la vente en base et inclut les données de la créatrice
     //- include: { creatrice: true } permet d'accéder au taux de commission
     const createVente = await this.prisma.vente.create({
-      data: { ...createVenteDto, photo: photoUrl },
+      data: { ...venteData, photo: photoUrl },
       include: { creatrice: true },
     });
+
+    //- Décrémente le stock de l'article si articleId fourni
+    //- updateMany avec quantite > 0 évite les stocks négatifs
+    if (articleId) {
+      await this.prisma.article.updateMany({
+        where: { id: articleId, quantite: { gt: 0 } },
+        data: { quantite: { decrement: 1 } },
+      });
+    }
 
     //- Calcule la commission et le net à reverser à la créatrice
     const prixVente = createVente.prixVente;
@@ -46,6 +59,24 @@ export class VenteService {
       if (user && user.notificationsEmail && user.email) {
         await this.emailService.sendVenteNotification(
           user.email,
+          createVente.creatrice.nom,
+          createVente.nomArticle,
+          createVente.prixVente,
+          montantCommission,
+          netCreatrice,
+        );
+      }
+    }
+
+    //- Envoi email à la gérante de la boutique si boutiqueId présent
+    if (createVente.boutiqueId) {
+      const boutique = await this.prisma.boutique.findUnique({
+        where: { id: createVente.boutiqueId },
+        include: { gerante: true },
+      });
+      if (boutique?.gerante?.notificationsEmail && boutique.gerante.email) {
+        await this.emailService.sendVenteNotification(
+          boutique.gerante.email,
           createVente.creatrice.nom,
           createVente.nomArticle,
           createVente.prixVente,

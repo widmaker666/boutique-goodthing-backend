@@ -37,4 +37,8 @@ export class CreateVenteDto {
   @IsOptional()
   @IsUUID()
   evenementId?: string;
+
+  @IsOptional()
+  @IsString()
+  articleId?: string;
 }
