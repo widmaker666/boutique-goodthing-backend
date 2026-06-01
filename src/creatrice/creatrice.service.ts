@@ -25,6 +25,7 @@ export class CreatriceService {
   async findAll(filters: QueryCreatrice) {
     //- Récupère toutes les créatrices avec des filtres optionnels
     //- Si les filtres sont undefined, Prisma les ignore automatiquement
+    //- Include les ventes pour calculer nbVentes et ca côté JS
     const allData = await this.prisma.creatrice.findMany({
       where: {
         nom: filters.nom,
@@ -33,8 +34,18 @@ export class CreatriceService {
           lte: filters.maxCommision, //- lte = less than or equal (inférieur ou égal)
         },
       },
+      include: {
+        vente: { select: { prixVente: true } },
+      },
     });
-    return allData;
+
+    //- Calcule nbVentes et ca (somme prixVente) pour chaque créatrice
+    //- Destructure `vente` hors du spread pour ne pas l'exposer dans la réponse
+    return allData.map(({ vente, ...creatrice }) => ({
+      ...creatrice,
+      nbVentes: vente.length,
+      ca: vente.reduce((sum, v) => sum + v.prixVente, 0),
+    }));
   }
 
   async findOne(id: string) {
