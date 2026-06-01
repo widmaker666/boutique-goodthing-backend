@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -52,6 +53,76 @@ export class ArticleService {
       where: { id },
       data: rest,
     });
+  }
+
+  //- Import bulk depuis fichier CSV ou Excel
+  async importFromFile(file: Express.Multer.File, creatriceId: string) {
+    //- Vérifie que la créatrice existe
+    const creatrice = await this.prisma.creatrice.findUnique({ where: { id: creatriceId } });
+    if (!creatrice) throw new NotFoundException('Créatrice introuvable');
+
+    const ext = file.originalname.split('.').pop()?.toLowerCase();
+    const rows: { nom: string; description?: string; prixIndicatif?: number }[] = [];
+
+    if (ext === 'csv') {
+      //- Parse CSV manuellement (séparateur virgule ou point-virgule)
+      const text = file.buffer.toString('utf-8');
+      const lines = text.split('\n').filter((l) => l.trim());
+      const headers = lines[0].split(/[,;]/).map((h) => h.trim().toLowerCase());
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(/[,;]/);
+        const row: Record<string, string> = {};
+        headers.forEach((h, idx) => (row[h] = cols[idx]?.trim() ?? ''));
+        if (row.nom)
+          rows.push({
+            nom: row.nom,
+            description: row.description || undefined,
+            prixIndicatif: row.prixindicatif
+              ? parseFloat(row.prixindicatif.replace(',', '.'))
+              : undefined,
+          });
+      }
+    } else {
+      //- Parse Excel (.xlsx / .xls)
+      const workbook = new ExcelJS.Workbook();
+      //- Cast nécessaire : conflit entre @types/node v22 Buffer générique et Buffer ExcelJS (extends ArrayBuffer)
+      const ab = file.buffer.buffer.slice(
+        file.buffer.byteOffset,
+        file.buffer.byteOffset + file.buffer.byteLength,
+      ) as ArrayBuffer;
+      await workbook.xlsx.load(ab as any);
+      const sheet = workbook.worksheets[0];
+      const headers: string[] = [];
+
+      sheet.eachRow((row, rowIndex) => {
+        if (rowIndex === 1) {
+          row.eachCell((cell) => headers.push(String(cell.value ?? '').trim().toLowerCase()));
+          return;
+        }
+        const values = (row.values as ExcelJS.CellValue[]).slice(1);
+        const obj: Record<string, ExcelJS.CellValue> = {};
+        headers.forEach((h, i) => (obj[h] = values[i] ?? ''));
+        if (obj.nom)
+          rows.push({
+            nom: String(obj.nom),
+            description: obj.description ? String(obj.description) : undefined,
+            prixIndicatif: obj.prixindicatif
+              ? parseFloat(String(obj.prixindicatif).replace(',', '.'))
+              : undefined,
+          });
+      });
+    }
+
+    if (rows.length === 0) return { imported: 0, message: 'Aucune ligne valide trouvée' };
+
+    //- Création en bulk
+    await this.prisma.article.createMany({
+      data: rows.map((r) => ({ ...r, creatriceId })),
+      skipDuplicates: true,
+    });
+
+    return { imported: rows.length, message: `${rows.length} article(s) importé(s)` };
   }
 
   //- Vérifie existence avant delete
