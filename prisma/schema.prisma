@@ -90,6 +90,8 @@ model Article {
   createdAt     DateTime  @default(now())
   creatrice     Creatrice @relation(fields: [creatriceId], references: [id], onDelete: Cascade)
   creatriceId   String
+
+  @@unique([nom, creatriceId])
 }
 
 model Vente {

@@ -261,6 +261,7 @@ export type ArticleOrderByWithRelationInput = {
 
 export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  nom_creatriceId?: Prisma.ArticleNomCreatriceIdCompoundUniqueInput
   AND?: Prisma.ArticleWhereInput | Prisma.ArticleWhereInput[]
   OR?: Prisma.ArticleWhereInput[]
   NOT?: Prisma.ArticleWhereInput | Prisma.ArticleWhereInput[]
@@ -272,7 +273,7 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   creatriceId?: Prisma.StringFilter<"Article"> | string
   creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
-}, "id">
+}, "id" | "nom_creatriceId">
 
 export type ArticleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -388,6 +389,11 @@ export type ArticleListRelationFilter = {
 
 export type ArticleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ArticleNomCreatriceIdCompoundUniqueInput = {
+  nom: string
+  creatriceId: string
 }
 
 export type ArticleCountOrderByAggregateInput = {

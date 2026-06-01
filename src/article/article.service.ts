@@ -158,13 +158,20 @@ export class ArticleService {
 
     if (rows.length === 0) return { imported: 0, message: 'Aucune ligne valide trouvée' };
 
-    //- Création en bulk
-    await this.prisma.article.createMany({
+    //- Création en bulk — skipDuplicates ignore les doublons sur (nom, creatriceId)
+    const result = await this.prisma.article.createMany({
       data: rows.map((r) => ({ ...r, creatriceId })),
       skipDuplicates: true,
     });
 
-    return { imported: rows.length, message: `${rows.length} article(s) importé(s)` };
+    const skipped = rows.length - result.count;
+    return {
+      imported: result.count,
+      skipped,
+      message: skipped > 0
+        ? `${result.count} article(s) importé(s), ${skipped} ignoré(s) (déjà existants)`
+        : `${result.count} article(s) importé(s)`,
+    };
   }
 
   //- Vérifie existence avant delete

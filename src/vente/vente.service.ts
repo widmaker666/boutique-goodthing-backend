@@ -55,8 +55,8 @@ export class VenteService {
     const prixVente = createVente.prixVente;
     const txCommission = createVente.creatrice.tauxDeCommission;
 
-    const montantCommission = (prixVente * txCommission) / 100;
-    const netCreatrice = prixVente - montantCommission;
+    const montantCommission = Math.round((prixVente * txCommission) / 100 * 100) / 100;
+    const netCreatrice = Math.round((prixVente - montantCommission) * 100) / 100;
 
     //- Envoi email si la créatrice a un compte User avec notifications activées
     console.log('[Vente] creatrice.userId:', createVente.creatrice.userId);
@@ -115,9 +115,8 @@ export class VenteService {
 
     //- map() parcourt chaque vente pour y ajouter les calculs de commission
     return allDataVente.map((vente) => {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const montantCommission = Math.round((vente.prixVente * vente.creatrice.tauxDeCommission) / 100 * 100) / 100;
+      const netCreatrice = Math.round((vente.prixVente - montantCommission) * 100) / 100;
       return { ...vente, montantCommission, netCreatrice };
     });
   }
@@ -138,8 +137,8 @@ export class VenteService {
     const prixVente = oneVente.prixVente;
     const txCommission = oneVente.creatrice.tauxDeCommission;
 
-    const montantCommission = (prixVente * txCommission) / 100;
-    const netCreatrice = prixVente - montantCommission;
+    const montantCommission = Math.round((prixVente * txCommission) / 100 * 100) / 100;
+    const netCreatrice = Math.round((prixVente - montantCommission) * 100) / 100;
 
     return { ...oneVente, montantCommission, netCreatrice };
   }
@@ -207,9 +206,8 @@ export class VenteService {
     });
 
     return ventes.map((vente) => {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const montantCommission = Math.round((vente.prixVente * vente.creatrice.tauxDeCommission) / 100 * 100) / 100;
+      const netCreatrice = Math.round((vente.prixVente - montantCommission) * 100) / 100;
       return { ...vente, montantCommission, netCreatrice };
     });
   }
