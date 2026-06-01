@@ -1,11 +1,13 @@
 import { Type } from 'class-transformer';
 import {
   IsEnum,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 import { ModePaiement } from 'src/generated/enums';
@@ -41,4 +43,9 @@ export class CreateVenteDto {
   @IsOptional()
   @IsString()
   articleId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  quantite?: number;
 }

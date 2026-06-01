@@ -11,7 +11,7 @@ export class VenteService {
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
   ) {}
-  async create(createVenteDto: CreateVenteDto, photoUrl?: string) {
+  async create(createVenteDto: CreateVenteDto, userId: string, photoUrl?: string) {
     //- Vérifie que la créatrice liée à cette vente existe bien en base
     //- Évite de créer une vente orpheline avec un creatriceId invalide
     const isCreatriceExist = await this.prisma.creatrice.findUnique({
@@ -23,23 +23,31 @@ export class VenteService {
       throw new NotFoundException("La créatrice avec cet id n'existe pas");
     }
 
-    //- Extrait articleId du DTO — ce champ n'existe pas sur le modèle Vente
-    //- Les autres champs sont passés à Prisma via venteData
-    const { articleId, ...venteData } = createVenteDto;
+    //- Auto-détecte la boutique si non fournie (GERANTE FREE = 1 boutique)
+    let boutiqueId = createVenteDto.boutiqueId;
+    if (!boutiqueId) {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { geranteId: userId },
+      });
+      boutiqueId = boutique?.id;
+    }
+
+    //- Extrait articleId et quantite du DTO — ces champs nécessitent un traitement séparé
+    const { articleId, quantite, boutiqueId: _boutiqueId, ...venteData } = createVenteDto;
 
     //- Crée la vente en base et inclut les données de la créatrice
     //- include: { creatrice: true } permet d'accéder au taux de commission
     const createVente = await this.prisma.vente.create({
-      data: { ...venteData, photo: photoUrl },
+      data: { ...venteData, boutiqueId, quantite: quantite ?? 1, photo: photoUrl },
       include: { creatrice: true },
     });
 
     //- Décrémente le stock de l'article si articleId fourni
-    //- updateMany avec quantite > 0 évite les stocks négatifs
+    //- updateMany avec quantite >= quantite demandée évite les stocks négatifs
     if (articleId) {
       await this.prisma.article.updateMany({
-        where: { id: articleId, quantite: { gt: 0 } },
-        data: { quantite: { decrement: 1 } },
+        where: { id: articleId, quantite: { gte: quantite ?? 1 } },
+        data: { quantite: { decrement: quantite ?? 1 } },
       });
     }
 
@@ -68,10 +76,10 @@ export class VenteService {
       }
     }
 
-    //- Envoi email à la gérante de la boutique si boutiqueId présent
-    if (createVente.boutiqueId) {
+    //- Envoi email à la gérante de la boutique via boutiqueId auto-détecté
+    if (boutiqueId) {
       const boutique = await this.prisma.boutique.findUnique({
-        where: { id: createVente.boutiqueId },
+        where: { id: boutiqueId },
         include: { gerante: true },
       });
       if (boutique?.gerante?.notificationsEmail && boutique.gerante.email) {

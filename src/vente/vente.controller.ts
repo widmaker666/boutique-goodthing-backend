@@ -31,6 +31,7 @@ export class VenteController {
   @Post()
   @UseInterceptors(FileInterceptor('photo'))
   async create(
+    @Req() req,
     @Body() createVenteDto: CreateVenteDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
@@ -39,7 +40,7 @@ export class VenteController {
       const uploaded = await this.cloudinaryService.uploadImage(file);
       photoUrl = uploaded.secure_url;
     }
-    return this.venteService.create(createVenteDto, photoUrl);
+    return this.venteService.create(createVenteDto, req.user.id, photoUrl);
   }
 
   @Get()

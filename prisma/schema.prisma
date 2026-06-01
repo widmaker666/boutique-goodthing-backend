@@ -97,6 +97,7 @@ model Vente {
   photo        String?
   nomArticle   String
   prixVente    Float
+  quantite     Int          @default(1)
   modePaiement ModePaiement
   createdAt    DateTime     @default(now())
   creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])

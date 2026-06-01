@@ -28,10 +28,12 @@ export type AggregateVente = {
 
 export type VenteAvgAggregateOutputType = {
   prixVente: number | null
+  quantite: number | null
 }
 
 export type VenteSumAggregateOutputType = {
   prixVente: number | null
+  quantite: number | null
 }
 
 export type VenteMinAggregateOutputType = {
@@ -39,6 +41,7 @@ export type VenteMinAggregateOutputType = {
   photo: string | null
   nomArticle: string | null
   prixVente: number | null
+  quantite: number | null
   modePaiement: $Enums.ModePaiement | null
   createdAt: Date | null
   creatriceId: string | null
@@ -51,6 +54,7 @@ export type VenteMaxAggregateOutputType = {
   photo: string | null
   nomArticle: string | null
   prixVente: number | null
+  quantite: number | null
   modePaiement: $Enums.ModePaiement | null
   createdAt: Date | null
   creatriceId: string | null
@@ -63,6 +67,7 @@ export type VenteCountAggregateOutputType = {
   photo: number
   nomArticle: number
   prixVente: number
+  quantite: number
   modePaiement: number
   createdAt: number
   creatriceId: number
@@ -74,10 +79,12 @@ export type VenteCountAggregateOutputType = {
 
 export type VenteAvgAggregateInputType = {
   prixVente?: true
+  quantite?: true
 }
 
 export type VenteSumAggregateInputType = {
   prixVente?: true
+  quantite?: true
 }
 
 export type VenteMinAggregateInputType = {
@@ -85,6 +92,7 @@ export type VenteMinAggregateInputType = {
   photo?: true
   nomArticle?: true
   prixVente?: true
+  quantite?: true
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
@@ -97,6 +105,7 @@ export type VenteMaxAggregateInputType = {
   photo?: true
   nomArticle?: true
   prixVente?: true
+  quantite?: true
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
@@ -109,6 +118,7 @@ export type VenteCountAggregateInputType = {
   photo?: true
   nomArticle?: true
   prixVente?: true
+  quantite?: true
   modePaiement?: true
   createdAt?: true
   creatriceId?: true
@@ -208,6 +218,7 @@ export type VenteGroupByOutputType = {
   photo: string | null
   nomArticle: string
   prixVente: number
+  quantite: number
   modePaiement: $Enums.ModePaiement
   createdAt: Date
   creatriceId: string
@@ -243,6 +254,7 @@ export type VenteWhereInput = {
   photo?: Prisma.StringNullableFilter<"Vente"> | string | null
   nomArticle?: Prisma.StringFilter<"Vente"> | string
   prixVente?: Prisma.FloatFilter<"Vente"> | number
+  quantite?: Prisma.IntFilter<"Vente"> | number
   modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringFilter<"Vente"> | string
@@ -258,6 +270,7 @@ export type VenteOrderByWithRelationInput = {
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   nomArticle?: Prisma.SortOrder
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -276,6 +289,7 @@ export type VenteWhereUniqueInput = Prisma.AtLeast<{
   photo?: Prisma.StringNullableFilter<"Vente"> | string | null
   nomArticle?: Prisma.StringFilter<"Vente"> | string
   prixVente?: Prisma.FloatFilter<"Vente"> | number
+  quantite?: Prisma.IntFilter<"Vente"> | number
   modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringFilter<"Vente"> | string
@@ -291,6 +305,7 @@ export type VenteOrderByWithAggregationInput = {
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   nomArticle?: Prisma.SortOrder
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -311,6 +326,7 @@ export type VenteScalarWhereWithAggregatesInput = {
   photo?: Prisma.StringNullableWithAggregatesFilter<"Vente"> | string | null
   nomArticle?: Prisma.StringWithAggregatesFilter<"Vente"> | string
   prixVente?: Prisma.FloatWithAggregatesFilter<"Vente"> | number
+  quantite?: Prisma.IntWithAggregatesFilter<"Vente"> | number
   modePaiement?: Prisma.EnumModePaiementWithAggregatesFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringWithAggregatesFilter<"Vente"> | string
@@ -323,6 +339,7 @@ export type VenteCreateInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutVenteInput
@@ -335,6 +352,7 @@ export type VenteUncheckedCreateInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -347,6 +365,7 @@ export type VenteUpdateInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutVenteNestedInput
@@ -359,6 +378,7 @@ export type VenteUncheckedUpdateInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -371,6 +391,7 @@ export type VenteCreateManyInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -383,6 +404,7 @@ export type VenteUpdateManyMutationInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -392,6 +414,7 @@ export type VenteUncheckedUpdateManyInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -414,6 +437,7 @@ export type VenteCountOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   nomArticle?: Prisma.SortOrder
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -423,6 +447,7 @@ export type VenteCountOrderByAggregateInput = {
 
 export type VenteAvgOrderByAggregateInput = {
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
 }
 
 export type VenteMaxOrderByAggregateInput = {
@@ -430,6 +455,7 @@ export type VenteMaxOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   nomArticle?: Prisma.SortOrder
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -442,6 +468,7 @@ export type VenteMinOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   nomArticle?: Prisma.SortOrder
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   modePaiement?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -451,6 +478,7 @@ export type VenteMinOrderByAggregateInput = {
 
 export type VenteSumOrderByAggregateInput = {
   prixVente?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
 }
 
 export type VenteCreateNestedManyWithoutBoutiqueInput = {
@@ -579,6 +607,14 @@ export type VenteUncheckedUpdateManyWithoutCreatriceNestedInput = {
   deleteMany?: Prisma.VenteScalarWhereInput | Prisma.VenteScalarWhereInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type EnumModePaiementFieldUpdateOperationsInput = {
   set?: $Enums.ModePaiement
 }
@@ -588,6 +624,7 @@ export type VenteCreateWithoutBoutiqueInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutVenteInput
@@ -599,6 +636,7 @@ export type VenteUncheckedCreateWithoutBoutiqueInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -639,6 +677,7 @@ export type VenteScalarWhereInput = {
   photo?: Prisma.StringNullableFilter<"Vente"> | string | null
   nomArticle?: Prisma.StringFilter<"Vente"> | string
   prixVente?: Prisma.FloatFilter<"Vente"> | number
+  quantite?: Prisma.IntFilter<"Vente"> | number
   modePaiement?: Prisma.EnumModePaiementFilter<"Vente"> | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFilter<"Vente"> | Date | string
   creatriceId?: Prisma.StringFilter<"Vente"> | string
@@ -651,6 +690,7 @@ export type VenteCreateWithoutEvenementInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutVenteInput
@@ -662,6 +702,7 @@ export type VenteUncheckedCreateWithoutEvenementInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -699,6 +740,7 @@ export type VenteCreateWithoutCreatriceInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   boutique?: Prisma.BoutiqueCreateNestedOneWithoutVentesInput
@@ -710,6 +752,7 @@ export type VenteUncheckedCreateWithoutCreatriceInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   boutiqueId?: string | null
@@ -747,6 +790,7 @@ export type VenteCreateManyBoutiqueInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -758,6 +802,7 @@ export type VenteUpdateWithoutBoutiqueInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutVenteNestedInput
@@ -769,6 +814,7 @@ export type VenteUncheckedUpdateWithoutBoutiqueInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -780,6 +826,7 @@ export type VenteUncheckedUpdateManyWithoutBoutiqueInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -791,6 +838,7 @@ export type VenteCreateManyEvenementInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   creatriceId: string
@@ -802,6 +850,7 @@ export type VenteUpdateWithoutEvenementInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutVenteNestedInput
@@ -813,6 +862,7 @@ export type VenteUncheckedUpdateWithoutEvenementInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -824,6 +874,7 @@ export type VenteUncheckedUpdateManyWithoutEvenementInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -835,6 +886,7 @@ export type VenteCreateManyCreatriceInput = {
   photo?: string | null
   nomArticle: string
   prixVente: number
+  quantite?: number
   modePaiement: $Enums.ModePaiement
   createdAt?: Date | string
   boutiqueId?: string | null
@@ -846,6 +898,7 @@ export type VenteUpdateWithoutCreatriceInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   boutique?: Prisma.BoutiqueUpdateOneWithoutVentesNestedInput
@@ -857,6 +910,7 @@ export type VenteUncheckedUpdateWithoutCreatriceInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -868,6 +922,7 @@ export type VenteUncheckedUpdateManyWithoutCreatriceInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nomArticle?: Prisma.StringFieldUpdateOperationsInput | string
   prixVente?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantite?: Prisma.IntFieldUpdateOperationsInput | number
   modePaiement?: Prisma.EnumModePaiementFieldUpdateOperationsInput | $Enums.ModePaiement
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   boutiqueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -881,6 +936,7 @@ export type VenteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   photo?: boolean
   nomArticle?: boolean
   prixVente?: boolean
+  quantite?: boolean
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -896,6 +952,7 @@ export type VenteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   photo?: boolean
   nomArticle?: boolean
   prixVente?: boolean
+  quantite?: boolean
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -911,6 +968,7 @@ export type VenteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   photo?: boolean
   nomArticle?: boolean
   prixVente?: boolean
+  quantite?: boolean
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -926,6 +984,7 @@ export type VenteSelectScalar = {
   photo?: boolean
   nomArticle?: boolean
   prixVente?: boolean
+  quantite?: boolean
   modePaiement?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -933,7 +992,7 @@ export type VenteSelectScalar = {
   evenementId?: boolean
 }
 
-export type VenteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "photo" | "nomArticle" | "prixVente" | "modePaiement" | "createdAt" | "creatriceId" | "boutiqueId" | "evenementId", ExtArgs["result"]["vente"]>
+export type VenteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "photo" | "nomArticle" | "prixVente" | "quantite" | "modePaiement" | "createdAt" | "creatriceId" | "boutiqueId" | "evenementId", ExtArgs["result"]["vente"]>
 export type VenteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
   boutique?: boolean | Prisma.Vente$boutiqueArgs<ExtArgs>
@@ -962,6 +1021,7 @@ export type $VentePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     photo: string | null
     nomArticle: string
     prixVente: number
+    quantite: number
     modePaiement: $Enums.ModePaiement
     createdAt: Date
     creatriceId: string
@@ -1397,6 +1457,7 @@ export interface VenteFieldRefs {
   readonly photo: Prisma.FieldRef<"Vente", 'String'>
   readonly nomArticle: Prisma.FieldRef<"Vente", 'String'>
   readonly prixVente: Prisma.FieldRef<"Vente", 'Float'>
+  readonly quantite: Prisma.FieldRef<"Vente", 'Int'>
   readonly modePaiement: Prisma.FieldRef<"Vente", 'ModePaiement'>
   readonly createdAt: Prisma.FieldRef<"Vente", 'DateTime'>
   readonly creatriceId: Prisma.FieldRef<"Vente", 'String'>

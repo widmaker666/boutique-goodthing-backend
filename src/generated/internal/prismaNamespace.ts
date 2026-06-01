@@ -1053,6 +1053,7 @@ export const VenteScalarFieldEnum = {
   photo: 'photo',
   nomArticle: 'nomArticle',
   prixVente: 'prixVente',
+  quantite: 'quantite',
   modePaiement: 'modePaiement',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId',
