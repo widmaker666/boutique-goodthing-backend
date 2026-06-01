@@ -81,8 +81,8 @@ export class ArticleService {
           rows.push({
             nom: row.nom,
             description: row.description || undefined,
-            prixIndicatif: row.prixindicatif
-              ? parseFloat(row.prixindicatif.replace(',', '.'))
+            prixIndicatif: (row.prixindicatif || row.prix)
+              ? parseFloat((row.prixindicatif || row.prix).replace(',', '.'))
               : undefined,
             quantite: row.quantite ? parseInt(row.quantite, 10) : undefined,
           });
@@ -111,8 +111,8 @@ export class ArticleService {
           rows.push({
             nom: String(obj.nom),
             description: obj.description ? String(obj.description) : undefined,
-            prixIndicatif: obj.prixindicatif
-              ? parseFloat(String(obj.prixindicatif).replace(',', '.'))
+            prixIndicatif: (obj.prixindicatif || obj.prix)
+              ? parseFloat(String(obj.prixindicatif || obj.prix).replace(',', '.'))
               : undefined,
             quantite: obj.quantite ? parseInt(String(obj.quantite), 10) : undefined,
           });
