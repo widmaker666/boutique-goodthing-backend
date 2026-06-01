@@ -65,6 +65,11 @@ export type BoutiqueMember = Prisma.BoutiqueMemberModel
  */
 export type Creatrice = Prisma.CreatriceModel
 /**
+ * Model Article
+ * 
+ */
+export type Article = Prisma.ArticleModel
+/**
  * Model Vente
  * 
  */

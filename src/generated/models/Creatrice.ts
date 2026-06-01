@@ -235,6 +235,7 @@ export type CreatriceWhereInput = {
   vente?: Prisma.VenteListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   evenements?: Prisma.EvenementListRelationFilter
+  articles?: Prisma.ArticleListRelationFilter
 }
 
 export type CreatriceOrderByWithRelationInput = {
@@ -248,6 +249,7 @@ export type CreatriceOrderByWithRelationInput = {
   vente?: Prisma.VenteOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
   evenements?: Prisma.EvenementOrderByRelationAggregateInput
+  articles?: Prisma.ArticleOrderByRelationAggregateInput
 }
 
 export type CreatriceWhereUniqueInput = Prisma.AtLeast<{
@@ -264,6 +266,7 @@ export type CreatriceWhereUniqueInput = Prisma.AtLeast<{
   vente?: Prisma.VenteListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   evenements?: Prisma.EvenementListRelationFilter
+  articles?: Prisma.ArticleListRelationFilter
 }, "id">
 
 export type CreatriceOrderByWithAggregationInput = {
@@ -304,6 +307,7 @@ export type CreatriceCreateInput = {
   vente?: Prisma.VenteCreateNestedManyWithoutCreatriceInput
   user?: Prisma.UserCreateNestedOneWithoutCreatricesInput
   evenements?: Prisma.EvenementCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceUncheckedCreateInput = {
@@ -316,6 +320,7 @@ export type CreatriceUncheckedCreateInput = {
   userId?: string | null
   vente?: Prisma.VenteUncheckedCreateNestedManyWithoutCreatriceInput
   evenements?: Prisma.EvenementUncheckedCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceUpdateInput = {
@@ -328,6 +333,7 @@ export type CreatriceUpdateInput = {
   vente?: Prisma.VenteUpdateManyWithoutCreatriceNestedInput
   user?: Prisma.UserUpdateOneWithoutCreatricesNestedInput
   evenements?: Prisma.EvenementUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceUncheckedUpdateInput = {
@@ -340,6 +346,7 @@ export type CreatriceUncheckedUpdateInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vente?: Prisma.VenteUncheckedUpdateManyWithoutCreatriceNestedInput
   evenements?: Prisma.EvenementUncheckedUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceCreateManyInput = {
@@ -488,6 +495,20 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CreatriceCreateNestedOneWithoutArticlesInput = {
+  create?: Prisma.XOR<Prisma.CreatriceCreateWithoutArticlesInput, Prisma.CreatriceUncheckedCreateWithoutArticlesInput>
+  connectOrCreate?: Prisma.CreatriceCreateOrConnectWithoutArticlesInput
+  connect?: Prisma.CreatriceWhereUniqueInput
+}
+
+export type CreatriceUpdateOneRequiredWithoutArticlesNestedInput = {
+  create?: Prisma.XOR<Prisma.CreatriceCreateWithoutArticlesInput, Prisma.CreatriceUncheckedCreateWithoutArticlesInput>
+  connectOrCreate?: Prisma.CreatriceCreateOrConnectWithoutArticlesInput
+  upsert?: Prisma.CreatriceUpsertWithoutArticlesInput
+  connect?: Prisma.CreatriceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CreatriceUpdateToOneWithWhereWithoutArticlesInput, Prisma.CreatriceUpdateWithoutArticlesInput>, Prisma.CreatriceUncheckedUpdateWithoutArticlesInput>
+}
+
 export type CreatriceCreateNestedOneWithoutVenteInput = {
   create?: Prisma.XOR<Prisma.CreatriceCreateWithoutVenteInput, Prisma.CreatriceUncheckedCreateWithoutVenteInput>
   connectOrCreate?: Prisma.CreatriceCreateOrConnectWithoutVenteInput
@@ -511,6 +532,7 @@ export type CreatriceCreateWithoutUserInput = {
   createdAt?: Date | string
   vente?: Prisma.VenteCreateNestedManyWithoutCreatriceInput
   evenements?: Prisma.EvenementCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceUncheckedCreateWithoutUserInput = {
@@ -522,6 +544,7 @@ export type CreatriceUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   vente?: Prisma.VenteUncheckedCreateNestedManyWithoutCreatriceInput
   evenements?: Prisma.EvenementUncheckedCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceCreateOrConnectWithoutUserInput = {
@@ -572,6 +595,7 @@ export type CreatriceCreateWithoutEvenementsInput = {
   createdAt?: Date | string
   vente?: Prisma.VenteCreateNestedManyWithoutCreatriceInput
   user?: Prisma.UserCreateNestedOneWithoutCreatricesInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceUncheckedCreateWithoutEvenementsInput = {
@@ -583,6 +607,7 @@ export type CreatriceUncheckedCreateWithoutEvenementsInput = {
   createdAt?: Date | string
   userId?: string | null
   vente?: Prisma.VenteUncheckedCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceCreateOrConnectWithoutEvenementsInput = {
@@ -610,6 +635,7 @@ export type CreatriceUpdateWithoutEvenementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vente?: Prisma.VenteUpdateManyWithoutCreatriceNestedInput
   user?: Prisma.UserUpdateOneWithoutCreatricesNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceUncheckedUpdateWithoutEvenementsInput = {
@@ -621,6 +647,71 @@ export type CreatriceUncheckedUpdateWithoutEvenementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vente?: Prisma.VenteUncheckedUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCreatriceNestedInput
+}
+
+export type CreatriceCreateWithoutArticlesInput = {
+  id?: string
+  nom: string
+  email?: string | null
+  telephone?: string | null
+  tauxDeCommission: number
+  createdAt?: Date | string
+  vente?: Prisma.VenteCreateNestedManyWithoutCreatriceInput
+  user?: Prisma.UserCreateNestedOneWithoutCreatricesInput
+  evenements?: Prisma.EvenementCreateNestedManyWithoutCreatriceInput
+}
+
+export type CreatriceUncheckedCreateWithoutArticlesInput = {
+  id?: string
+  nom: string
+  email?: string | null
+  telephone?: string | null
+  tauxDeCommission: number
+  createdAt?: Date | string
+  userId?: string | null
+  vente?: Prisma.VenteUncheckedCreateNestedManyWithoutCreatriceInput
+  evenements?: Prisma.EvenementUncheckedCreateNestedManyWithoutCreatriceInput
+}
+
+export type CreatriceCreateOrConnectWithoutArticlesInput = {
+  where: Prisma.CreatriceWhereUniqueInput
+  create: Prisma.XOR<Prisma.CreatriceCreateWithoutArticlesInput, Prisma.CreatriceUncheckedCreateWithoutArticlesInput>
+}
+
+export type CreatriceUpsertWithoutArticlesInput = {
+  update: Prisma.XOR<Prisma.CreatriceUpdateWithoutArticlesInput, Prisma.CreatriceUncheckedUpdateWithoutArticlesInput>
+  create: Prisma.XOR<Prisma.CreatriceCreateWithoutArticlesInput, Prisma.CreatriceUncheckedCreateWithoutArticlesInput>
+  where?: Prisma.CreatriceWhereInput
+}
+
+export type CreatriceUpdateToOneWithWhereWithoutArticlesInput = {
+  where?: Prisma.CreatriceWhereInput
+  data: Prisma.XOR<Prisma.CreatriceUpdateWithoutArticlesInput, Prisma.CreatriceUncheckedUpdateWithoutArticlesInput>
+}
+
+export type CreatriceUpdateWithoutArticlesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tauxDeCommission?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vente?: Prisma.VenteUpdateManyWithoutCreatriceNestedInput
+  user?: Prisma.UserUpdateOneWithoutCreatricesNestedInput
+  evenements?: Prisma.EvenementUpdateManyWithoutCreatriceNestedInput
+}
+
+export type CreatriceUncheckedUpdateWithoutArticlesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tauxDeCommission?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vente?: Prisma.VenteUncheckedUpdateManyWithoutCreatriceNestedInput
+  evenements?: Prisma.EvenementUncheckedUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceCreateWithoutVenteInput = {
@@ -632,6 +723,7 @@ export type CreatriceCreateWithoutVenteInput = {
   createdAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutCreatricesInput
   evenements?: Prisma.EvenementCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceUncheckedCreateWithoutVenteInput = {
@@ -643,6 +735,7 @@ export type CreatriceUncheckedCreateWithoutVenteInput = {
   createdAt?: Date | string
   userId?: string | null
   evenements?: Prisma.EvenementUncheckedCreateNestedManyWithoutCreatriceInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCreatriceInput
 }
 
 export type CreatriceCreateOrConnectWithoutVenteInput = {
@@ -670,6 +763,7 @@ export type CreatriceUpdateWithoutVenteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutCreatricesNestedInput
   evenements?: Prisma.EvenementUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceUncheckedUpdateWithoutVenteInput = {
@@ -681,6 +775,7 @@ export type CreatriceUncheckedUpdateWithoutVenteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evenements?: Prisma.EvenementUncheckedUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceCreateManyUserInput = {
@@ -701,6 +796,7 @@ export type CreatriceUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vente?: Prisma.VenteUpdateManyWithoutCreatriceNestedInput
   evenements?: Prisma.EvenementUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceUncheckedUpdateWithoutUserInput = {
@@ -712,6 +808,7 @@ export type CreatriceUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vente?: Prisma.VenteUncheckedUpdateManyWithoutCreatriceNestedInput
   evenements?: Prisma.EvenementUncheckedUpdateManyWithoutCreatriceNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCreatriceNestedInput
 }
 
 export type CreatriceUncheckedUpdateManyWithoutUserInput = {
@@ -731,11 +828,13 @@ export type CreatriceUncheckedUpdateManyWithoutUserInput = {
 export type CreatriceCountOutputType = {
   vente: number
   evenements: number
+  articles: number
 }
 
 export type CreatriceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vente?: boolean | CreatriceCountOutputTypeCountVenteArgs
   evenements?: boolean | CreatriceCountOutputTypeCountEvenementsArgs
+  articles?: boolean | CreatriceCountOutputTypeCountArticlesArgs
 }
 
 /**
@@ -762,6 +861,13 @@ export type CreatriceCountOutputTypeCountEvenementsArgs<ExtArgs extends runtime.
   where?: Prisma.EvenementWhereInput
 }
 
+/**
+ * CreatriceCountOutputType without action
+ */
+export type CreatriceCountOutputTypeCountArticlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArticleWhereInput
+}
+
 
 export type CreatriceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -774,6 +880,7 @@ export type CreatriceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   vente?: boolean | Prisma.Creatrice$venteArgs<ExtArgs>
   user?: boolean | Prisma.Creatrice$userArgs<ExtArgs>
   evenements?: boolean | Prisma.Creatrice$evenementsArgs<ExtArgs>
+  articles?: boolean | Prisma.Creatrice$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.CreatriceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["creatrice"]>
 
@@ -814,6 +921,7 @@ export type CreatriceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   vente?: boolean | Prisma.Creatrice$venteArgs<ExtArgs>
   user?: boolean | Prisma.Creatrice$userArgs<ExtArgs>
   evenements?: boolean | Prisma.Creatrice$evenementsArgs<ExtArgs>
+  articles?: boolean | Prisma.Creatrice$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.CreatriceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CreatriceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -829,6 +937,7 @@ export type $CreatricePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     vente: Prisma.$VentePayload<ExtArgs>[]
     user: Prisma.$UserPayload<ExtArgs> | null
     evenements: Prisma.$EvenementPayload<ExtArgs>[]
+    articles: Prisma.$ArticlePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1235,6 +1344,7 @@ export interface Prisma__CreatriceClient<T, Null = never, ExtArgs extends runtim
   vente<T extends Prisma.Creatrice$venteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creatrice$venteArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.Creatrice$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creatrice$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   evenements<T extends Prisma.Creatrice$evenementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creatrice$evenementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvenementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  articles<T extends Prisma.Creatrice$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creatrice$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1736,6 +1846,30 @@ export type Creatrice$evenementsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.EvenementScalarFieldEnum | Prisma.EvenementScalarFieldEnum[]
+}
+
+/**
+ * Creatrice.articles
+ */
+export type Creatrice$articlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Article
+   */
+  select?: Prisma.ArticleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Article
+   */
+  omit?: Prisma.ArticleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArticleInclude<ExtArgs> | null
+  where?: Prisma.ArticleWhereInput
+  orderBy?: Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[]
+  cursor?: Prisma.ArticleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArticleScalarFieldEnum | Prisma.ArticleScalarFieldEnum[]
 }
 
 /**

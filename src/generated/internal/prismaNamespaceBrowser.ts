@@ -56,6 +56,7 @@ export const ModelName = {
   Evenement: 'Evenement',
   BoutiqueMember: 'BoutiqueMember',
   Creatrice: 'Creatrice',
+  Article: 'Article',
   Vente: 'Vente'
 } as const
 
@@ -140,6 +141,19 @@ export const CreatriceScalarFieldEnum = {
 } as const
 
 export type CreatriceScalarFieldEnum = (typeof CreatriceScalarFieldEnum)[keyof typeof CreatriceScalarFieldEnum]
+
+
+export const ArticleScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  description: 'description',
+  prixIndicatif: 'prixIndicatif',
+  photo: 'photo',
+  createdAt: 'createdAt',
+  creatriceId: 'creatriceId'
+} as const
+
+export type ArticleScalarFieldEnum = (typeof ArticleScalarFieldEnum)[keyof typeof ArticleScalarFieldEnum]
 
 
 export const VenteScalarFieldEnum = {

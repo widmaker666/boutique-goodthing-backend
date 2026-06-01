@@ -17,6 +17,7 @@ import * as Joi from 'joi';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StripeModule } from './stripe/stripe.module';
 import { EvenementModule } from './evenement/evenement.module';
+import { ArticleModule } from './article/article.module';
 
 //- Module racine de l'application — c'est le point d'entrée de NestJS
 //- Tous les modules métier sont importés ici pour être disponibles dans l'app
@@ -61,6 +62,7 @@ import { EvenementModule } from './evenement/evenement.module';
     EmailModule,
     StripeModule,
     EvenementModule,
+    ArticleModule,
   ],
 
   controllers: [AppController],
