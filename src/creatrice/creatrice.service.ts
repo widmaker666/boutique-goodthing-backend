@@ -49,17 +49,43 @@ export class CreatriceService {
   }
 
   async findOne(id: string) {
-    //- Cherche une créatrice par son id unique
-    //- where attend un objet — on ne passe jamais l'id directement
+    //- Cherche une créatrice par son id unique avec ses ventes
     const findData = await this.prisma.creatrice.findUnique({
       where: { id },
+      include: {
+        vente: {
+          select: {
+            id: true,
+            nomArticle: true,
+            prixVente: true,
+            modePaiement: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
 
     //- Si la créatrice n'existe pas → erreur 404 Not Found
     if (!findData) {
       throw new NotFoundException(`Createur ${id} introuvable`);
     }
-    return findData;
+
+    //- Destructure vente pour le renommer et calculer les stats
+    const { vente, ...creatrice } = findData;
+    const ca = vente.reduce((sum, v) => sum + v.prixVente, 0);
+    const totalCommission = (ca * creatrice.tauxDeCommission) / 100;
+
+    return {
+      ...creatrice,
+      ventes: vente,
+      stats: {
+        nbVentes: vente.length,
+        ca,
+        totalCommission,
+        netCreatrice: ca - totalCommission,
+      },
+    };
   }
 
   async update(id: string, updateCreatriceDto: UpdateCreatriceDto) {
