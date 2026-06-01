@@ -148,6 +148,7 @@ export const ArticleScalarFieldEnum = {
   nom: 'nom',
   description: 'description',
   prixIndicatif: 'prixIndicatif',
+  quantite: 'quantite',
   photo: 'photo',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId'

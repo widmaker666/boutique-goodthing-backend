@@ -85,6 +85,7 @@ model Article {
   nom           String
   description   String?
   prixIndicatif Float?
+  quantite      Int?   @default(1)
   photo         String?
   createdAt     DateTime  @default(now())
   creatrice     Creatrice @relation(fields: [creatriceId], references: [id], onDelete: Cascade)

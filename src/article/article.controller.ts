@@ -13,7 +13,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import * as multer from 'multer';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -42,7 +42,7 @@ export class ArticleController {
 
   //- Import bulk CSV/Excel — DOIT être avant @Get(':id') pour éviter le conflit de route
   @Post('import')
-  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
   importArticles(
     @UploadedFile() file: Express.Multer.File,
     @Query('creatriceId') creatriceId: string,

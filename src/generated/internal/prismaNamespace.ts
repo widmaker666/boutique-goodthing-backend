@@ -1039,6 +1039,7 @@ export const ArticleScalarFieldEnum = {
   nom: 'nom',
   description: 'description',
   prixIndicatif: 'prixIndicatif',
+  quantite: 'quantite',
   photo: 'photo',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId'
@@ -1184,20 +1185,6 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
- * Reference to a field of type 'ModePaiement'
- */
-export type EnumModePaiementFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModePaiement'>
-    
-
-
-/**
- * Reference to a field of type 'ModePaiement[]'
- */
-export type ListEnumModePaiementFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModePaiement[]'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1208,6 +1195,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ModePaiement'
+ */
+export type EnumModePaiementFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModePaiement'>
+    
+
+
+/**
+ * Reference to a field of type 'ModePaiement[]'
+ */
+export type ListEnumModePaiementFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModePaiement[]'>
     
 
 /**

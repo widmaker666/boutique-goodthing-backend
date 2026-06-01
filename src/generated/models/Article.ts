@@ -28,10 +28,12 @@ export type AggregateArticle = {
 
 export type ArticleAvgAggregateOutputType = {
   prixIndicatif: number | null
+  quantite: number | null
 }
 
 export type ArticleSumAggregateOutputType = {
   prixIndicatif: number | null
+  quantite: number | null
 }
 
 export type ArticleMinAggregateOutputType = {
@@ -39,6 +41,7 @@ export type ArticleMinAggregateOutputType = {
   nom: string | null
   description: string | null
   prixIndicatif: number | null
+  quantite: number | null
   photo: string | null
   createdAt: Date | null
   creatriceId: string | null
@@ -49,6 +52,7 @@ export type ArticleMaxAggregateOutputType = {
   nom: string | null
   description: string | null
   prixIndicatif: number | null
+  quantite: number | null
   photo: string | null
   createdAt: Date | null
   creatriceId: string | null
@@ -59,6 +63,7 @@ export type ArticleCountAggregateOutputType = {
   nom: number
   description: number
   prixIndicatif: number
+  quantite: number
   photo: number
   createdAt: number
   creatriceId: number
@@ -68,10 +73,12 @@ export type ArticleCountAggregateOutputType = {
 
 export type ArticleAvgAggregateInputType = {
   prixIndicatif?: true
+  quantite?: true
 }
 
 export type ArticleSumAggregateInputType = {
   prixIndicatif?: true
+  quantite?: true
 }
 
 export type ArticleMinAggregateInputType = {
@@ -79,6 +86,7 @@ export type ArticleMinAggregateInputType = {
   nom?: true
   description?: true
   prixIndicatif?: true
+  quantite?: true
   photo?: true
   createdAt?: true
   creatriceId?: true
@@ -89,6 +97,7 @@ export type ArticleMaxAggregateInputType = {
   nom?: true
   description?: true
   prixIndicatif?: true
+  quantite?: true
   photo?: true
   createdAt?: true
   creatriceId?: true
@@ -99,6 +108,7 @@ export type ArticleCountAggregateInputType = {
   nom?: true
   description?: true
   prixIndicatif?: true
+  quantite?: true
   photo?: true
   createdAt?: true
   creatriceId?: true
@@ -196,6 +206,7 @@ export type ArticleGroupByOutputType = {
   nom: string
   description: string | null
   prixIndicatif: number | null
+  quantite: number | null
   photo: string | null
   createdAt: Date
   creatriceId: string
@@ -229,6 +240,7 @@ export type ArticleWhereInput = {
   nom?: Prisma.StringFilter<"Article"> | string
   description?: Prisma.StringNullableFilter<"Article"> | string | null
   prixIndicatif?: Prisma.FloatNullableFilter<"Article"> | number | null
+  quantite?: Prisma.IntNullableFilter<"Article"> | number | null
   photo?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   creatriceId?: Prisma.StringFilter<"Article"> | string
@@ -240,6 +252,7 @@ export type ArticleOrderByWithRelationInput = {
   nom?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   prixIndicatif?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantite?: Prisma.SortOrderInput | Prisma.SortOrder
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -254,6 +267,7 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   nom?: Prisma.StringFilter<"Article"> | string
   description?: Prisma.StringNullableFilter<"Article"> | string | null
   prixIndicatif?: Prisma.FloatNullableFilter<"Article"> | number | null
+  quantite?: Prisma.IntNullableFilter<"Article"> | number | null
   photo?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   creatriceId?: Prisma.StringFilter<"Article"> | string
@@ -265,6 +279,7 @@ export type ArticleOrderByWithAggregationInput = {
   nom?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   prixIndicatif?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantite?: Prisma.SortOrderInput | Prisma.SortOrder
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -283,6 +298,7 @@ export type ArticleScalarWhereWithAggregatesInput = {
   nom?: Prisma.StringWithAggregatesFilter<"Article"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   prixIndicatif?: Prisma.FloatNullableWithAggregatesFilter<"Article"> | number | null
+  quantite?: Prisma.IntNullableWithAggregatesFilter<"Article"> | number | null
   photo?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
   creatriceId?: Prisma.StringWithAggregatesFilter<"Article"> | string
@@ -293,6 +309,7 @@ export type ArticleCreateInput = {
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutArticlesInput
@@ -303,6 +320,7 @@ export type ArticleUncheckedCreateInput = {
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
   creatriceId: string
@@ -313,6 +331,7 @@ export type ArticleUpdateInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutArticlesNestedInput
@@ -323,6 +342,7 @@ export type ArticleUncheckedUpdateInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -333,6 +353,7 @@ export type ArticleCreateManyInput = {
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
   creatriceId: string
@@ -343,6 +364,7 @@ export type ArticleUpdateManyMutationInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -352,6 +374,7 @@ export type ArticleUncheckedUpdateManyInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -372,6 +395,7 @@ export type ArticleCountOrderByAggregateInput = {
   nom?: Prisma.SortOrder
   description?: Prisma.SortOrder
   prixIndicatif?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -379,6 +403,7 @@ export type ArticleCountOrderByAggregateInput = {
 
 export type ArticleAvgOrderByAggregateInput = {
   prixIndicatif?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
 }
 
 export type ArticleMaxOrderByAggregateInput = {
@@ -386,6 +411,7 @@ export type ArticleMaxOrderByAggregateInput = {
   nom?: Prisma.SortOrder
   description?: Prisma.SortOrder
   prixIndicatif?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -396,6 +422,7 @@ export type ArticleMinOrderByAggregateInput = {
   nom?: Prisma.SortOrder
   description?: Prisma.SortOrder
   prixIndicatif?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
@@ -403,6 +430,7 @@ export type ArticleMinOrderByAggregateInput = {
 
 export type ArticleSumOrderByAggregateInput = {
   prixIndicatif?: Prisma.SortOrder
+  quantite?: Prisma.SortOrder
 }
 
 export type ArticleCreateNestedManyWithoutCreatriceInput = {
@@ -455,11 +483,20 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type ArticleCreateWithoutCreatriceInput = {
   id?: string
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
 }
@@ -469,6 +506,7 @@ export type ArticleUncheckedCreateWithoutCreatriceInput = {
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
 }
@@ -507,6 +545,7 @@ export type ArticleScalarWhereInput = {
   nom?: Prisma.StringFilter<"Article"> | string
   description?: Prisma.StringNullableFilter<"Article"> | string | null
   prixIndicatif?: Prisma.FloatNullableFilter<"Article"> | number | null
+  quantite?: Prisma.IntNullableFilter<"Article"> | number | null
   photo?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   creatriceId?: Prisma.StringFilter<"Article"> | string
@@ -517,6 +556,7 @@ export type ArticleCreateManyCreatriceInput = {
   nom: string
   description?: string | null
   prixIndicatif?: number | null
+  quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
 }
@@ -526,6 +566,7 @@ export type ArticleUpdateWithoutCreatriceInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -535,6 +576,7 @@ export type ArticleUncheckedUpdateWithoutCreatriceInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -544,6 +586,7 @@ export type ArticleUncheckedUpdateManyWithoutCreatriceInput = {
   nom?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -555,6 +598,7 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   nom?: boolean
   description?: boolean
   prixIndicatif?: boolean
+  quantite?: boolean
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -566,6 +610,7 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   nom?: boolean
   description?: boolean
   prixIndicatif?: boolean
+  quantite?: boolean
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -577,6 +622,7 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   nom?: boolean
   description?: boolean
   prixIndicatif?: boolean
+  quantite?: boolean
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
@@ -588,12 +634,13 @@ export type ArticleSelectScalar = {
   nom?: boolean
   description?: boolean
   prixIndicatif?: boolean
+  quantite?: boolean
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
 }
 
-export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "description" | "prixIndicatif" | "photo" | "createdAt" | "creatriceId", ExtArgs["result"]["article"]>
+export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "description" | "prixIndicatif" | "quantite" | "photo" | "createdAt" | "creatriceId", ExtArgs["result"]["article"]>
 export type ArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
 }
@@ -614,6 +661,7 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     nom: string
     description: string | null
     prixIndicatif: number | null
+    quantite: number | null
     photo: string | null
     createdAt: Date
     creatriceId: string
@@ -1045,6 +1093,7 @@ export interface ArticleFieldRefs {
   readonly nom: Prisma.FieldRef<"Article", 'String'>
   readonly description: Prisma.FieldRef<"Article", 'String'>
   readonly prixIndicatif: Prisma.FieldRef<"Article", 'Float'>
+  readonly quantite: Prisma.FieldRef<"Article", 'Int'>
   readonly photo: Prisma.FieldRef<"Article", 'String'>
   readonly createdAt: Prisma.FieldRef<"Article", 'DateTime'>
   readonly creatriceId: Prisma.FieldRef<"Article", 'String'>

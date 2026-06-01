@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -57,12 +57,15 @@ export class ArticleService {
 
   //- Import bulk depuis fichier CSV ou Excel
   async importFromFile(file: Express.Multer.File, creatriceId: string) {
+    if (!file) throw new BadRequestException('Aucun fichier fourni');
+    if (!creatriceId) throw new BadRequestException('creatriceId manquant');
+
     //- Vérifie que la créatrice existe
     const creatrice = await this.prisma.creatrice.findUnique({ where: { id: creatriceId } });
     if (!creatrice) throw new NotFoundException('Créatrice introuvable');
 
     const ext = file.originalname.split('.').pop()?.toLowerCase();
-    const rows: { nom: string; description?: string; prixIndicatif?: number }[] = [];
+    const rows: { nom: string; description?: string; prixIndicatif?: number; quantite?: number }[] = [];
 
     if (ext === 'csv') {
       //- Parse CSV manuellement (séparateur virgule ou point-virgule)
@@ -81,6 +84,7 @@ export class ArticleService {
             prixIndicatif: row.prixindicatif
               ? parseFloat(row.prixindicatif.replace(',', '.'))
               : undefined,
+            quantite: row.quantite ? parseInt(row.quantite, 10) : undefined,
           });
       }
     } else {
@@ -110,6 +114,7 @@ export class ArticleService {
             prixIndicatif: obj.prixindicatif
               ? parseFloat(String(obj.prixindicatif).replace(',', '.'))
               : undefined,
+            quantite: obj.quantite ? parseInt(String(obj.quantite), 10) : undefined,
           });
       });
     }
