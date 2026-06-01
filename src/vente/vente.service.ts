@@ -59,10 +59,13 @@ export class VenteService {
     const netCreatrice = prixVente - montantCommission;
 
     //- Envoi email si la créatrice a un compte User avec notifications activées
+    console.log('[Vente] creatrice.userId:', createVente.creatrice.userId);
+    console.log('[Vente] boutiqueId résolu:', boutiqueId);
     if (createVente.creatrice.userId) {
       const user = await this.prisma.user.findUnique({
         where: { id: createVente.creatrice.userId },
       });
+      console.log('[Vente] user:', user?.email, '| notifs:', user?.notificationsEmail);
 
       if (user && user.notificationsEmail && user.email) {
         await this.emailService.sendVenteNotification(

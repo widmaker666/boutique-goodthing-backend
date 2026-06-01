@@ -17,7 +17,7 @@ export class EmailService {
     montantCommission: number,
     netCreatrice: number,
   ) {
-    await this.resend.emails.send({
+    const { data, error } = await this.resend.emails.send({
       from: 'Encaissly <onboarding@resend.dev>',
       to: email,
       subject: `💰 Nouvelle vente enregistrée — ${nomArticle}`,
@@ -49,6 +49,11 @@ export class EmailService {
         </div>
       `,
     });
+    if (error) {
+      console.error(`[Email] sendVenteNotification ERREUR → ${email}:`, error);
+    } else {
+      console.log(`[Email] sendVenteNotification OK → ${email} (id: ${data?.id})`);
+    }
   }
 
   //- S'exécute automatiquement le 1er de chaque mois à minuit
