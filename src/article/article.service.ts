@@ -64,33 +64,48 @@ export class ArticleService {
     const creatrice = await this.prisma.creatrice.findUnique({ where: { id: creatriceId } });
     if (!creatrice) throw new NotFoundException('Créatrice introuvable');
 
+    //- Synonymes acceptés par champ — insensible à la casse et aux accents
+    const COLS = {
+      nom:          ['nom', 'name', 'article', 'libelle', 'libellé', 'produit', 'titre', 'title'],
+      prix:         ['prix', 'prixindicatif', 'prix_indicatif', 'price', 'tarif', 'cout', 'coût', 'montant'],
+      description:  ['description', 'desc', 'detail', 'détail', 'details', 'détails', 'info'],
+      quantite:     ['quantite', 'quantité', 'qty', 'stock', 'qte', 'qté', 'quantity'],
+    };
+
+    //- Trouve la première clé présente dans un objet parmi une liste de synonymes
+    const get = (obj: Record<string, string>, keys: string[]): string =>
+      keys.map(k => obj[k]).find(v => v !== undefined && v !== '') ?? '';
+
     const ext = file.originalname.split('.').pop()?.toLowerCase();
     const rows: { nom: string; description?: string; prixIndicatif?: number; quantite?: number }[] = [];
 
     if (ext === 'csv') {
-      //- Parse CSV manuellement (séparateur virgule ou point-virgule)
-      const text = file.buffer.toString('utf-8');
+      //- Parse CSV — séparateur virgule, point-virgule ou tabulation
+      const text = file.buffer.toString('utf-8').replace(/\r/g, '');
       const lines = text.split('\n').filter((l) => l.trim());
-      const headers = lines[0].split(/[,;]/).map((h) => h.trim().toLowerCase());
+      const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') ? ';' : ',';
+      const headers = lines[0].split(sep).map((h) => h.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''));
 
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(/[,;]/);
+        const cols = lines[i].split(sep);
         const row: Record<string, string> = {};
         headers.forEach((h, idx) => (row[h] = cols[idx]?.trim() ?? ''));
-        if (row.nom)
-          rows.push({
-            nom: row.nom,
-            description: row.description || undefined,
-            prixIndicatif: (row.prixindicatif || row.prix)
-              ? parseFloat((row.prixindicatif || row.prix).replace(',', '.'))
-              : undefined,
-            quantite: row.quantite ? parseInt(row.quantite, 10) : undefined,
-          });
+
+        const nom = get(row, COLS.nom);
+        if (!nom) continue;
+
+        const prixRaw = get(row, COLS.prix);
+        rows.push({
+          nom,
+          description: get(row, COLS.description) || undefined,
+          prixIndicatif: prixRaw ? parseFloat(prixRaw.replace(',', '.')) : undefined,
+          quantite: get(row, COLS.quantite) ? parseInt(get(row, COLS.quantite), 10) : undefined,
+        });
       }
     } else {
       //- Parse Excel (.xlsx / .xls)
       const workbook = new ExcelJS.Workbook();
-      //- Cast nécessaire : conflit entre @types/node v22 Buffer générique et Buffer ExcelJS (extends ArrayBuffer)
+      //- Cast nécessaire : conflit entre @types/node v22 Buffer générique et Buffer ExcelJS
       const ab = file.buffer.buffer.slice(
         file.buffer.byteOffset,
         file.buffer.byteOffset + file.buffer.byteLength,
@@ -101,21 +116,27 @@ export class ArticleService {
 
       sheet.eachRow((row, rowIndex) => {
         if (rowIndex === 1) {
-          row.eachCell((cell) => headers.push(String(cell.value ?? '').trim().toLowerCase()));
+          row.eachCell((cell) =>
+            headers.push(
+              String(cell.value ?? '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
+            ),
+          );
           return;
         }
         const values = (row.values as ExcelJS.CellValue[]).slice(1);
-        const obj: Record<string, ExcelJS.CellValue> = {};
-        headers.forEach((h, i) => (obj[h] = values[i] ?? ''));
-        if (obj.nom)
-          rows.push({
-            nom: String(obj.nom),
-            description: obj.description ? String(obj.description) : undefined,
-            prixIndicatif: (obj.prixindicatif || obj.prix)
-              ? parseFloat(String(obj.prixindicatif || obj.prix).replace(',', '.'))
-              : undefined,
-            quantite: obj.quantite ? parseInt(String(obj.quantite), 10) : undefined,
-          });
+        const obj: Record<string, string> = {};
+        headers.forEach((h, i) => (obj[h] = values[i] != null ? String(values[i]) : ''));
+
+        const nom = get(obj, COLS.nom);
+        if (!nom) return;
+
+        const prixRaw = get(obj, COLS.prix);
+        rows.push({
+          nom,
+          description: get(obj, COLS.description) || undefined,
+          prixIndicatif: prixRaw ? parseFloat(prixRaw.replace(',', '.')) : undefined,
+          quantite: get(obj, COLS.quantite) ? parseInt(get(obj, COLS.quantite), 10) : undefined,
+        });
       });
     }
 
