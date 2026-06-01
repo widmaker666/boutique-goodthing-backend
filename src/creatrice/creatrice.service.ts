@@ -118,11 +118,16 @@ export class CreatriceService {
       throw new NotFoundException(`Createur ${id} introuvable`);
     }
 
-    //- Supprime définitivement la créatrice de la base
-    const removeCreateur = await this.prisma.creatrice.delete({
-      where: { id },
-    });
-    return removeCreateur;
+    //- Supprime dans une transaction pour garantir l'atomicité
+    //- Ordre : dépendances d'abord, puis la créatrice elle-même
+    await this.prisma.$transaction([
+      this.prisma.vente.deleteMany({ where: { creatriceId: id } }),
+      this.prisma.evenement.deleteMany({ where: { creatriceId: id } }),
+      this.prisma.article.deleteMany({ where: { creatriceId: id } }),
+      this.prisma.creatrice.delete({ where: { id } }),
+    ]);
+
+    return { message: 'Créatrice supprimée avec succès' };
   }
 
   //- Invite créatrice par mail
