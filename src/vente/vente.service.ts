@@ -8,6 +8,7 @@ import {
   AuthUser,
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class VenteService {
@@ -15,6 +16,7 @@ export class VenteService {
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
     private readonly ownership: OwnershipService,
+    private readonly notificationService: NotificationService,
   ) {}
   async create(createVenteDto: CreateVenteDto, user: AuthUser, photoUrl?: string) {
     //- Vérifie que la créatrice liée à cette vente appartient bien au user
@@ -82,8 +84,9 @@ export class VenteService {
     }
 
     //- Envoi email à la gérante de la boutique via boutiqueId auto-détecté
+    let boutique: { gerante: { id: string; email: string | null; notificationsEmail: boolean } } & Record<string, unknown> | null = null;
     if (boutiqueId) {
-      const boutique = await this.prisma.boutique.findUnique({
+      boutique = await this.prisma.boutique.findUnique({
         where: { id: boutiqueId },
         include: { gerante: true },
       });
@@ -99,13 +102,50 @@ export class VenteService {
       }
     }
 
+    //- Notifications in-app — try/catch pour ne pas faire rater la vente si échec
+    try {
+      if (createVente.creatrice.userId) {
+        await this.notificationService.createForUser(
+          createVente.creatrice.userId,
+          'VENTE',
+          `Vente enregistrée — ${createVente.nomArticle} · ${createVente.prixVente} € (net : ${netCreatrice} €)`,
+        );
+      }
+      if (boutique?.gerante?.id) {
+        await this.notificationService.createForUser(
+          boutique.gerante.id,
+          'VENTE',
+          `Nouvelle vente — ${createVente.creatrice.nom} · ${createVente.nomArticle} · ${createVente.prixVente} €`,
+        );
+      }
+    } catch {
+      //- Echec notification non bloquant — la vente est déjà créée
+    }
+
     //- Retourne la vente enrichie avec les calculs de commission
     return { ...createVente, montantCommission, netCreatrice };
   }
 
   async findAll(filters: QueryVente, user: AuthUser) {
-    //- Scope les ventes aux ressources possédées par le user (finding sécu C1)
-    const ownershipWhere = await this.ownership.getVenteOwnershipWhere(user);
+    let ownershipWhere: any = await this.ownership.getVenteOwnershipWhere(user);
+
+    //- Contexte événement — filtre les ventes de cet événement si possédé
+    if (filters.evenementId) {
+      const creatrice = await this.prisma.creatrice.findFirst({
+        where: { userId: user.id },
+      });
+      if (creatrice) {
+        const evenement = await this.prisma.evenement.findFirst({
+          where: { id: filters.evenementId, creatriceId: creatrice.id },
+        });
+        if (evenement) ownershipWhere = { evenementId: evenement.id };
+      }
+    } else if (filters.boutiqueId) {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { id: filters.boutiqueId, geranteId: user.id },
+      });
+      if (boutique) ownershipWhere = { boutiqueId: boutique.id };
+    }
 
     //- Récupère les ventes possédées avec filtres optionnels
     //- include: { creatrice: true } nécessaire pour calculer les commissions
@@ -116,7 +156,7 @@ export class VenteService {
         prixVente: { gte: filters.minPrixVente, lte: filters.maxPrixVente },
         modePaiement: filters.modePaiement,
       },
-      include: { creatrice: true },
+      include: { creatrice: true, evenement: { select: { nom: true } } },
     });
 
     //- map() parcourt chaque vente pour y ajouter les calculs de commission
@@ -189,20 +229,40 @@ export class VenteService {
     return deleteVente;
   }
 
-  async getRecentVentes(userId: string, role: string, limit = 5) {
-    //- Construit le filtre selon le rôle comme dans les stats
-    let where = {};
+  async getRecentVentes(userId: string, role: string, limit = 5, boutiqueId?: string, evenementId?: string) {
+    let where: any = {};
 
-    if (role === 'GERANTE') {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { geranteId: userId },
-      });
-      where = boutique ? { boutiqueId: boutique.id } : { id: 'none' };
-    } else {
+    if (evenementId) {
       const creatrice = await this.prisma.creatrice.findFirst({
         where: { userId },
       });
-      where = creatrice ? { creatriceId: creatrice.id } : { id: 'none' };
+      if (creatrice) {
+        const evenement = await this.prisma.evenement.findFirst({
+          where: { id: evenementId, creatriceId: creatrice.id },
+        });
+        if (evenement) where = { evenementId };
+      }
+    }
+
+    if (!Object.keys(where).length && boutiqueId) {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { id: boutiqueId, geranteId: userId },
+      });
+      if (boutique) where = { boutiqueId: boutique.id };
+    }
+
+    if (!Object.keys(where).length) {
+      if (role === 'GERANTE') {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { geranteId: userId },
+        });
+        where = boutique ? { boutiqueId: boutique.id } : { id: 'none' };
+      } else {
+        const creatrice = await this.prisma.creatrice.findFirst({
+          where: { userId },
+        });
+        where = creatrice ? { creatriceId: creatrice.id } : { id: 'none' };
+      }
     }
 
     const ventes = await this.prisma.vente.findMany({

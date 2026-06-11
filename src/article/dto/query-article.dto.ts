@@ -8,4 +8,8 @@ export class QueryArticleDto {
   @IsOptional()
   @IsString()
   creatriceId?: string;
+
+  @IsOptional()
+  @IsString()
+  evenementId?: string;
 }

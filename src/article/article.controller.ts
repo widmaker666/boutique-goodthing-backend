@@ -26,15 +26,9 @@ import { JwtGuard } from 'src/auth/guard/jwt.guard';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
-  //- creatriceId priorité : body > query param
   @Post()
-  create(
-    @Body() dto: CreateArticleDto,
-    @Request() req,
-    @Query('creatriceId') creatriceIdQuery?: string,
-  ) {
-    const creatriceId = dto.creatriceId ?? creatriceIdQuery ?? '';
-    return this.articleService.create(dto, creatriceId, req.user);
+  create(@Body() dto: CreateArticleDto, @Request() req) {
+    return this.articleService.create(dto, req.user);
   }
 
   @Get()
@@ -67,9 +61,10 @@ export class ArticleController {
   importArticles(
     @UploadedFile() file: Express.Multer.File,
     @Request() req,
-    @Query('creatriceId') creatriceId: string,
+    @Query('creatriceId') creatriceId?: string,
+    @Query('evenementId') evenementId?: string,
   ) {
-    return this.articleService.importFromFile(file, creatriceId, req.user);
+    return this.articleService.importFromFile(file, creatriceId, evenementId, req.user);
   }
 
   @Get(':id')

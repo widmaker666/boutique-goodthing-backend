@@ -147,4 +147,50 @@ export class BoutiqueService {
     });
     return { nbBoutiques: nb };
   }
+
+  async creerMaBoutique(userId: string, nom: string) {
+    //- Récupère les infos du user pour construire le nom de la fiche créatrice
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const nomCreatrice =
+      [user?.prenom, user?.nom].filter(Boolean).join(' ') ||
+      user?.email ||
+      'Moi';
+
+    //- Transaction atomique : boutique + fiche créatrice + membership
+    const boutique = await this.prisma.$transaction(async (tx) => {
+      const newBoutique = await tx.boutique.create({
+        data: { nom, geranteId: userId },
+      });
+
+      //- Crée la fiche créatrice si elle n'existe pas encore
+      const existingCreatrice = await tx.creatrice.findFirst({
+        where: { userId },
+      });
+      if (!existingCreatrice) {
+        await tx.creatrice.create({
+          data: {
+            nom: nomCreatrice,
+            email: user?.email,
+            tauxDeCommission: 0,
+            userId,
+            geranteId: userId,
+          },
+        });
+      }
+
+      //- Ajoute l'utilisateur comme membre actif de sa propre boutique
+      //- Nécessaire pour que GET /boutique la remonte dans sa liste
+      await tx.boutiqueMember.create({
+        data: {
+          memberId: userId,
+          boutiqueMemberId: newBoutique.id,
+          status: 'ACTIVE',
+        },
+      });
+
+      return newBoutique;
+    });
+
+    return boutique;
+  }
 }

@@ -45,6 +45,7 @@ export type ArticleMinAggregateOutputType = {
   photo: string | null
   createdAt: Date | null
   creatriceId: string | null
+  evenementId: string | null
 }
 
 export type ArticleMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type ArticleMaxAggregateOutputType = {
   photo: string | null
   createdAt: Date | null
   creatriceId: string | null
+  evenementId: string | null
 }
 
 export type ArticleCountAggregateOutputType = {
@@ -67,6 +69,7 @@ export type ArticleCountAggregateOutputType = {
   photo: number
   createdAt: number
   creatriceId: number
+  evenementId: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type ArticleMinAggregateInputType = {
   photo?: true
   createdAt?: true
   creatriceId?: true
+  evenementId?: true
 }
 
 export type ArticleMaxAggregateInputType = {
@@ -101,6 +105,7 @@ export type ArticleMaxAggregateInputType = {
   photo?: true
   createdAt?: true
   creatriceId?: true
+  evenementId?: true
 }
 
 export type ArticleCountAggregateInputType = {
@@ -112,6 +117,7 @@ export type ArticleCountAggregateInputType = {
   photo?: true
   createdAt?: true
   creatriceId?: true
+  evenementId?: true
   _all?: true
 }
 
@@ -209,7 +215,8 @@ export type ArticleGroupByOutputType = {
   quantite: number | null
   photo: string | null
   createdAt: Date
-  creatriceId: string
+  creatriceId: string | null
+  evenementId: string | null
   _count: ArticleCountAggregateOutputType | null
   _avg: ArticleAvgAggregateOutputType | null
   _sum: ArticleSumAggregateOutputType | null
@@ -243,8 +250,10 @@ export type ArticleWhereInput = {
   quantite?: Prisma.IntNullableFilter<"Article"> | number | null
   photo?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  creatriceId?: Prisma.StringFilter<"Article"> | string
-  creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
+  creatriceId?: Prisma.StringNullableFilter<"Article"> | string | null
+  evenementId?: Prisma.StringNullableFilter<"Article"> | string | null
+  creatrice?: Prisma.XOR<Prisma.CreatriceNullableScalarRelationFilter, Prisma.CreatriceWhereInput> | null
+  evenement?: Prisma.XOR<Prisma.EvenementNullableScalarRelationFilter, Prisma.EvenementWhereInput> | null
 }
 
 export type ArticleOrderByWithRelationInput = {
@@ -255,13 +264,16 @@ export type ArticleOrderByWithRelationInput = {
   quantite?: Prisma.SortOrderInput | Prisma.SortOrder
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  creatriceId?: Prisma.SortOrder
+  creatriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  evenementId?: Prisma.SortOrderInput | Prisma.SortOrder
   creatrice?: Prisma.CreatriceOrderByWithRelationInput
+  evenement?: Prisma.EvenementOrderByWithRelationInput
 }
 
 export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   nom_creatriceId?: Prisma.ArticleNomCreatriceIdCompoundUniqueInput
+  nom_evenementId?: Prisma.ArticleNomEvenementIdCompoundUniqueInput
   AND?: Prisma.ArticleWhereInput | Prisma.ArticleWhereInput[]
   OR?: Prisma.ArticleWhereInput[]
   NOT?: Prisma.ArticleWhereInput | Prisma.ArticleWhereInput[]
@@ -271,9 +283,11 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   quantite?: Prisma.IntNullableFilter<"Article"> | number | null
   photo?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  creatriceId?: Prisma.StringFilter<"Article"> | string
-  creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
-}, "id" | "nom_creatriceId">
+  creatriceId?: Prisma.StringNullableFilter<"Article"> | string | null
+  evenementId?: Prisma.StringNullableFilter<"Article"> | string | null
+  creatrice?: Prisma.XOR<Prisma.CreatriceNullableScalarRelationFilter, Prisma.CreatriceWhereInput> | null
+  evenement?: Prisma.XOR<Prisma.EvenementNullableScalarRelationFilter, Prisma.EvenementWhereInput> | null
+}, "id" | "nom_creatriceId" | "nom_evenementId">
 
 export type ArticleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -283,7 +297,8 @@ export type ArticleOrderByWithAggregationInput = {
   quantite?: Prisma.SortOrderInput | Prisma.SortOrder
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  creatriceId?: Prisma.SortOrder
+  creatriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  evenementId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ArticleCountOrderByAggregateInput
   _avg?: Prisma.ArticleAvgOrderByAggregateInput
   _max?: Prisma.ArticleMaxOrderByAggregateInput
@@ -302,7 +317,8 @@ export type ArticleScalarWhereWithAggregatesInput = {
   quantite?: Prisma.IntNullableWithAggregatesFilter<"Article"> | number | null
   photo?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
-  creatriceId?: Prisma.StringWithAggregatesFilter<"Article"> | string
+  creatriceId?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
+  evenementId?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
 }
 
 export type ArticleCreateInput = {
@@ -313,7 +329,8 @@ export type ArticleCreateInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
-  creatrice: Prisma.CreatriceCreateNestedOneWithoutArticlesInput
+  creatrice?: Prisma.CreatriceCreateNestedOneWithoutArticlesInput
+  evenement?: Prisma.EvenementCreateNestedOneWithoutArticlesInput
 }
 
 export type ArticleUncheckedCreateInput = {
@@ -324,7 +341,8 @@ export type ArticleUncheckedCreateInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
-  creatriceId: string
+  creatriceId?: string | null
+  evenementId?: string | null
 }
 
 export type ArticleUpdateInput = {
@@ -335,7 +353,8 @@ export type ArticleUpdateInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutArticlesNestedInput
+  creatrice?: Prisma.CreatriceUpdateOneWithoutArticlesNestedInput
+  evenement?: Prisma.EvenementUpdateOneWithoutArticlesNestedInput
 }
 
 export type ArticleUncheckedUpdateInput = {
@@ -346,7 +365,8 @@ export type ArticleUncheckedUpdateInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  creatriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evenementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArticleCreateManyInput = {
@@ -357,7 +377,8 @@ export type ArticleCreateManyInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
-  creatriceId: string
+  creatriceId?: string | null
+  evenementId?: string | null
 }
 
 export type ArticleUpdateManyMutationInput = {
@@ -378,7 +399,8 @@ export type ArticleUncheckedUpdateManyInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  creatriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evenementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArticleListRelationFilter = {
@@ -396,6 +418,11 @@ export type ArticleNomCreatriceIdCompoundUniqueInput = {
   creatriceId: string
 }
 
+export type ArticleNomEvenementIdCompoundUniqueInput = {
+  nom: string
+  evenementId: string
+}
+
 export type ArticleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   nom?: Prisma.SortOrder
@@ -405,6 +432,7 @@ export type ArticleCountOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  evenementId?: Prisma.SortOrder
 }
 
 export type ArticleAvgOrderByAggregateInput = {
@@ -421,6 +449,7 @@ export type ArticleMaxOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  evenementId?: Prisma.SortOrder
 }
 
 export type ArticleMinOrderByAggregateInput = {
@@ -432,11 +461,54 @@ export type ArticleMinOrderByAggregateInput = {
   photo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   creatriceId?: Prisma.SortOrder
+  evenementId?: Prisma.SortOrder
 }
 
 export type ArticleSumOrderByAggregateInput = {
   prixIndicatif?: Prisma.SortOrder
   quantite?: Prisma.SortOrder
+}
+
+export type ArticleCreateNestedManyWithoutEvenementInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput> | Prisma.ArticleCreateWithoutEvenementInput[] | Prisma.ArticleUncheckedCreateWithoutEvenementInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutEvenementInput | Prisma.ArticleCreateOrConnectWithoutEvenementInput[]
+  createMany?: Prisma.ArticleCreateManyEvenementInputEnvelope
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+}
+
+export type ArticleUncheckedCreateNestedManyWithoutEvenementInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput> | Prisma.ArticleCreateWithoutEvenementInput[] | Prisma.ArticleUncheckedCreateWithoutEvenementInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutEvenementInput | Prisma.ArticleCreateOrConnectWithoutEvenementInput[]
+  createMany?: Prisma.ArticleCreateManyEvenementInputEnvelope
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+}
+
+export type ArticleUpdateManyWithoutEvenementNestedInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput> | Prisma.ArticleCreateWithoutEvenementInput[] | Prisma.ArticleUncheckedCreateWithoutEvenementInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutEvenementInput | Prisma.ArticleCreateOrConnectWithoutEvenementInput[]
+  upsert?: Prisma.ArticleUpsertWithWhereUniqueWithoutEvenementInput | Prisma.ArticleUpsertWithWhereUniqueWithoutEvenementInput[]
+  createMany?: Prisma.ArticleCreateManyEvenementInputEnvelope
+  set?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  disconnect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  delete?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  update?: Prisma.ArticleUpdateWithWhereUniqueWithoutEvenementInput | Prisma.ArticleUpdateWithWhereUniqueWithoutEvenementInput[]
+  updateMany?: Prisma.ArticleUpdateManyWithWhereWithoutEvenementInput | Prisma.ArticleUpdateManyWithWhereWithoutEvenementInput[]
+  deleteMany?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
+}
+
+export type ArticleUncheckedUpdateManyWithoutEvenementNestedInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput> | Prisma.ArticleCreateWithoutEvenementInput[] | Prisma.ArticleUncheckedCreateWithoutEvenementInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutEvenementInput | Prisma.ArticleCreateOrConnectWithoutEvenementInput[]
+  upsert?: Prisma.ArticleUpsertWithWhereUniqueWithoutEvenementInput | Prisma.ArticleUpsertWithWhereUniqueWithoutEvenementInput[]
+  createMany?: Prisma.ArticleCreateManyEvenementInputEnvelope
+  set?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  disconnect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  delete?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  update?: Prisma.ArticleUpdateWithWhereUniqueWithoutEvenementInput | Prisma.ArticleUpdateWithWhereUniqueWithoutEvenementInput[]
+  updateMany?: Prisma.ArticleUpdateManyWithWhereWithoutEvenementInput | Prisma.ArticleUpdateManyWithWhereWithoutEvenementInput[]
+  deleteMany?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
 }
 
 export type ArticleCreateNestedManyWithoutCreatriceInput = {
@@ -497,6 +569,69 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ArticleCreateWithoutEvenementInput = {
+  id?: string
+  nom: string
+  description?: string | null
+  prixIndicatif?: number | null
+  quantite?: number | null
+  photo?: string | null
+  createdAt?: Date | string
+  creatrice?: Prisma.CreatriceCreateNestedOneWithoutArticlesInput
+}
+
+export type ArticleUncheckedCreateWithoutEvenementInput = {
+  id?: string
+  nom: string
+  description?: string | null
+  prixIndicatif?: number | null
+  quantite?: number | null
+  photo?: string | null
+  createdAt?: Date | string
+  creatriceId?: string | null
+}
+
+export type ArticleCreateOrConnectWithoutEvenementInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput>
+}
+
+export type ArticleCreateManyEvenementInputEnvelope = {
+  data: Prisma.ArticleCreateManyEvenementInput | Prisma.ArticleCreateManyEvenementInput[]
+  skipDuplicates?: boolean
+}
+
+export type ArticleUpsertWithWhereUniqueWithoutEvenementInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArticleUpdateWithoutEvenementInput, Prisma.ArticleUncheckedUpdateWithoutEvenementInput>
+  create: Prisma.XOR<Prisma.ArticleCreateWithoutEvenementInput, Prisma.ArticleUncheckedCreateWithoutEvenementInput>
+}
+
+export type ArticleUpdateWithWhereUniqueWithoutEvenementInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArticleUpdateWithoutEvenementInput, Prisma.ArticleUncheckedUpdateWithoutEvenementInput>
+}
+
+export type ArticleUpdateManyWithWhereWithoutEvenementInput = {
+  where: Prisma.ArticleScalarWhereInput
+  data: Prisma.XOR<Prisma.ArticleUpdateManyMutationInput, Prisma.ArticleUncheckedUpdateManyWithoutEvenementInput>
+}
+
+export type ArticleScalarWhereInput = {
+  AND?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
+  OR?: Prisma.ArticleScalarWhereInput[]
+  NOT?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
+  id?: Prisma.StringFilter<"Article"> | string
+  nom?: Prisma.StringFilter<"Article"> | string
+  description?: Prisma.StringNullableFilter<"Article"> | string | null
+  prixIndicatif?: Prisma.FloatNullableFilter<"Article"> | number | null
+  quantite?: Prisma.IntNullableFilter<"Article"> | number | null
+  photo?: Prisma.StringNullableFilter<"Article"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
+  creatriceId?: Prisma.StringNullableFilter<"Article"> | string | null
+  evenementId?: Prisma.StringNullableFilter<"Article"> | string | null
+}
+
 export type ArticleCreateWithoutCreatriceInput = {
   id?: string
   nom: string
@@ -505,6 +640,7 @@ export type ArticleCreateWithoutCreatriceInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
+  evenement?: Prisma.EvenementCreateNestedOneWithoutArticlesInput
 }
 
 export type ArticleUncheckedCreateWithoutCreatriceInput = {
@@ -515,6 +651,7 @@ export type ArticleUncheckedCreateWithoutCreatriceInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
+  evenementId?: string | null
 }
 
 export type ArticleCreateOrConnectWithoutCreatriceInput = {
@@ -543,18 +680,48 @@ export type ArticleUpdateManyWithWhereWithoutCreatriceInput = {
   data: Prisma.XOR<Prisma.ArticleUpdateManyMutationInput, Prisma.ArticleUncheckedUpdateManyWithoutCreatriceInput>
 }
 
-export type ArticleScalarWhereInput = {
-  AND?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
-  OR?: Prisma.ArticleScalarWhereInput[]
-  NOT?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
-  id?: Prisma.StringFilter<"Article"> | string
-  nom?: Prisma.StringFilter<"Article"> | string
-  description?: Prisma.StringNullableFilter<"Article"> | string | null
-  prixIndicatif?: Prisma.FloatNullableFilter<"Article"> | number | null
-  quantite?: Prisma.IntNullableFilter<"Article"> | number | null
-  photo?: Prisma.StringNullableFilter<"Article"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  creatriceId?: Prisma.StringFilter<"Article"> | string
+export type ArticleCreateManyEvenementInput = {
+  id?: string
+  nom: string
+  description?: string | null
+  prixIndicatif?: number | null
+  quantite?: number | null
+  photo?: string | null
+  createdAt?: Date | string
+  creatriceId?: string | null
+}
+
+export type ArticleUpdateWithoutEvenementInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatrice?: Prisma.CreatriceUpdateOneWithoutArticlesNestedInput
+}
+
+export type ArticleUncheckedUpdateWithoutEvenementInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ArticleUncheckedUpdateManyWithoutEvenementInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prixIndicatif?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArticleCreateManyCreatriceInput = {
@@ -565,6 +732,7 @@ export type ArticleCreateManyCreatriceInput = {
   quantite?: number | null
   photo?: string | null
   createdAt?: Date | string
+  evenementId?: string | null
 }
 
 export type ArticleUpdateWithoutCreatriceInput = {
@@ -575,6 +743,7 @@ export type ArticleUpdateWithoutCreatriceInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  evenement?: Prisma.EvenementUpdateOneWithoutArticlesNestedInput
 }
 
 export type ArticleUncheckedUpdateWithoutCreatriceInput = {
@@ -585,6 +754,7 @@ export type ArticleUncheckedUpdateWithoutCreatriceInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  evenementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArticleUncheckedUpdateManyWithoutCreatriceInput = {
@@ -595,6 +765,7 @@ export type ArticleUncheckedUpdateManyWithoutCreatriceInput = {
   quantite?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  evenementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -608,7 +779,9 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  evenementId?: boolean
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -620,7 +793,9 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  evenementId?: boolean
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -632,7 +807,9 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  evenementId?: boolean
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectScalar = {
@@ -644,23 +821,28 @@ export type ArticleSelectScalar = {
   photo?: boolean
   createdAt?: boolean
   creatriceId?: boolean
+  evenementId?: boolean
 }
 
-export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "description" | "prixIndicatif" | "quantite" | "photo" | "createdAt" | "creatriceId", ExtArgs["result"]["article"]>
+export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "description" | "prixIndicatif" | "quantite" | "photo" | "createdAt" | "creatriceId" | "evenementId", ExtArgs["result"]["article"]>
 export type ArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }
 export type ArticleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }
 export type ArticleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
+  creatrice?: boolean | Prisma.Article$creatriceArgs<ExtArgs>
+  evenement?: boolean | Prisma.Article$evenementArgs<ExtArgs>
 }
 
 export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Article"
   objects: {
-    creatrice: Prisma.$CreatricePayload<ExtArgs>
+    creatrice: Prisma.$CreatricePayload<ExtArgs> | null
+    evenement: Prisma.$EvenementPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -670,7 +852,8 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     quantite: number | null
     photo: string | null
     createdAt: Date
-    creatriceId: string
+    creatriceId: string | null
+    evenementId: string | null
   }, ExtArgs["result"]["article"]>
   composites: {}
 }
@@ -1065,7 +1248,8 @@ readonly fields: ArticleFieldRefs;
  */
 export interface Prisma__ArticleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  creatrice<T extends Prisma.CreatriceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CreatriceDefaultArgs<ExtArgs>>): Prisma.Prisma__CreatriceClient<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  creatrice<T extends Prisma.Article$creatriceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Article$creatriceArgs<ExtArgs>>): Prisma.Prisma__CreatriceClient<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  evenement<T extends Prisma.Article$evenementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Article$evenementArgs<ExtArgs>>): Prisma.Prisma__EvenementClient<runtime.Types.Result.GetResult<Prisma.$EvenementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1103,6 +1287,7 @@ export interface ArticleFieldRefs {
   readonly photo: Prisma.FieldRef<"Article", 'String'>
   readonly createdAt: Prisma.FieldRef<"Article", 'DateTime'>
   readonly creatriceId: Prisma.FieldRef<"Article", 'String'>
+  readonly evenementId: Prisma.FieldRef<"Article", 'String'>
 }
     
 
@@ -1501,6 +1686,44 @@ export type ArticleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Articles to delete.
    */
   limit?: number
+}
+
+/**
+ * Article.creatrice
+ */
+export type Article$creatriceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Creatrice
+   */
+  select?: Prisma.CreatriceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Creatrice
+   */
+  omit?: Prisma.CreatriceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreatriceInclude<ExtArgs> | null
+  where?: Prisma.CreatriceWhereInput
+}
+
+/**
+ * Article.evenement
+ */
+export type Article$evenementArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Evenement
+   */
+  select?: Prisma.EvenementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Evenement
+   */
+  omit?: Prisma.EvenementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EvenementInclude<ExtArgs> | null
+  where?: Prisma.EvenementWhereInput
 }
 
 /**

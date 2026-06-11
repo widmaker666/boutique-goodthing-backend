@@ -63,8 +63,12 @@ export class VenteController {
   }
 
   @Get('recent')
-  getRecent(@Req() req) {
-    return this.venteService.getRecentVentes(req.user.id, req.user.role);
+  getRecent(
+    @Req() req,
+    @Query('boutiqueId') boutiqueId?: string,
+    @Query('evenementId') evenementId?: string,
+  ) {
+    return this.venteService.getRecentVentes(req.user.id, req.user.role, 5, boutiqueId, evenementId);
   }
 
   @Get(':id')

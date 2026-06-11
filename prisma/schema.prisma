@@ -29,6 +29,8 @@ model User {
   creatricesGerees   Creatrice[]      @relation("CreatriceGerante")
   notificationsEmail Boolean          @default(true)
   stripeCustomerId   String?
+  avatar             String?
+  notifications      Notification[]
 }
 
 model Boutique {
@@ -52,6 +54,7 @@ model Evenement {
   creatrice   Creatrice @relation(fields: [creatriceId], references: [id])
   creatriceId String
   ventes      Vente[]
+  articles    Article[]
 }
 
 model BoutiqueMember {
@@ -86,17 +89,20 @@ model Creatrice {
 }
 
 model Article {
-  id            String    @id @default(uuid())
+  id            String     @id @default(uuid())
   nom           String
   description   String?
   prixIndicatif Float?
-  quantite      Int?   @default(1)
+  quantite      Int?       @default(0)
   photo         String?
-  createdAt     DateTime  @default(now())
-  creatrice     Creatrice @relation(fields: [creatriceId], references: [id], onDelete: Cascade)
-  creatriceId   String
+  createdAt     DateTime   @default(now())
+  creatrice     Creatrice? @relation(fields: [creatriceId], references: [id], onDelete: Cascade)
+  creatriceId   String?
+  evenement     Evenement? @relation(fields: [evenementId], references: [id], onDelete: Cascade)
+  evenementId   String?
 
   @@unique([nom, creatriceId])
+  @@unique([nom, evenementId])
 }
 
 model Vente {
@@ -113,6 +119,16 @@ model Vente {
   boutiqueId   String?
   evenement    Evenement?   @relation(fields: [evenementId], references: [id])
   evenementId  String?
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum ModePaiement {

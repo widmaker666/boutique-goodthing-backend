@@ -5,10 +5,10 @@ import 'multer';
 
 @Injectable()
 export class CloudinaryService {
-  async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse> {
+  async uploadImage(file: Express.Multer.File, folder = 'encaissly/ventes'): Promise<UploadApiResponse> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader
-        .upload_stream({ folder: 'encaissly/ventes' }, (error, result) => {
+        .upload_stream({ folder }, (error, result) => {
           if (error || !result)
             return reject(new Error(error?.message ?? 'Upload failed'));
           resolve(result);

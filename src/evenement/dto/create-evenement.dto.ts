@@ -5,7 +5,8 @@ export class CreateEvenementDto {
   nom!: string;
 
   @IsDateString()
-  dateDebut!: string;
+  @IsOptional()
+  dateDebut?: string;
 
   @IsDateString()
   @IsOptional()

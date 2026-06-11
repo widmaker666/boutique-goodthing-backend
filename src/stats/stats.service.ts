@@ -12,50 +12,65 @@ export class StatsService {
     private readonly ownership: OwnershipService,
   ) {}
 
-  async getGlobalStats(userId: string, role: string, plan: string) {
-    let where: any = {};
-
-    //- Filtre par mois en cours pour les FREE
-    const dateFilter =
-      plan === 'FREE'
-        ? {
-            createdAt: {
-              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-              lte: new Date(
-                new Date().getFullYear(),
-                new Date().getMonth() + 1,
-                0,
-              ),
-            },
-          }
-        : {};
-
-    if (role === 'GERANTE') {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { geranteId: userId },
-      });
-      where = boutique
-        ? { boutiqueId: boutique.id, ...dateFilter }
-        : { ...dateFilter };
-    } else {
-      const creatrice = await this.prisma.creatrice.findFirst({
-        where: { userId },
-      });
-
-      if (!creatrice) {
-        return {
-          stats: {
-            _sum: { prixVente: 0 },
-            _count: 0,
-            _min: { prixVente: 0 },
-            _max: { prixVente: 0 },
+  private makeDateFilter(plan: string) {
+    return plan === 'FREE'
+      ? {
+          createdAt: {
+            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
           },
-          paiement: [],
-          totalCommissions: 0,
-        };
-      }
+        }
+      : {};
+  }
 
-      where = { creatriceId: creatrice.id, ...dateFilter };
+  async getGlobalStats(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string) {
+    let where: any = {};
+    const dateFilter = this.makeDateFilter(plan);
+
+    //- Contexte événement — CREATRICE qui veut voir les stats de son événement
+    if (evenementId) {
+      const evenement = await this.prisma.evenement.findFirst({
+        where: { id: evenementId, creatrice: { userId } },
+      });
+      if (evenement) where = { evenementId: evenement.id, ...dateFilter };
+    }
+
+    //- Contexte boutique — GERANTE ou CREATRICE via l'ancienne boutique perso
+    if (!Object.keys(where).length && boutiqueId) {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { id: boutiqueId, geranteId: userId },
+      });
+      if (boutique) where = { boutiqueId: boutique.id, ...dateFilter };
+    }
+
+    if (!Object.keys(where).length) {
+      if (role === 'GERANTE') {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { geranteId: userId },
+        });
+        where = boutique
+          ? { boutiqueId: boutique.id, ...dateFilter }
+          : { ...dateFilter };
+      } else {
+        const creatrice = await this.prisma.creatrice.findFirst({
+          where: { userId },
+        });
+
+        if (!creatrice) {
+          return {
+            stats: {
+              _sum: { prixVente: 0 },
+              _count: 0,
+              _min: { prixVente: 0 },
+              _max: { prixVente: 0 },
+            },
+            paiement: [],
+            totalCommissions: 0,
+          };
+        }
+
+        where = { creatriceId: creatrice.id, ...dateFilter };
+      }
     }
 
     const stats = await this.prisma.vente.aggregate({
@@ -83,6 +98,105 @@ export class StatsService {
     }, 0);
 
     return { stats, paiement, totalCommissions };
+  }
+
+  async getTopArticles(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string) {
+    let where: any = {};
+    const dateFilter = this.makeDateFilter(plan);
+
+    if (evenementId) {
+      const evenement = await this.prisma.evenement.findFirst({
+        where: { id: evenementId, creatrice: { userId } },
+      });
+      if (evenement) where = { evenementId: evenement.id, ...dateFilter };
+    }
+
+    if (!Object.keys(where).length && boutiqueId) {
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { id: boutiqueId, geranteId: userId },
+      });
+      if (boutique) where = { boutiqueId: boutique.id, ...dateFilter };
+    }
+
+    if (!Object.keys(where).length) {
+      if (role === 'GERANTE') {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { geranteId: userId },
+        });
+        where = boutique
+          ? { boutiqueId: boutique.id, ...dateFilter }
+          : { ...dateFilter };
+      } else {
+        const creatrice = await this.prisma.creatrice.findFirst({
+          where: { userId },
+        });
+        where = creatrice
+          ? { creatriceId: creatrice.id, ...dateFilter }
+          : { ...dateFilter };
+      }
+    }
+
+    const grouped = await this.prisma.vente.groupBy({
+      by: ['nomArticle'],
+      _count: { id: true },
+      _sum: { prixVente: true, quantite: true },
+      where,
+      orderBy: { _sum: { prixVente: 'desc' } },
+      take: 5,
+    });
+
+    return grouped.map((g) => ({
+      nomArticle: g.nomArticle,
+      nbVentes: g._count.id,
+      quantite: g._sum.quantite ?? 0,
+      ca: Math.round((g._sum.prixVente ?? 0) * 100) / 100,
+    }));
+  }
+
+  async getParCreatrice(userId: string, plan: string) {
+    //- Filtre par mois en cours pour les FREE
+    const dateFilter =
+      plan === 'FREE'
+        ? {
+            createdAt: {
+              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+              lte: new Date(
+                new Date().getFullYear(),
+                new Date().getMonth() + 1,
+                0,
+              ),
+            },
+          }
+        : {};
+
+    const boutique = await this.prisma.boutique.findFirst({
+      where: { geranteId: userId },
+    });
+
+    if (!boutique) return [];
+
+    const creatrices = await this.prisma.creatrice.findMany({
+      where: { geranteId: userId },
+      include: {
+        vente: {
+          where: { boutiqueId: boutique.id, ...dateFilter },
+        },
+      },
+    });
+
+    return creatrices.map((c) => {
+      const ca = c.vente.reduce((acc, v) => acc + v.prixVente, 0);
+      const commissions = (ca * c.tauxDeCommission) / 100;
+      const net = ca - commissions;
+      return {
+        id: c.id,
+        nom: c.nom,
+        nbVentes: c.vente.length,
+        ca: Math.round(ca * 100) / 100,
+        commissions: Math.round(commissions * 100) / 100,
+        net: Math.round(net * 100) / 100,
+      };
+    });
   }
 
   async getStatsByCreatrice(id: string, user: AuthUser) {
@@ -118,19 +232,35 @@ export class StatsService {
     return { stats, paiement, totalCommissions, netCreatrice };
   }
 
-  async getHistorique(userId: string, role: string) {
+  async getHistorique(userId: string, role: string, boutiqueId?: string, evenementId?: string) {
     let where: any = {};
 
-    if (role === 'GERANTE') {
+    if (evenementId) {
+      const evenement = await this.prisma.evenement.findFirst({
+        where: { id: evenementId, creatrice: { userId } },
+      });
+      if (evenement) where = { evenementId: evenement.id };
+    }
+
+    if (!Object.keys(where).length && boutiqueId) {
       const boutique = await this.prisma.boutique.findFirst({
-        where: { geranteId: userId },
+        where: { id: boutiqueId, geranteId: userId },
       });
-      where = boutique ? { boutiqueId: boutique.id } : {};
-    } else {
-      const creatrice = await this.prisma.creatrice.findFirst({
-        where: { userId },
-      });
-      where = creatrice ? { creatriceId: creatrice.id } : {};
+      if (boutique) where = { boutiqueId: boutique.id };
+    }
+
+    if (!Object.keys(where).length) {
+      if (role === 'GERANTE') {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { geranteId: userId },
+        });
+        where = boutique ? { boutiqueId: boutique.id } : {};
+      } else {
+        const creatrice = await this.prisma.creatrice.findFirst({
+          where: { userId },
+        });
+        where = creatrice ? { creatriceId: creatrice.id } : {};
+      }
     }
 
     //- Génère les 3 derniers mois

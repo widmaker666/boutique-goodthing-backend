@@ -30,4 +30,8 @@ export class CreateArticleDto {
   @IsOptional()
   @IsString()
   creatriceId?: string;
+
+  @IsOptional()
+  @IsString()
+  evenementId?: string;
 }

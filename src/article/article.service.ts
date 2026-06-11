@@ -16,36 +16,42 @@ export class ArticleService {
     private readonly ownership: OwnershipService,
   ) {}
 
-  //- Crée un article lié à une créatrice possédée par le user
-  async create(dto: CreateArticleDto, creatriceId: string, user: AuthUser) {
-    //- Vérifie que la créatrice cible appartient au user (404 sinon)
-    await this.ownership.assertCreatriceOwned(user, creatriceId);
+  async create(dto: CreateArticleDto, user: AuthUser) {
+    const { creatriceId, evenementId, ...rest } = dto;
 
-    const { creatriceId: _ignored, ...rest } = dto;
-    return this.prisma.article.create({
-      data: {
-        ...rest,
-        creatriceId,
-      },
-    });
+    if (evenementId) {
+      await this.ownership.assertEvenementOwned(user, evenementId);
+      return this.prisma.article.create({ data: { ...rest, evenementId } });
+    }
+
+    const id = creatriceId ?? '';
+    await this.ownership.assertCreatriceOwned(user, id);
+    return this.prisma.article.create({ data: { ...rest, creatriceId: id } });
   }
 
-  //- Retourne les articles possédés par le user, filtrables par créatrice et/ou nom
   async findAll(query: QueryArticleDto, user: AuthUser) {
-    const { creatriceId, nom } = query;
+    const { creatriceId, evenementId, nom } = query;
+    const nameFilter = nom ? { nom: { contains: nom, mode: 'insensitive' as const } } : {};
+
+    if (evenementId) {
+      await this.ownership.assertEvenementOwned(user, evenementId);
+      return this.prisma.article.findMany({
+        where: { evenementId, ...nameFilter },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
     return this.prisma.article.findMany({
       where: {
-        //- Scope obligatoire : articles des créatrices possédées (finding sécu C1)
         creatrice: this.ownership.getOwnedCreatriceWhere(user),
         ...(creatriceId ? { creatriceId } : {}),
-        ...(nom ? { nom: { contains: nom, mode: 'insensitive' } } : {}),
+        ...nameFilter,
       },
       include: { creatrice: true },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  //- Retourne un article par id — 404 si absent OU non possédé
   async findOne(id: string, user: AuthUser) {
     await this.ownership.assertArticleOwned(user, id);
 
@@ -57,45 +63,38 @@ export class ArticleService {
     return article;
   }
 
-  //- Vérifie ownership avant update
   async update(id: string, dto: UpdateArticleDto, user: AuthUser) {
     await this.ownership.assertArticleOwned(user, id);
 
-    const { creatriceId, ...rest } = dto;
-    return this.prisma.article.update({
-      where: { id },
-      data: rest,
-    });
+    const { creatriceId, evenementId, ...rest } = dto as any;
+    return this.prisma.article.update({ where: { id }, data: rest });
   }
 
-  //- Import bulk depuis fichier CSV ou Excel
   async importFromFile(
     file: Express.Multer.File,
-    creatriceId: string,
+    creatriceId: string | undefined,
+    evenementId: string | undefined,
     user: AuthUser,
   ) {
     if (!file) throw new BadRequestException('Aucun fichier fourni');
-    if (!creatriceId) throw new BadRequestException('creatriceId manquant');
+    if (!creatriceId && !evenementId) throw new BadRequestException('creatriceId ou evenementId manquant');
 
-    //- Vérifie que la créatrice appartient au user (404 sinon)
-    const creatrice = await this.ownership.assertCreatriceOwned(
-      user,
-      creatriceId,
-    );
+    if (evenementId) {
+      await this.ownership.assertEvenementOwned(user, evenementId);
+    } else {
+      await this.ownership.assertCreatriceOwned(user, creatriceId!);
+    }
 
-    //- Synonymes acceptés par champ — insensible à la casse et aux accents
     const COLS = {
-      nom:          ['nom', 'name', 'article', 'libelle', 'libellé', 'produit', 'titre', 'title'],
-      prix:         ['prix', 'prixindicatif', 'prix_indicatif', 'price', 'tarif', 'cout', 'coût', 'montant'],
-      description:  ['description', 'desc', 'detail', 'détail', 'details', 'détails', 'info'],
-      quantite:     ['quantite', 'quantité', 'qty', 'stock', 'qte', 'qté', 'quantity'],
+      nom:         ['nom', 'name', 'article', 'libelle', 'libellé', 'produit', 'titre', 'title'],
+      prix:        ['prix', 'prixindicatif', 'prix_indicatif', 'price', 'tarif', 'cout', 'coût', 'montant'],
+      description: ['description', 'desc', 'detail', 'détail', 'details', 'détails', 'info'],
+      quantite:    ['quantite', 'quantité', 'qty', 'stock', 'qte', 'qté', 'quantity'],
     };
 
-    //- Trouve la première clé présente dans un objet parmi une liste de synonymes
     const get = (obj: Record<string, string>, keys: string[]): string =>
       keys.map(k => obj[k]).find(v => v !== undefined && v !== '') ?? '';
 
-    //- Parse une valeur en float — gère number natif, string, objets complexes ExcelJS
     const toFloat = (val: unknown): number | undefined => {
       if (val == null || val === '') return undefined;
       if (typeof val === 'number') return isNaN(val) ? undefined : val;
@@ -104,7 +103,6 @@ export class ArticleService {
       return isNaN(n) ? undefined : n;
     };
 
-    //- Parse une valeur en entier
     const toInt = (val: unknown): number | undefined => {
       if (val == null || val === '') return undefined;
       if (typeof val === 'number') return isNaN(val) ? undefined : Math.round(val);
@@ -116,7 +114,6 @@ export class ArticleService {
     const rows: { nom: string; description?: string; prixIndicatif?: number; quantite?: number }[] = [];
 
     if (ext === 'csv') {
-      //- Parse CSV — séparateur virgule, point-virgule ou tabulation
       const text = file.buffer.toString('utf-8').replace(/\r/g, '');
       const lines = text.split('\n').filter((l) => l.trim());
       const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') ? ';' : ',';
@@ -126,10 +123,8 @@ export class ArticleService {
         const cols = lines[i].split(sep);
         const row: Record<string, string> = {};
         headers.forEach((h, idx) => (row[h] = cols[idx]?.trim() ?? ''));
-
         const nom = get(row, COLS.nom);
         if (!nom) continue;
-
         rows.push({
           nom,
           description: get(row, COLS.description) || undefined,
@@ -138,9 +133,7 @@ export class ArticleService {
         });
       }
     } else {
-      //- Parse Excel (.xlsx / .xls)
       const workbook = new ExcelJS.Workbook();
-      //- Cast nécessaire : conflit entre @types/node v22 Buffer générique et Buffer ExcelJS
       const ab = file.buffer.buffer.slice(
         file.buffer.byteOffset,
         file.buffer.byteOffset + file.buffer.byteLength,
@@ -152,20 +145,15 @@ export class ArticleService {
       sheet.eachRow((row, rowIndex) => {
         if (rowIndex === 1) {
           row.eachCell((cell) =>
-            headers.push(
-              String(cell.value ?? '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
-            ),
+            headers.push(String(cell.value ?? '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')),
           );
           return;
         }
         const values = (row.values as ExcelJS.CellValue[]).slice(1);
-        //- Garder les valeurs brutes pour que toFloat/toInt gèrent les vrais types Excel
         const obj: Record<string, unknown> = {};
         headers.forEach((h, i) => (obj[h] = values[i] ?? ''));
-
         const nom = obj[headers.find(h => COLS.nom.includes(h)) ?? ''];
         if (!nom) return;
-
         rows.push({
           nom: String(nom),
           description: String(obj[headers.find(h => COLS.description.includes(h)) ?? ''] ?? '') || undefined,
@@ -177,9 +165,8 @@ export class ArticleService {
 
     if (rows.length === 0) return { imported: 0, message: 'Aucune ligne valide trouvée' };
 
-    //- Création en bulk — skipDuplicates ignore les doublons sur (nom, creatriceId)
     const result = await this.prisma.article.createMany({
-      data: rows.map((r) => ({ ...r, creatriceId })),
+      data: rows.map((r) => evenementId ? { ...r, evenementId } : { ...r, creatriceId: creatriceId! }),
       skipDuplicates: true,
     });
 
@@ -193,10 +180,8 @@ export class ArticleService {
     };
   }
 
-  //- Vérifie ownership avant delete
   async remove(id: string, user: AuthUser) {
     await this.ownership.assertArticleOwned(user, id);
-
     return this.prisma.article.delete({ where: { id } });
   }
 }

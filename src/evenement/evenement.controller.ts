@@ -20,6 +20,15 @@ import { JwtGuard } from 'src/auth/guard/jwt.guard';
 export class EvenementController {
   constructor(private readonly evenementService: EvenementService) {}
 
+  @Post('mon-evenement')
+  creerMonEvenement(@Body() body: { nom: string }, @Req() req) {
+    return this.evenementService.creerMonEvenement(
+      req.user.id,
+      body.nom,
+      req.user.plan,
+    );
+  }
+
   @Post()
   create(@Body() dto: CreateEvenementDto, @Req() req) {
     return this.evenementService.create(dto, req.user);
@@ -44,4 +53,5 @@ export class EvenementController {
   remove(@Param('id') id: string, @Req() req) {
     return this.evenementService.remove(id, req.user);
   }
+
 }

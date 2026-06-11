@@ -5,9 +5,10 @@ import { PrismaService } from 'src/prisma.service';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { EmailModule } from 'src/email/email.module';
 import { OwnershipModule } from 'src/common/ownership/ownership.module';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
-  imports: [CloudinaryModule, EmailModule, OwnershipModule],
+  imports: [CloudinaryModule, EmailModule, OwnershipModule, NotificationModule],
   controllers: [VenteController],
   providers: [VenteService, PrismaService],
 })

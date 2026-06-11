@@ -192,6 +192,7 @@ export type EvenementWhereInput = {
   creatriceId?: Prisma.StringFilter<"Evenement"> | string
   creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
   ventes?: Prisma.VenteListRelationFilter
+  articles?: Prisma.ArticleListRelationFilter
 }
 
 export type EvenementOrderByWithRelationInput = {
@@ -203,6 +204,7 @@ export type EvenementOrderByWithRelationInput = {
   creatriceId?: Prisma.SortOrder
   creatrice?: Prisma.CreatriceOrderByWithRelationInput
   ventes?: Prisma.VenteOrderByRelationAggregateInput
+  articles?: Prisma.ArticleOrderByRelationAggregateInput
 }
 
 export type EvenementWhereUniqueInput = Prisma.AtLeast<{
@@ -217,6 +219,7 @@ export type EvenementWhereUniqueInput = Prisma.AtLeast<{
   creatriceId?: Prisma.StringFilter<"Evenement"> | string
   creatrice?: Prisma.XOR<Prisma.CreatriceScalarRelationFilter, Prisma.CreatriceWhereInput>
   ventes?: Prisma.VenteListRelationFilter
+  articles?: Prisma.ArticleListRelationFilter
 }, "id">
 
 export type EvenementOrderByWithAggregationInput = {
@@ -251,6 +254,7 @@ export type EvenementCreateInput = {
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutEvenementsInput
   ventes?: Prisma.VenteCreateNestedManyWithoutEvenementInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementUncheckedCreateInput = {
@@ -261,6 +265,7 @@ export type EvenementUncheckedCreateInput = {
   createdAt?: Date | string
   creatriceId: string
   ventes?: Prisma.VenteUncheckedCreateNestedManyWithoutEvenementInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementUpdateInput = {
@@ -271,6 +276,7 @@ export type EvenementUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutEvenementsNestedInput
   ventes?: Prisma.VenteUpdateManyWithoutEvenementNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementUncheckedUpdateInput = {
@@ -281,6 +287,7 @@ export type EvenementUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
   ventes?: Prisma.VenteUncheckedUpdateManyWithoutEvenementNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementCreateManyInput = {
@@ -393,6 +400,22 @@ export type EvenementUncheckedUpdateManyWithoutCreatriceNestedInput = {
   deleteMany?: Prisma.EvenementScalarWhereInput | Prisma.EvenementScalarWhereInput[]
 }
 
+export type EvenementCreateNestedOneWithoutArticlesInput = {
+  create?: Prisma.XOR<Prisma.EvenementCreateWithoutArticlesInput, Prisma.EvenementUncheckedCreateWithoutArticlesInput>
+  connectOrCreate?: Prisma.EvenementCreateOrConnectWithoutArticlesInput
+  connect?: Prisma.EvenementWhereUniqueInput
+}
+
+export type EvenementUpdateOneWithoutArticlesNestedInput = {
+  create?: Prisma.XOR<Prisma.EvenementCreateWithoutArticlesInput, Prisma.EvenementUncheckedCreateWithoutArticlesInput>
+  connectOrCreate?: Prisma.EvenementCreateOrConnectWithoutArticlesInput
+  upsert?: Prisma.EvenementUpsertWithoutArticlesInput
+  disconnect?: Prisma.EvenementWhereInput | boolean
+  delete?: Prisma.EvenementWhereInput | boolean
+  connect?: Prisma.EvenementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EvenementUpdateToOneWithWhereWithoutArticlesInput, Prisma.EvenementUpdateWithoutArticlesInput>, Prisma.EvenementUncheckedUpdateWithoutArticlesInput>
+}
+
 export type EvenementCreateNestedOneWithoutVentesInput = {
   create?: Prisma.XOR<Prisma.EvenementCreateWithoutVentesInput, Prisma.EvenementUncheckedCreateWithoutVentesInput>
   connectOrCreate?: Prisma.EvenementCreateOrConnectWithoutVentesInput
@@ -416,6 +439,7 @@ export type EvenementCreateWithoutCreatriceInput = {
   dateFin?: Date | string | null
   createdAt?: Date | string
   ventes?: Prisma.VenteCreateNestedManyWithoutEvenementInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementUncheckedCreateWithoutCreatriceInput = {
@@ -425,6 +449,7 @@ export type EvenementUncheckedCreateWithoutCreatriceInput = {
   dateFin?: Date | string | null
   createdAt?: Date | string
   ventes?: Prisma.VenteUncheckedCreateNestedManyWithoutEvenementInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementCreateOrConnectWithoutCreatriceInput = {
@@ -465,6 +490,62 @@ export type EvenementScalarWhereInput = {
   creatriceId?: Prisma.StringFilter<"Evenement"> | string
 }
 
+export type EvenementCreateWithoutArticlesInput = {
+  id?: string
+  nom: string
+  dateDebut: Date | string
+  dateFin?: Date | string | null
+  createdAt?: Date | string
+  creatrice: Prisma.CreatriceCreateNestedOneWithoutEvenementsInput
+  ventes?: Prisma.VenteCreateNestedManyWithoutEvenementInput
+}
+
+export type EvenementUncheckedCreateWithoutArticlesInput = {
+  id?: string
+  nom: string
+  dateDebut: Date | string
+  dateFin?: Date | string | null
+  createdAt?: Date | string
+  creatriceId: string
+  ventes?: Prisma.VenteUncheckedCreateNestedManyWithoutEvenementInput
+}
+
+export type EvenementCreateOrConnectWithoutArticlesInput = {
+  where: Prisma.EvenementWhereUniqueInput
+  create: Prisma.XOR<Prisma.EvenementCreateWithoutArticlesInput, Prisma.EvenementUncheckedCreateWithoutArticlesInput>
+}
+
+export type EvenementUpsertWithoutArticlesInput = {
+  update: Prisma.XOR<Prisma.EvenementUpdateWithoutArticlesInput, Prisma.EvenementUncheckedUpdateWithoutArticlesInput>
+  create: Prisma.XOR<Prisma.EvenementCreateWithoutArticlesInput, Prisma.EvenementUncheckedCreateWithoutArticlesInput>
+  where?: Prisma.EvenementWhereInput
+}
+
+export type EvenementUpdateToOneWithWhereWithoutArticlesInput = {
+  where?: Prisma.EvenementWhereInput
+  data: Prisma.XOR<Prisma.EvenementUpdateWithoutArticlesInput, Prisma.EvenementUncheckedUpdateWithoutArticlesInput>
+}
+
+export type EvenementUpdateWithoutArticlesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  dateDebut?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutEvenementsNestedInput
+  ventes?: Prisma.VenteUpdateManyWithoutEvenementNestedInput
+}
+
+export type EvenementUncheckedUpdateWithoutArticlesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  dateDebut?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ventes?: Prisma.VenteUncheckedUpdateManyWithoutEvenementNestedInput
+}
+
 export type EvenementCreateWithoutVentesInput = {
   id?: string
   nom: string
@@ -472,6 +553,7 @@ export type EvenementCreateWithoutVentesInput = {
   dateFin?: Date | string | null
   createdAt?: Date | string
   creatrice: Prisma.CreatriceCreateNestedOneWithoutEvenementsInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementUncheckedCreateWithoutVentesInput = {
@@ -481,6 +563,7 @@ export type EvenementUncheckedCreateWithoutVentesInput = {
   dateFin?: Date | string | null
   createdAt?: Date | string
   creatriceId: string
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutEvenementInput
 }
 
 export type EvenementCreateOrConnectWithoutVentesInput = {
@@ -506,6 +589,7 @@ export type EvenementUpdateWithoutVentesInput = {
   dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatrice?: Prisma.CreatriceUpdateOneRequiredWithoutEvenementsNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementUncheckedUpdateWithoutVentesInput = {
@@ -515,6 +599,7 @@ export type EvenementUncheckedUpdateWithoutVentesInput = {
   dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementCreateManyCreatriceInput = {
@@ -532,6 +617,7 @@ export type EvenementUpdateWithoutCreatriceInput = {
   dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ventes?: Prisma.VenteUpdateManyWithoutEvenementNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementUncheckedUpdateWithoutCreatriceInput = {
@@ -541,6 +627,7 @@ export type EvenementUncheckedUpdateWithoutCreatriceInput = {
   dateFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ventes?: Prisma.VenteUncheckedUpdateManyWithoutEvenementNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutEvenementNestedInput
 }
 
 export type EvenementUncheckedUpdateManyWithoutCreatriceInput = {
@@ -558,10 +645,12 @@ export type EvenementUncheckedUpdateManyWithoutCreatriceInput = {
 
 export type EvenementCountOutputType = {
   ventes: number
+  articles: number
 }
 
 export type EvenementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ventes?: boolean | EvenementCountOutputTypeCountVentesArgs
+  articles?: boolean | EvenementCountOutputTypeCountArticlesArgs
 }
 
 /**
@@ -581,6 +670,13 @@ export type EvenementCountOutputTypeCountVentesArgs<ExtArgs extends runtime.Type
   where?: Prisma.VenteWhereInput
 }
 
+/**
+ * EvenementCountOutputType without action
+ */
+export type EvenementCountOutputTypeCountArticlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArticleWhereInput
+}
+
 
 export type EvenementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -591,6 +687,7 @@ export type EvenementSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   creatriceId?: boolean
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
   ventes?: boolean | Prisma.Evenement$ventesArgs<ExtArgs>
+  articles?: boolean | Prisma.Evenement$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.EvenementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["evenement"]>
 
@@ -627,6 +724,7 @@ export type EvenementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type EvenementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creatrice?: boolean | Prisma.CreatriceDefaultArgs<ExtArgs>
   ventes?: boolean | Prisma.Evenement$ventesArgs<ExtArgs>
+  articles?: boolean | Prisma.Evenement$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.EvenementCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EvenementIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -641,6 +739,7 @@ export type $EvenementPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     creatrice: Prisma.$CreatricePayload<ExtArgs>
     ventes: Prisma.$VentePayload<ExtArgs>[]
+    articles: Prisma.$ArticlePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1045,6 +1144,7 @@ export interface Prisma__EvenementClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   creatrice<T extends Prisma.CreatriceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CreatriceDefaultArgs<ExtArgs>>): Prisma.Prisma__CreatriceClient<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ventes<T extends Prisma.Evenement$ventesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Evenement$ventesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  articles<T extends Prisma.Evenement$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Evenement$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1502,6 +1602,30 @@ export type Evenement$ventesArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.VenteScalarFieldEnum | Prisma.VenteScalarFieldEnum[]
+}
+
+/**
+ * Evenement.articles
+ */
+export type Evenement$articlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Article
+   */
+  select?: Prisma.ArticleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Article
+   */
+  omit?: Prisma.ArticleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArticleInclude<ExtArgs> | null
+  where?: Prisma.ArticleWhereInput
+  orderBy?: Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[]
+  cursor?: Prisma.ArticleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArticleScalarFieldEnum | Prisma.ArticleScalarFieldEnum[]
 }
 
 /**

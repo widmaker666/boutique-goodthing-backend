@@ -43,28 +43,22 @@ export class ExportService {
     res.setHeader('Content-Disposition', 'inline; filename=export.pdf');
     doc.pipe(res);
 
-    //- Header
-    doc.rect(0, 0, 842, 80).fill(PRIMARY);
-    doc
-      .font(FONT_BOLD)
-      .fontSize(26)
-      .fillColor('white')
-      .text('Encaissly', 40, 20);
-    doc
-      .font(FONT)
-      .fontSize(11)
-      .fillColor(ACCENT)
-      .text('Rapport des ventes', 40, 52);
-    doc
-      .font(FONT)
-      .fontSize(9)
-      .fillColor('#aaaaaa')
-      .text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 40, 90, {
-        align: 'right',
-      });
+    //- Colonnes
+    const col0 = 40;
+    const col1 = 80;
+    const col2 = 210;
+    const col3 = 320;
+    const col4 = 400;
+    const col5 = 490;
+    const col6 = 590;
+    const col7 = 700;
 
-    //- Filigrane FREE
-    if (user.plan === 'FREE') {
+    const PAGE_W = 842;
+    const FOOTER_Y = 565;
+    const MAX_ROW_Y = 545;
+
+    const drawWatermark = () => {
+      if (user.plan !== 'FREE') return;
       doc.save();
       doc.font(FONT).fontSize(18).opacity(0.15).fillColor('#cc0000');
       for (let fy = 100; fy < 600; fy += 120) {
@@ -73,32 +67,41 @@ export class ExportService {
         }
       }
       doc.restore();
-    }
+    };
 
-    //- Colonnes
+    const drawColHeaders = (top: number) => {
+      doc.rect(40, top, 780, 26).fill(ACCENT);
+      doc.font(FONT_BOLD).fontSize(9).fillColor('white');
+      doc.text('Photo', col0, top + 8);
+      doc.text('Article', col1, top + 8);
+      doc.text('Créatrice', col2, top + 8);
+      doc.text('Taux com.', col3, top + 8);
+      doc.text('Prix vente', col4, top + 8);
+      doc.text('Commission', col5, top + 8);
+      doc.text('Net créatrice', col6, top + 8);
+      doc.text('Paiement', col7, top + 8);
+    };
+
+    const drawPageFooter = () => {
+      doc.rect(0, FOOTER_Y, PAGE_W, 20).fill(PRIMARY);
+      doc.font(FONT).fontSize(8).fillColor('#aaaaaa').text(
+        'Encaissly — La caisse intelligente des boutiques de créateurs',
+        40,
+        FOOTER_Y + 4,
+      );
+    };
+
+    //- Header première page
+    doc.rect(0, 0, PAGE_W, 80).fill(PRIMARY);
+    doc.font(FONT_BOLD).fontSize(26).fillColor('white').text('Encaissly', 40, 20);
+    doc.font(FONT).fontSize(11).fillColor(ACCENT).text('Rapport des ventes', 40, 52);
+    doc.font(FONT).fontSize(9).fillColor('#aaaaaa').text(
+      `Généré le ${new Date().toLocaleDateString('fr-FR')}`, 40, 90, { align: 'right' },
+    );
+    drawWatermark();
+
     const tableTop = 110;
-    const col0 = 40; //- photo
-    const col1 = 80; //- article
-    const col2 = 210; //- créatrice
-    const col3 = 320; //- taux com
-    const col4 = 400; //- prix vente
-    const col5 = 490; //- commission
-    const col6 = 590; //- net créatrice
-    const col7 = 700; //- paiement
-
-    //- En-têtes
-    doc.rect(40, tableTop, 780, 26).fill(ACCENT);
-    doc.font(FONT_BOLD).fontSize(9).fillColor('white');
-    doc.text('Photo', col0, tableTop + 8);
-    doc.text('Article', col1, tableTop + 8);
-    doc.text('Créatrice', col2, tableTop + 8);
-    doc.text('Taux com.', col3, tableTop + 8);
-    doc.text('Prix vente', col4, tableTop + 8);
-    doc.text('Commission', col5, tableTop + 8);
-    doc.text('Net créatrice', col6, tableTop + 8);
-    doc.text('Paiement', col7, tableTop + 8);
-
-    //- Lignes
+    drawColHeaders(tableTop);
     let y = tableTop + 32;
     let totalPrixVente = 0;
     let totalCommission = 0;
@@ -108,6 +111,16 @@ export class ExportService {
       const montantCommission =
         (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
       const netCreatrice = vente.prixVente - montantCommission;
+
+      //- Saut de page si la prochaine ligne déborde
+      if (y + 42 > MAX_ROW_Y) {
+        drawPageFooter();
+        doc.addPage();
+        drawWatermark();
+        const newTop = 30;
+        drawColHeaders(newTop);
+        y = newTop + 32;
+      }
 
       if (index % 2 === 0) {
         doc.rect(40, y - 4, 780, 38).fill('#f7f7f7');
@@ -129,22 +142,10 @@ export class ExportService {
       doc.text(vente.nomArticle, col1, y + 10);
       doc.text(vente.creatrice.nom, col2, y + 10);
       doc.text(`${vente.creatrice.tauxDeCommission}%`, col3, y + 10);
-      doc
-        .font(FONT_BOLD)
-        .fillColor(PRIMARY)
-        .text(`${vente.prixVente.toFixed(2)}€`, col4, y + 10);
-      doc
-        .font(FONT)
-        .fillColor('#cc0000')
-        .text(`-${montantCommission.toFixed(2)}€`, col5, y + 10);
-      doc
-        .font(FONT_BOLD)
-        .fillColor('#1a7a4a')
-        .text(`${netCreatrice.toFixed(2)}€`, col6, y + 10);
-      doc
-        .font(FONT)
-        .fillColor('#555555')
-        .text(vente.modePaiement, col7, y + 10);
+      doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${vente.prixVente.toFixed(2)}€`, col4, y + 10);
+      doc.font(FONT).fillColor('#cc0000').text(`-${montantCommission.toFixed(2)}€`, col5, y + 10);
+      doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${netCreatrice.toFixed(2)}€`, col6, y + 10);
+      doc.font(FONT).fillColor('#555555').text(vente.modePaiement, col7, y + 10);
 
       totalPrixVente += vente.prixVente;
       totalCommission += montantCommission;
@@ -152,42 +153,24 @@ export class ExportService {
       y += 42;
     }
 
+    //- Saut de page si les totaux ne tiennent pas (séparateur + ligne totaux ≈ 50px)
+    if (y + 50 > MAX_ROW_Y) {
+      drawPageFooter();
+      doc.addPage();
+      y = 40;
+    }
+
     //- Séparateur
-    doc
-      .moveTo(40, y + 8)
-      .lineTo(820, y + 8)
-      .strokeColor(ACCENT)
-      .lineWidth(1.5)
-      .stroke();
+    doc.moveTo(40, y + 8).lineTo(820, y + 8).strokeColor(ACCENT).lineWidth(1.5).stroke();
     y += 20;
 
     //- Totaux
     doc.font(FONT_BOLD).fontSize(10).fillColor(PRIMARY).text('TOTAUX', col1, y);
-    doc
-      .font(FONT_BOLD)
-      .fillColor(PRIMARY)
-      .text(`${totalPrixVente.toFixed(2)}€`, col4, y);
-    doc
-      .font(FONT_BOLD)
-      .fillColor('#cc0000')
-      .text(`-${totalCommission.toFixed(2)}€`, col5, y);
-    doc
-      .font(FONT_BOLD)
-      .fillColor('#1a7a4a')
-      .text(`${totalNet.toFixed(2)}€`, col6, y);
+    doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${totalPrixVente.toFixed(2)}€`, col4, y);
+    doc.font(FONT_BOLD).fillColor('#cc0000').text(`-${totalCommission.toFixed(2)}€`, col5, y);
+    doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${totalNet.toFixed(2)}€`, col6, y);
 
-    //- Footer
-    doc.rect(0, 565, 842, 20).fill(PRIMARY);
-    doc
-      .font(FONT)
-      .fontSize(8)
-      .fillColor('#aaaaaa')
-      .text(
-        'Encaissly — La caisse intelligente des boutiques de créateurs',
-        40,
-        569,
-      );
-
+    drawPageFooter();
     doc.end();
   }
 
@@ -357,7 +340,13 @@ export class ExportService {
     res.end();
   }
   //* DOCUMENTS BOUTIQUE *//
-  async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId: string) {
+  async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId?: string) {
+    //- Auto-détecte la boutique si non fournie
+    if (!boutiqueId) {
+      const boutique = await this.prismaService.boutique.findFirst({ where: { geranteId: user.id } });
+      if (!boutique) throw new NotFoundException('Aucune boutique trouvée');
+      boutiqueId = boutique.id;
+    }
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 
@@ -452,50 +441,72 @@ export class ExportService {
       totalNet += netCreatrice;
     }
 
-    //- Tableau résumé par créatrice
-    const tableTop = 115;
+    //- Colonnes
     const col1 = 40,
       col2 = 180,
       col3 = 270,
       col4 = 380,
       col5 = 480;
 
-    doc.rect(40, tableTop, 530, 26).fill(ACCENT);
-    doc.font(FONT_BOLD).fontSize(10).fillColor('white');
-    doc.text('Créatrice', col1, tableTop + 8);
-    doc.text('Taux', col2, tableTop + 8);
-    doc.text('CA total', col3, tableTop + 8);
-    doc.text('Commission', col4, tableTop + 8);
-    doc.text('Net créatrice', col5, tableTop + 8);
+    const PAGE_W_P = 612;
+    const FOOTER_Y_P = 780;
+    const MAX_ROW_Y_P = 760;
 
+    const drawColHeadersP = (top: number) => {
+      doc.rect(40, top, 530, 26).fill(ACCENT);
+      doc.font(FONT_BOLD).fontSize(10).fillColor('white');
+      doc.text('Créatrice', col1, top + 8);
+      doc.text('Taux', col2, top + 8);
+      doc.text('CA total', col3, top + 8);
+      doc.text('Commission', col4, top + 8);
+      doc.text('Net créatrice', col5, top + 8);
+    };
+
+    const drawPageFooterP = () => {
+      doc.rect(0, FOOTER_Y_P, PAGE_W_P, 20).fill(PRIMARY);
+      doc.font(FONT).fontSize(8).fillColor('#aaaaaa').text(
+        'Encaissly — La caisse intelligente des boutiques de créateurs',
+        40,
+        FOOTER_Y_P + 4,
+      );
+    };
+
+    //- Tableau résumé par créatrice
+    const tableTop = 115;
+    drawColHeadersP(tableTop);
     let y = tableTop + 32;
 
-    Object.values(resumeParCreatrice).forEach((c, index) => {
+    const creatriceEntries = Object.values(resumeParCreatrice);
+    for (let index = 0; index < creatriceEntries.length; index++) {
+      const c = creatriceEntries[index];
+
+      //- Saut de page si la prochaine ligne déborde (26px/ligne)
+      if (y + 26 > MAX_ROW_Y_P) {
+        drawPageFooterP();
+        doc.addPage();
+        const newTop = 30;
+        drawColHeadersP(newTop);
+        y = newTop + 32;
+      }
+
       if (index % 2 === 0) doc.rect(40, y - 4, 530, 26).fill('#f7f7f7');
       doc.font(FONT).fontSize(10).fillColor('#222222').text(c.nom, col1, y);
       doc.font(FONT).fillColor('#555555').text(`${c.taux}%`, col2, y);
-      doc
-        .font(FONT_BOLD)
-        .fillColor(PRIMARY)
-        .text(`${c.total.toFixed(2)}€`, col3, y);
-      doc
-        .font(FONT)
-        .fillColor('#cc0000')
-        .text(`-${c.commission.toFixed(2)}€`, col4, y);
-      doc
-        .font(FONT_BOLD)
-        .fillColor('#1a7a4a')
-        .text(`${c.net.toFixed(2)}€`, col5, y);
+      doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${c.total.toFixed(2)}€`, col3, y);
+      doc.font(FONT).fillColor('#cc0000').text(`-${c.commission.toFixed(2)}€`, col4, y);
+      doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${c.net.toFixed(2)}€`, col5, y);
       y += 26;
-    });
+    }
+
+    //- Saut de page si le total global ne tient pas (séparateur + rect 36px ≈ 75px)
+    if (y + 75 > MAX_ROW_Y_P) {
+      drawPageFooterP();
+      doc.addPage();
+      y = 40;
+    }
 
     //- Séparateur
-    doc
-      .moveTo(40, y + 10)
-      .lineTo(570, y + 10)
-      .strokeColor(ACCENT)
-      .lineWidth(1.5)
-      .stroke();
+    doc.moveTo(40, y + 10).lineTo(570, y + 10).strokeColor(ACCENT).lineWidth(1.5).stroke();
     y += 25;
 
     //- Total global
@@ -503,31 +514,24 @@ export class ExportService {
     doc.font(FONT_BOLD).fontSize(11).fillColor('white');
     doc.text('TOTAL BOUTIQUE', col1, y + 11);
     doc.text(`${totalCA.toFixed(2)}€`, col3, y + 11);
-    doc
-      .fillColor('#ff9999')
-      .text(`-${totalCommission.toFixed(2)}€`, col4, y + 11);
+    doc.fillColor('#ff9999').text(`-${totalCommission.toFixed(2)}€`, col4, y + 11);
     doc.fillColor('#66ffaa').text(`${totalNet.toFixed(2)}€`, col5, y + 11);
 
-    //- Footer
-    doc.rect(0, 780, 612, 20).fill(PRIMARY);
-    doc
-      .font(FONT)
-      .fontSize(8)
-      .fillColor('#aaaaaa')
-      .text(
-        'Encaissly — La caisse intelligente des boutiques de créateurs',
-        40,
-        784,
-      );
-
+    drawPageFooterP();
     doc.end();
   }
 
   async getExportCsvBoutique(
-    boutiqueId: string,
+    boutiqueId: string | undefined,
     res: Response,
     user: AuthUser,
   ) {
+    //- Auto-détecte la boutique si non fournie
+    if (!boutiqueId) {
+      const boutique = await this.prismaService.boutique.findFirst({ where: { geranteId: user.id } });
+      if (!boutique) throw new NotFoundException('Aucune boutique trouvée');
+      boutiqueId = boutique.id;
+    }
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 
@@ -605,10 +609,16 @@ export class ExportService {
   }
 
   async getExportExcelBoutique(
-    boutiqueId: string,
+    boutiqueId: string | undefined,
     res: Response,
     user: AuthUser,
   ) {
+    //- Auto-détecte la boutique si non fournie
+    if (!boutiqueId) {
+      const boutique = await this.prismaService.boutique.findFirst({ where: { geranteId: user.id } });
+      if (!boutique) throw new NotFoundException('Aucune boutique trouvée');
+      boutiqueId = boutique.id;
+    }
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 

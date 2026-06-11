@@ -455,6 +455,11 @@ export type CreatriceSumOrderByAggregateInput = {
   tauxDeCommission?: Prisma.SortOrder
 }
 
+export type CreatriceNullableScalarRelationFilter = {
+  is?: Prisma.CreatriceWhereInput | null
+  isNot?: Prisma.CreatriceWhereInput | null
+}
+
 export type CreatriceCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.CreatriceCreateWithoutUserInput, Prisma.CreatriceUncheckedCreateWithoutUserInput> | Prisma.CreatriceCreateWithoutUserInput[] | Prisma.CreatriceUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.CreatriceCreateOrConnectWithoutUserInput | Prisma.CreatriceCreateOrConnectWithoutUserInput[]
@@ -567,10 +572,12 @@ export type CreatriceCreateNestedOneWithoutArticlesInput = {
   connect?: Prisma.CreatriceWhereUniqueInput
 }
 
-export type CreatriceUpdateOneRequiredWithoutArticlesNestedInput = {
+export type CreatriceUpdateOneWithoutArticlesNestedInput = {
   create?: Prisma.XOR<Prisma.CreatriceCreateWithoutArticlesInput, Prisma.CreatriceUncheckedCreateWithoutArticlesInput>
   connectOrCreate?: Prisma.CreatriceCreateOrConnectWithoutArticlesInput
   upsert?: Prisma.CreatriceUpsertWithoutArticlesInput
+  disconnect?: Prisma.CreatriceWhereInput | boolean
+  delete?: Prisma.CreatriceWhereInput | boolean
   connect?: Prisma.CreatriceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CreatriceUpdateToOneWithWhereWithoutArticlesInput, Prisma.CreatriceUpdateWithoutArticlesInput>, Prisma.CreatriceUncheckedUpdateWithoutArticlesInput>
 }

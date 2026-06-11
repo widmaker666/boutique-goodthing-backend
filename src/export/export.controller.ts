@@ -40,7 +40,7 @@ export class ExportController {
   getexportPdfBoutique(
     @Req() req,
     @Res() res: Response,
-    @Query('boutiqueId') boutiqueId: string,
+    @Query('boutiqueId') boutiqueId?: string,
   ) {
     return this.exportService.getExportPdfBoutique(req.user, res, boutiqueId);
   }
@@ -51,7 +51,7 @@ export class ExportController {
   getexportExcelBoutique(
     @Req() req,
     @Res() res: Response,
-    @Query('boutiqueId') boutiqueId: string,
+    @Query('boutiqueId') boutiqueId?: string,
   ) {
     return this.exportService.getExportExcelBoutique(boutiqueId, res, req.user);
   }
@@ -62,7 +62,7 @@ export class ExportController {
   getexportCsvBoutique(
     @Req() req,
     @Res() res: Response,
-    @Query('boutiqueId') boutiqueId: string,
+    @Query('boutiqueId') boutiqueId?: string,
   ) {
     return this.exportService.getExportCsvBoutique(boutiqueId, res, req.user);
   }

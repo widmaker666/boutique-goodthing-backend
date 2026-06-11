@@ -18,4 +18,12 @@ export class QueryVente {
   @IsOptional()
   @IsEnum(ModePaiement)
   modePaiement: ModePaiement;
+
+  @IsString()
+  @IsOptional()
+  boutiqueId?: string;
+
+  @IsString()
+  @IsOptional()
+  evenementId?: string;
 }

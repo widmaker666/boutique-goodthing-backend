@@ -109,10 +109,17 @@ export class OwnershipService {
     return vente;
   }
 
-  //- Vérifie qu'un article appartient au user (via sa créatrice) — 404 sinon
+  //- Vérifie qu'un article appartient au user — via créatrice (GERANTE) OU via événement (CREATRICE)
   async assertArticleOwned(user: AuthUser, articleId: string) {
+    const owned = this.getOwnedCreatriceWhere(user);
     const article = await this.prisma.article.findFirst({
-      where: { id: articleId, creatrice: this.getOwnedCreatriceWhere(user) },
+      where: {
+        id: articleId,
+        OR: [
+          { creatrice: owned },
+          { evenement: { creatrice: owned } },
+        ],
+      },
     });
 
     if (!article) {

@@ -28,6 +28,11 @@ export class BoutiqueController {
     return this.boutiqueService.getNbBoutiquesCreatrice(req.user.id);
   }
 
+  @Post('ma-boutique')
+  creerMaBoutique(@Req() req, @Body('nom') nom: string) {
+    return this.boutiqueService.creerMaBoutique(req.user.id, nom);
+  }
+
   @Roles(Role.GERANTE)
   @Get('avec-stats')
   getBoutiquesAvecStats(@Req() req) {

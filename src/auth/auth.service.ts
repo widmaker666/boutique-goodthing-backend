@@ -185,6 +185,7 @@ export class AuthService {
     email: string;
     firstName: string;
     lastName: string;
+    picture?: string;
   }) {
     //- 1. Cherche l'utilisateur en base par email
     let user = await this.prismaService.user.findUnique({
@@ -193,7 +194,16 @@ export class AuthService {
 
     if (!user) {
       user = await this.prismaService.user.create({
-        data: { email: googleUser.email, password: '' },
+        data: {
+          email: googleUser.email,
+          password: '',
+          avatar: googleUser.picture,
+        },
+      });
+    } else if (googleUser.picture && !user.avatar) {
+      user = await this.prismaService.user.update({
+        where: { id: user.id },
+        data: { avatar: googleUser.picture },
       });
     }
 
@@ -228,7 +238,13 @@ export class AuthService {
       throw new UnauthorizedException('Token Google invalide');
     }
 
-    if (tokenInfo.aud !== process.env.GOOGLE_CLIENT_ID) {
+    const allowedAudiences = [
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_ANDROID_CLIENT_ID,
+      process.env.GOOGLE_IOS_CLIENT_ID,
+    ].filter(Boolean);
+
+    if (!allowedAudiences.includes(tokenInfo.aud as string)) {
       throw new UnauthorizedException('Token Google invalide (audience incorrecte)');
     }
 
@@ -249,6 +265,7 @@ export class AuthService {
       email: googleUser.email,
       firstName: googleUser.given_name,
       lastName: googleUser.family_name,
+      picture: googleUser.picture,
     });
   }
 }

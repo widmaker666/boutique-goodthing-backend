@@ -52,3 +52,8 @@ export type Article = Prisma.ArticleModel
  * 
  */
 export type Vente = Prisma.VenteModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel

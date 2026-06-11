@@ -57,7 +57,8 @@ export const ModelName = {
   BoutiqueMember: 'BoutiqueMember',
   Creatrice: 'Creatrice',
   Article: 'Article',
-  Vente: 'Vente'
+  Vente: 'Vente',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -88,7 +89,8 @@ export const UserScalarFieldEnum = {
   createdAt: 'createdAt',
   refreshToken: 'refreshToken',
   notificationsEmail: 'notificationsEmail',
-  stripeCustomerId: 'stripeCustomerId'
+  stripeCustomerId: 'stripeCustomerId',
+  avatar: 'avatar'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -152,7 +154,8 @@ export const ArticleScalarFieldEnum = {
   quantite: 'quantite',
   photo: 'photo',
   createdAt: 'createdAt',
-  creatriceId: 'creatriceId'
+  creatriceId: 'creatriceId',
+  evenementId: 'evenementId'
 } as const
 
 export type ArticleScalarFieldEnum = (typeof ArticleScalarFieldEnum)[keyof typeof ArticleScalarFieldEnum]
@@ -172,6 +175,18 @@ export const VenteScalarFieldEnum = {
 } as const
 
 export type VenteScalarFieldEnum = (typeof VenteScalarFieldEnum)[keyof typeof VenteScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  message: 'message',
+  read: 'read',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {
