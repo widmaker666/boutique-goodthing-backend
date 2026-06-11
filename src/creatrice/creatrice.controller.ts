@@ -16,39 +16,41 @@ import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { QueryCreatrice } from './dto/query-creatrice.dto';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { Roles } from 'src/auth/guard/role.decorateur';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { Role } from 'src/generated/enums';
 
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard, RolesGuard)
 @Controller('creatrice')
 export class CreatriceController {
   constructor(private readonly creatriceService: CreatriceService) {}
 
   @Post()
   async create(@Body() createCreatriceDto: CreateCreatriceDto, @Req() req) {
-    return this.creatriceService.create(createCreatriceDto, req.user.id);
+    return this.creatriceService.create(createCreatriceDto, req.user);
   }
 
   @Get()
-  findAll(@Query() filters: QueryCreatrice) {
-    return this.creatriceService.findAll(filters);
+  findAll(@Query() filters: QueryCreatrice, @Req() req) {
+    return this.creatriceService.findAll(filters, req.user);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.creatriceService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req) {
+    return this.creatriceService.findOne(id, req.user);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateCreatriceDto: UpdateCreatriceDto,
+    @Req() req,
   ) {
-    return this.creatriceService.update(id, updateCreatriceDto);
+    return this.creatriceService.update(id, updateCreatriceDto, req.user);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.creatriceService.remove(id);
+  async remove(@Param('id') id: string, @Req() req) {
+    return this.creatriceService.remove(id, req.user);
   }
 
   @Roles(Role.GERANTE)
@@ -57,7 +59,8 @@ export class CreatriceController {
     @Param('id') id: string,
     @Body('email') email: string,
     @Body('boutiqueId') boutiqueId: string,
+    @Req() req,
   ) {
-    return this.creatriceService.inviteCreatrice(id, email, boutiqueId);
+    return this.creatriceService.inviteCreatrice(id, email, boutiqueId, req.user);
   }
 }

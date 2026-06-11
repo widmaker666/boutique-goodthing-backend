@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { EvenementService } from './evenement.service';
 import { CreateEvenementDto } from './dto/create-evenement.dto';
@@ -20,27 +21,27 @@ export class EvenementController {
   constructor(private readonly evenementService: EvenementService) {}
 
   @Post()
-  create(@Body() dto: CreateEvenementDto) {
-    return this.evenementService.create(dto);
+  create(@Body() dto: CreateEvenementDto, @Req() req) {
+    return this.evenementService.create(dto, req.user);
   }
 
   @Get()
-  findAll(@Query('creatriceId') creatriceId?: string) {
-    return this.evenementService.findAll(creatriceId);
+  findAll(@Req() req, @Query('creatriceId') creatriceId?: string) {
+    return this.evenementService.findAll(req.user, creatriceId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.evenementService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.evenementService.findOne(id, req.user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateEvenementDto) {
-    return this.evenementService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateEvenementDto, @Req() req) {
+    return this.evenementService.update(id, dto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.evenementService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    return this.evenementService.remove(id, req.user);
   }
 }

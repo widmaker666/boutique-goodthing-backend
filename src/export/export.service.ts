@@ -3,10 +3,17 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { Response } from 'express';
 import * as ExcelJS from 'exceljs';
+import {
+  AuthUser,
+  OwnershipService,
+} from 'src/common/ownership/ownership.service';
 
 @Injectable()
 export class ExportService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly ownership: OwnershipService,
+  ) {}
 
   //* Documents CREATRICE *//
   async getExportPdf(user, res: Response) {
@@ -350,7 +357,10 @@ export class ExportService {
     res.end();
   }
   //* DOCUMENTS BOUTIQUE *//
-  async getExportPdfBoutique(user, res: Response, boutiqueId: string) {
+  async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId: string) {
+    //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
+    await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+
     const allData = await this.prismaService.vente.findMany({
       where: { boutiqueId },
       include: { creatrice: true },
@@ -513,7 +523,14 @@ export class ExportService {
     doc.end();
   }
 
-  async getExportCsvBoutique(boutiqueId: string, res: Response) {
+  async getExportCsvBoutique(
+    boutiqueId: string,
+    res: Response,
+    user: AuthUser,
+  ) {
+    //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
+    await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+
     const allData = await this.prismaService.vente.findMany({
       where: { boutiqueId },
       include: { creatrice: true },
@@ -587,7 +604,14 @@ export class ExportService {
     res.send('\uFEFF' + csv);
   }
 
-  async getExportExcelBoutique(boutiqueId: string, res: Response) {
+  async getExportExcelBoutique(
+    boutiqueId: string,
+    res: Response,
+    user: AuthUser,
+  ) {
+    //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
+    await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+
     const allData = await this.prismaService.vente.findMany({
       where: { boutiqueId },
       include: { creatrice: true },

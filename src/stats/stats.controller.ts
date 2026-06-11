@@ -22,7 +22,7 @@ export class StatsController {
   }
 
   @Get('creatrice/:id')
-  getStatsByCreatrice(@Param('id') id: string) {
-    return this.statService.getStatsByCreatrice(id);
+  getStatsByCreatrice(@Param('id') id: string, @Req() req) {
+    return this.statService.getStatsByCreatrice(id, req.user);
   }
 }

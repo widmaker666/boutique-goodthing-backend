@@ -4,13 +4,23 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { QueryArticleDto } from './dto/query-article.dto';
+import {
+  AuthUser,
+  OwnershipService,
+} from 'src/common/ownership/ownership.service';
 
 @Injectable()
 export class ArticleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ownership: OwnershipService,
+  ) {}
 
-  //- Crée un article lié à une créatrice
-  async create(dto: CreateArticleDto, creatriceId: string) {
+  //- Crée un article lié à une créatrice possédée par le user
+  async create(dto: CreateArticleDto, creatriceId: string, user: AuthUser) {
+    //- Vérifie que la créatrice cible appartient au user (404 sinon)
+    await this.ownership.assertCreatriceOwned(user, creatriceId);
+
     const { creatriceId: _ignored, ...rest } = dto;
     return this.prisma.article.create({
       data: {
@@ -20,11 +30,13 @@ export class ArticleService {
     });
   }
 
-  //- Retourne tous les articles, filtrables par créatrice et/ou nom
-  async findAll(query: QueryArticleDto) {
+  //- Retourne les articles possédés par le user, filtrables par créatrice et/ou nom
+  async findAll(query: QueryArticleDto, user: AuthUser) {
     const { creatriceId, nom } = query;
     return this.prisma.article.findMany({
       where: {
+        //- Scope obligatoire : articles des créatrices possédées (finding sécu C1)
+        creatrice: this.ownership.getOwnedCreatriceWhere(user),
         ...(creatriceId ? { creatriceId } : {}),
         ...(nom ? { nom: { contains: nom, mode: 'insensitive' } } : {}),
       },
@@ -33,8 +45,10 @@ export class ArticleService {
     });
   }
 
-  //- Retourne un article par id — NotFoundException si absent
-  async findOne(id: string) {
+  //- Retourne un article par id — 404 si absent OU non possédé
+  async findOne(id: string, user: AuthUser) {
+    await this.ownership.assertArticleOwned(user, id);
+
     const article = await this.prisma.article.findUnique({
       where: { id },
       include: { creatrice: true },
@@ -43,10 +57,9 @@ export class ArticleService {
     return article;
   }
 
-  //- Vérifie existence avant update
-  async update(id: string, dto: UpdateArticleDto) {
-    const isExist = await this.prisma.article.findUnique({ where: { id } });
-    if (!isExist) throw new NotFoundException(`Article ${id} introuvable`);
+  //- Vérifie ownership avant update
+  async update(id: string, dto: UpdateArticleDto, user: AuthUser) {
+    await this.ownership.assertArticleOwned(user, id);
 
     const { creatriceId, ...rest } = dto;
     return this.prisma.article.update({
@@ -56,13 +69,19 @@ export class ArticleService {
   }
 
   //- Import bulk depuis fichier CSV ou Excel
-  async importFromFile(file: Express.Multer.File, creatriceId: string) {
+  async importFromFile(
+    file: Express.Multer.File,
+    creatriceId: string,
+    user: AuthUser,
+  ) {
     if (!file) throw new BadRequestException('Aucun fichier fourni');
     if (!creatriceId) throw new BadRequestException('creatriceId manquant');
 
-    //- Vérifie que la créatrice existe
-    const creatrice = await this.prisma.creatrice.findUnique({ where: { id: creatriceId } });
-    if (!creatrice) throw new NotFoundException('Créatrice introuvable');
+    //- Vérifie que la créatrice appartient au user (404 sinon)
+    const creatrice = await this.ownership.assertCreatriceOwned(
+      user,
+      creatriceId,
+    );
 
     //- Synonymes acceptés par champ — insensible à la casse et aux accents
     const COLS = {
@@ -174,10 +193,9 @@ export class ArticleService {
     };
   }
 
-  //- Vérifie existence avant delete
-  async remove(id: string) {
-    const isExist = await this.prisma.article.findUnique({ where: { id } });
-    if (!isExist) throw new NotFoundException(`Article ${id} introuvable`);
+  //- Vérifie ownership avant delete
+  async remove(id: string, user: AuthUser) {
+    await this.ownership.assertArticleOwned(user, id);
 
     return this.prisma.article.delete({ where: { id } });
   }

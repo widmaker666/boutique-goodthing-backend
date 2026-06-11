@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agents Encaissly — Documentation</title>
+<style>
+  :root {
+    --primary: #451e64;
+    --accent: #eb7f45;
+    --bg: #eaddcd;
+    --surface: #ffffff;
+    --text: #2D3436;
+    --text-light: #7a7a7a;
+    --border: #DFE6E9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 24px 32px;
+  }
+  header h1 { margin: 0; font-size: 24px; }
+  header p { margin: 6px 0 0; color: var(--accent); font-size: 14px; }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+  }
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .agent-card h2 {
+    margin: 0 0 4px;
+    color: var(--primary);
+    font-size: 18px;
+  }
+  .agent-card .desc {
+    color: var(--text-light);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .badges { margin-bottom: 12px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-right: 6px;
+    color: white;
+  }
+  .badge.model-sonnet { background: #5a2e8a; }
+  .badge.model-opus { background: #cc0000; }
+  .badge.model-haiku { background: #00B894; }
+  .section-title {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 12px 0 4px;
+  }
+  ul { margin: 4px 0; padding-left: 20px; font-size: 13px; }
+  li { margin-bottom: 2px; }
+  code {
+    background: #f7f7f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .status-todo {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--text-light);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Agents Encaissly</h1>
+  <p>Sous-agents spécialisés globaux (~/.claude/agents/) — généré et maintenu par le skill agent-factory. Utilisables depuis boutique-backend et encaissly-mobile.</p>
+</header>
+<main>
+
+  <div class="agent-card">
+    <h2>nestjs-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-opus">opus si refonte archi</span>
+    </div>
+    <div class="desc">Spécialiste backend NestJS — modules, controllers, services, DTOs, guards, decorators, validation.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Créer/modifier un module NestJS (module/controller/service/DTO)</li>
+      <li>Routes, DI, guards (JWT/Roles/Plans)</li>
+      <li>Validation class-validator</li>
+      <li>Architecture backend NestJS</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Schema Prisma / migration / requête complexe → <code>prisma-expert</code></li>
+      <li>Perf requête Postgres/Neon → <code>neon-postgres-expert</code></li>
+      <li>Types génériques avancés / config TS → <code>typescript-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li>Diff touche <code>auth/</code>, données perso (User/Creatrice), Stripe, tokens/secrets → <code>security-rgpd-expert</code></li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>prisma-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-opus">opus si migration risquée</span>
+    </div>
+    <div class="desc">Spécialiste Prisma v7 — schema.prisma, migrations, requêtes, relations, enums.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Modifier <code>schema.prisma</code></li>
+      <li>Créer/exécuter une migration</li>
+      <li>Écrire/optimiser une requête Prisma (findMany, aggregate, groupBy, transactions)</li>
+      <li>Relations, cascade, enums, client généré</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Intégration service/controller → <code>nestjs-expert</code></li>
+      <li>Perf requête (index, query plan) → <code>neon-postgres-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li>Migration risque perte de données → STOP + validation explicite (hors caveman)</li>
+      <li>Champ ajouté = donnée perso (User/Creatrice) → <code>security-rgpd-expert</code></li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>neon-postgres-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-opus">opus si redesign cross-modules</span>
+    </div>
+    <div class="desc">Spécialiste perf PostgreSQL/Neon — index, query plans, pooling, agrégations lourdes.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Requête lente / EXPLAIN ANALYZE</li>
+      <li>Index manquant, N+1, agrégations stats/export</li>
+      <li>Config pooling Neon</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Ajout <code>@@index</code> / migration → <code>prisma-expert</code></li>
+      <li>Refacto logique service → <code>nestjs-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li><code>$queryRaw</code>/<code>$executeRaw</code> → check injection + <code>security-rgpd-expert</code> si données perso</li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>security-rgpd-expert</h2>
+    <div class="badges">
+      <span class="badge model-opus">opus (défaut)</span>
+    </div>
+    <div class="desc">Audit sécurité applicative + conformité RGPD — auth/JWT, données perso, Stripe/webhooks, guards.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Audit sécu avant merge</li>
+      <li>Ajout/modif champ donnée perso (User/Creatrice)</li>
+      <li>Changement auth/tokens, Stripe/webhook</li>
+      <li>Question conformité RGPD</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Fix nécessite changement schema → <code>prisma-expert</code></li>
+      <li>Fix nécessite changement service/guard → <code>nestjs-expert</code></li>
+      <li>N'implémente pas le fix lui-même si hors périmètre — identifie + délègue</li>
+    </ul>
+
+    <div class="section-title">Points connus à revérifier</div>
+    <ul>
+      <li>CORS <code>origin: '*'</code> dans main.ts</li>
+      <li><code>console.log</code> avec données sensibles dans vente.service.ts</li>
+      <li>Ordre raw body Stripe webhook avant ValidationPipe</li>
+      <li>Guards Roles/Plans : fail-open si pas de métadonnée</li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>react-native-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-opus">opus si refonte cross-écrans</span>
+    </div>
+    <div class="desc">Spécialiste React Native/Expo (mobile) — composants, styles, TanStack Query, Zustand, Axios, design system.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Créer/modifier un écran ou composant</li>
+      <li>State Zustand, data fetching TanStack Query</li>
+      <li>Styling, design system, intégration <code>services/api.ts</code></li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Endpoint backend manquant/à modifier → <code>nestjs-expert</code> (+ <code>prisma-expert</code> si schema)</li>
+      <li>Routing/layout/navigation → <code>expo-router-expert</code></li>
+      <li>Typage complexe → <code>typescript-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li>Modif stockage tokens/données perso (Zustand persist, SecureStore, AsyncStorage) → <code>security-rgpd-expert</code></li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>expo-router-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-opus">opus si refonte routing globale</span>
+    </div>
+    <div class="desc">Spécialiste Expo Router (mobile) — routing file-based, layouts, navigation, guards d'auth, tabs.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Créer/modifier une route ou écran (<code>app/</code>)</li>
+      <li>Navigation, redirections, layouts (<code>_layout.tsx</code>), tabs</li>
+      <li>Guard d'authentification basé sur Zustand</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Contenu/logique d'écran → <code>react-native-expert</code></li>
+      <li>Nouvel endpoint backend → <code>nestjs-expert</code></li>
+      <li>Typage navigation → <code>typescript-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li>Modif guard d'auth (<code>app/_layout.tsx</code>, redirections selon token/role/plan) → <code>security-rgpd-expert</code></li>
+    </ul>
+  </div>
+
+  <div class="agent-card">
+    <h2>typescript-expert</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (défaut)</span>
+      <span class="badge model-haiku">haiku si fix trivial</span>
+      <span class="badge model-opus">opus si refonte types partagés</span>
+    </div>
+    <div class="desc">Spécialiste TypeScript — types/generics avancés, tsconfig, typage Prisma/NestJS, narrowing.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Erreur TS complexe / typage générique</li>
+      <li>Config tsconfig.json / build</li>
+      <li>Typage des retours Prisma (relations incluses, payloads)</li>
+    </ul>
+
+    <div class="section-title">Délégation</div>
+    <ul>
+      <li>Payload Prisma incorrect → <code>prisma-expert</code></li>
+      <li>Type DTO/decorator NestJS → <code>nestjs-expert</code></li>
+    </ul>
+
+    <div class="section-title">Audit déclenché si</div>
+    <ul>
+      <li>Type expose champ sensible (password/refreshToken) → <code>security-rgpd-expert</code></li>
+    </ul>
+  </div>
+
+</main>
+</body>
+</html>

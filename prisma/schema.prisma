@@ -25,7 +25,8 @@ model User {
   refreshToken       String?
   boutiques          Boutique[]
   boutiqueMembers    BoutiqueMember[]
-  creatrices         Creatrice[]
+  creatrices         Creatrice[]      @relation("CreatriceCompte")
+  creatricesGerees   Creatrice[]      @relation("CreatriceGerante")
   notificationsEmail Boolean          @default(true)
   stripeCustomerId   String?
 }
@@ -74,10 +75,14 @@ model Creatrice {
   tauxDeCommission Float
   createdAt        DateTime    @default(now())
   vente            Vente[]
-  user             User?       @relation(fields: [userId], references: [id])
+  user             User?       @relation("CreatriceCompte", fields: [userId], references: [id])
   userId           String?
+  gerante          User        @relation("CreatriceGerante", fields: [geranteId], references: [id])
+  geranteId        String
   evenements       Evenement[]
   articles         Article[]
+
+  @@index([geranteId])
 }
 
 model Article {

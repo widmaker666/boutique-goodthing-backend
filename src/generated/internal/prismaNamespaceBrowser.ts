@@ -137,7 +137,8 @@ export const CreatriceScalarFieldEnum = {
   telephone: 'telephone',
   tauxDeCommission: 'tauxDeCommission',
   createdAt: 'createdAt',
-  userId: 'userId'
+  userId: 'userId',
+  geranteId: 'geranteId'
 } as const
 
 export type CreatriceScalarFieldEnum = (typeof CreatriceScalarFieldEnum)[keyof typeof CreatriceScalarFieldEnum]

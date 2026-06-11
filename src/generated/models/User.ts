@@ -241,6 +241,7 @@ export type UserWhereInput = {
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
+  creatricesGerees?: Prisma.CreatriceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -259,6 +260,7 @@ export type UserOrderByWithRelationInput = {
   boutiques?: Prisma.BoutiqueOrderByRelationAggregateInput
   boutiqueMembers?: Prisma.BoutiqueMemberOrderByRelationAggregateInput
   creatrices?: Prisma.CreatriceOrderByRelationAggregateInput
+  creatricesGerees?: Prisma.CreatriceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -280,6 +282,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
+  creatricesGerees?: Prisma.CreatriceListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -334,6 +337,7 @@ export type UserCreateInput = {
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -352,6 +356,7 @@ export type UserUncheckedCreateInput = {
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
 }
 
 export type UserUpdateInput = {
@@ -370,6 +375,7 @@ export type UserUpdateInput = {
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -388,6 +394,7 @@ export type UserUncheckedUpdateInput = {
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -552,6 +559,12 @@ export type UserCreateNestedOneWithoutCreatricesInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
+export type UserCreateNestedOneWithoutCreatricesGereesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatricesGereesInput, Prisma.UserUncheckedCreateWithoutCreatricesGereesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatricesGereesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserUpdateOneWithoutCreatricesNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatricesInput
@@ -560,6 +573,14 @@ export type UserUpdateOneWithoutCreatricesNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatricesInput, Prisma.UserUpdateWithoutCreatricesInput>, Prisma.UserUncheckedUpdateWithoutCreatricesInput>
+}
+
+export type UserUpdateOneRequiredWithoutCreatricesGereesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatricesGereesInput, Prisma.UserUncheckedCreateWithoutCreatricesGereesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatricesGereesInput
+  upsert?: Prisma.UserUpsertWithoutCreatricesGereesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatricesGereesInput, Prisma.UserUpdateWithoutCreatricesGereesInput>, Prisma.UserUncheckedUpdateWithoutCreatricesGereesInput>
 }
 
 export type UserCreateWithoutBoutiquesInput = {
@@ -577,6 +598,7 @@ export type UserCreateWithoutBoutiquesInput = {
   stripeCustomerId?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
 }
 
 export type UserUncheckedCreateWithoutBoutiquesInput = {
@@ -594,6 +616,7 @@ export type UserUncheckedCreateWithoutBoutiquesInput = {
   stripeCustomerId?: string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
 }
 
 export type UserCreateOrConnectWithoutBoutiquesInput = {
@@ -627,6 +650,7 @@ export type UserUpdateWithoutBoutiquesInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoutiquesInput = {
@@ -644,6 +668,7 @@ export type UserUncheckedUpdateWithoutBoutiquesInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserCreateWithoutBoutiqueMembersInput = {
@@ -661,6 +686,7 @@ export type UserCreateWithoutBoutiqueMembersInput = {
   stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
 }
 
 export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
@@ -678,6 +704,7 @@ export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
   stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
+  creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
 }
 
 export type UserCreateOrConnectWithoutBoutiqueMembersInput = {
@@ -711,6 +738,7 @@ export type UserUpdateWithoutBoutiqueMembersInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
@@ -728,6 +756,7 @@ export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
+  creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserCreateWithoutCreatricesInput = {
@@ -745,6 +774,7 @@ export type UserCreateWithoutCreatricesInput = {
   stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
+  creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
 }
 
 export type UserUncheckedCreateWithoutCreatricesInput = {
@@ -762,11 +792,53 @@ export type UserUncheckedCreateWithoutCreatricesInput = {
   stripeCustomerId?: string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
+  creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
 }
 
 export type UserCreateOrConnectWithoutCreatricesInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutCreatricesInput, Prisma.UserUncheckedCreateWithoutCreatricesInput>
+}
+
+export type UserCreateWithoutCreatricesGereesInput = {
+  id?: string
+  email: string
+  nom?: string | null
+  prenom?: string | null
+  password: string
+  plan?: $Enums.Plan
+  role?: $Enums.Role
+  lastExportData?: Date | string | null
+  createdAt?: Date | string
+  refreshToken?: string | null
+  notificationsEmail?: boolean
+  stripeCustomerId?: string | null
+  boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
+  boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatricesGereesInput = {
+  id?: string
+  email: string
+  nom?: string | null
+  prenom?: string | null
+  password: string
+  plan?: $Enums.Plan
+  role?: $Enums.Role
+  lastExportData?: Date | string | null
+  createdAt?: Date | string
+  refreshToken?: string | null
+  notificationsEmail?: boolean
+  stripeCustomerId?: string | null
+  boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
+  creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatricesGereesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatricesGereesInput, Prisma.UserUncheckedCreateWithoutCreatricesGereesInput>
 }
 
 export type UserUpsertWithoutCreatricesInput = {
@@ -795,6 +867,7 @@ export type UserUpdateWithoutCreatricesInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
+  creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatricesInput = {
@@ -812,6 +885,54 @@ export type UserUncheckedUpdateWithoutCreatricesInput = {
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
+  creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
+}
+
+export type UserUpsertWithoutCreatricesGereesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatricesGereesInput, Prisma.UserUncheckedUpdateWithoutCreatricesGereesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatricesGereesInput, Prisma.UserUncheckedCreateWithoutCreatricesGereesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatricesGereesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatricesGereesInput, Prisma.UserUncheckedUpdateWithoutCreatricesGereesInput>
+}
+
+export type UserUpdateWithoutCreatricesGereesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prenom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatricesGereesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prenom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  lastExportData?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
+  boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
+  creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -823,12 +944,14 @@ export type UserCountOutputType = {
   boutiques: number
   boutiqueMembers: number
   creatrices: number
+  creatricesGerees: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   boutiques?: boolean | UserCountOutputTypeCountBoutiquesArgs
   boutiqueMembers?: boolean | UserCountOutputTypeCountBoutiqueMembersArgs
   creatrices?: boolean | UserCountOutputTypeCountCreatricesArgs
+  creatricesGerees?: boolean | UserCountOutputTypeCountCreatricesGereesArgs
 }
 
 /**
@@ -862,6 +985,13 @@ export type UserCountOutputTypeCountCreatricesArgs<ExtArgs extends runtime.Types
   where?: Prisma.CreatriceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatricesGereesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreatriceWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -879,6 +1009,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
   creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
+  creatricesGerees?: boolean | Prisma.User$creatricesGereesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -932,6 +1063,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
   creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
+  creatricesGerees?: boolean | Prisma.User$creatricesGereesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -943,6 +1075,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     boutiques: Prisma.$BoutiquePayload<ExtArgs>[]
     boutiqueMembers: Prisma.$BoutiqueMemberPayload<ExtArgs>[]
     creatrices: Prisma.$CreatricePayload<ExtArgs>[]
+    creatricesGerees: Prisma.$CreatricePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1354,6 +1487,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   boutiques<T extends Prisma.User$boutiquesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boutiquesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoutiquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   boutiqueMembers<T extends Prisma.User$boutiqueMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boutiqueMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoutiqueMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   creatrices<T extends Prisma.User$creatricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$creatricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  creatricesGerees<T extends Prisma.User$creatricesGereesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$creatricesGereesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreatricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1839,6 +1973,30 @@ export type User$boutiqueMembersArgs<ExtArgs extends runtime.Types.Extensions.In
  * User.creatrices
  */
 export type User$creatricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Creatrice
+   */
+  select?: Prisma.CreatriceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Creatrice
+   */
+  omit?: Prisma.CreatriceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreatriceInclude<ExtArgs> | null
+  where?: Prisma.CreatriceWhereInput
+  orderBy?: Prisma.CreatriceOrderByWithRelationInput | Prisma.CreatriceOrderByWithRelationInput[]
+  cursor?: Prisma.CreatriceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreatriceScalarFieldEnum | Prisma.CreatriceScalarFieldEnum[]
+}
+
+/**
+ * User.creatricesGerees
+ */
+export type User$creatricesGereesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Creatrice
    */

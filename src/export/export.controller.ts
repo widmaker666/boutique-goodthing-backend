@@ -7,8 +7,9 @@ import { PlanGuard } from 'src/auth/guard/plan.guard';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from 'src/auth/guard/role.decorateur';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 
-@UseGuards(JwtGuard, PlanGuard)
+@UseGuards(JwtGuard, PlanGuard, RolesGuard)
 @Controller('export')
 export class ExportController {
   constructor(private readonly exportService: ExportService) {}
@@ -52,7 +53,7 @@ export class ExportController {
     @Res() res: Response,
     @Query('boutiqueId') boutiqueId: string,
   ) {
-    return this.exportService.getExportExcelBoutique(boutiqueId, res);
+    return this.exportService.getExportExcelBoutique(boutiqueId, res, req.user);
   }
 
   @Roles(Role.GERANTE)
@@ -63,6 +64,6 @@ export class ExportController {
     @Res() res: Response,
     @Query('boutiqueId') boutiqueId: string,
   ) {
-    return this.exportService.getExportCsvBoutique(boutiqueId, res);
+    return this.exportService.getExportCsvBoutique(boutiqueId, res, req.user);
   }
 }

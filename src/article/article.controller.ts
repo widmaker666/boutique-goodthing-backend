@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -29,39 +30,60 @@ export class ArticleController {
   @Post()
   create(
     @Body() dto: CreateArticleDto,
+    @Request() req,
     @Query('creatriceId') creatriceIdQuery?: string,
   ) {
     const creatriceId = dto.creatriceId ?? creatriceIdQuery ?? '';
-    return this.articleService.create(dto, creatriceId);
+    return this.articleService.create(dto, creatriceId, req.user);
   }
 
   @Get()
-  findAll(@Query() query: QueryArticleDto) {
-    return this.articleService.findAll(query);
+  findAll(@Query() query: QueryArticleDto, @Request() req) {
+    return this.articleService.findAll(query, req.user);
   }
 
   //- Import bulk CSV/Excel — DOIT être avant @Get(':id') pour éviter le conflit de route
   @Post('import')
-  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
+      fileFilter: (req, file, callback) => {
+        const allowedMimeTypes = [
+          'text/csv',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException('Seuls les fichiers CSV/Excel sont autorisés'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
   importArticles(
     @UploadedFile() file: Express.Multer.File,
+    @Request() req,
     @Query('creatriceId') creatriceId: string,
   ) {
-    return this.articleService.importFromFile(file, creatriceId);
+    return this.articleService.importFromFile(file, creatriceId, req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articleService.findOne(id);
+  findOne(@Param('id') id: string, @Request() req) {
+    return this.articleService.findOne(id, req.user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateArticleDto) {
-    return this.articleService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateArticleDto, @Request() req) {
+    return this.articleService.update(id, dto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.articleService.remove(id);
+  remove(@Param('id') id: string, @Request() req) {
+    return this.articleService.remove(id, req.user);
   }
 }

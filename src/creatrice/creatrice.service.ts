@@ -4,30 +4,40 @@ import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QueryCreatrice } from './dto/query-creatrice.dto';
 import { EmailService } from 'src/email/email.service';
+import {
+  AuthUser,
+  OwnershipService,
+} from 'src/common/ownership/ownership.service';
 
 @Injectable()
 export class CreatriceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly ownership: OwnershipService,
   ) {}
 
-  async create(createCreatriceDto: CreateCreatriceDto, userId: string) {
+  async create(createCreatriceDto: CreateCreatriceDto, user: AuthUser) {
+    //- La gérante connectée devient propriétaire de la fiche (geranteId)
+    //- userId reste null à la création : il sera renseigné lors de inviteCreatrice
+    //- quand la créatrice possèdera son propre compte
     const newCreateur = await this.prisma.creatrice.create({
       data: {
         ...createCreatriceDto,
-        userId,
+        geranteId: user.id,
       },
     });
     return newCreateur;
   }
 
-  async findAll(filters: QueryCreatrice) {
-    //- Récupère toutes les créatrices avec des filtres optionnels
+  async findAll(filters: QueryCreatrice, user: AuthUser) {
+    //- Récupère les créatrices possédées par le user (finding sécu C1)
+    //- GERANTE → ses créatrices ; CREATRICE → uniquement sa propre fiche
     //- Si les filtres sont undefined, Prisma les ignore automatiquement
     //- Include les ventes pour calculer nbVentes et ca côté JS
     const allData = await this.prisma.creatrice.findMany({
       where: {
+        ...this.ownership.getOwnedCreatriceWhere(user),
         nom: filters.nom,
         tauxDeCommission: {
           gte: filters.minCommision, //- gte = greater than or equal (supérieur ou égal)
@@ -48,7 +58,10 @@ export class CreatriceService {
     }));
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user: AuthUser) {
+    //- Vérifie l'ownership avant tout (404 si pas au user → ne leak pas l'existence)
+    await this.ownership.assertCreatriceOwned(user, id);
+
     //- Cherche une créatrice par son id unique avec ses ventes
     const findData = await this.prisma.creatrice.findUnique({
       where: { id },
@@ -88,16 +101,9 @@ export class CreatriceService {
     };
   }
 
-  async update(id: string, updateCreatriceDto: UpdateCreatriceDto) {
-    //- Vérifie que la créatrice existe avant de tenter la mise à jour
-    const isCreateurExist = await this.prisma.creatrice.findUnique({
-      where: { id },
-    });
-
-    //- Si elle n'existe pas → erreur 404 Not Found
-    if (!isCreateurExist) {
-      throw new NotFoundException(`Createur ${id} introuvable`);
-    }
+  async update(id: string, updateCreatriceDto: UpdateCreatriceDto, user: AuthUser) {
+    //- Vérifie l'ownership (et l'existence) avant la mise à jour
+    await this.ownership.assertCreatriceOwned(user, id);
 
     //- Met à jour uniquement les champs fournis dans le DTO (grâce à PartialType)
     const updateCreateur = await this.prisma.creatrice.update({
@@ -107,16 +113,9 @@ export class CreatriceService {
     return updateCreateur;
   }
 
-  async remove(id: string) {
-    //- Vérifie que la créatrice existe avant de tenter la suppression
-    const isCreateurExist = await this.prisma.creatrice.findUnique({
-      where: { id },
-    });
-
-    //- Si elle n'existe pas → erreur 404 Not Found
-    if (!isCreateurExist) {
-      throw new NotFoundException(`Createur ${id} introuvable`);
-    }
+  async remove(id: string, user: AuthUser) {
+    //- Vérifie l'ownership (et l'existence) avant la suppression
+    await this.ownership.assertCreatriceOwned(user, id);
 
     //- Supprime dans une transaction pour garantir l'atomicité
     //- Ordre : dépendances d'abord, puis la créatrice elle-même
@@ -135,14 +134,19 @@ export class CreatriceService {
     creatriceId: string,
     email: string,
     boutiqueId: string,
+    currentUser: AuthUser,
   ) {
-    //- Vérifie que la créatrice existe
-    const creatrice = await this.prisma.creatrice.findUnique({
-      where: { id: creatriceId },
-    });
-    if (!creatrice) throw new NotFoundException('Créatrice introuvable');
+    //- Vérifie que la créatrice appartient bien à la gérante appelante
+    //- (controller restreint déjà à @Roles(Role.GERANTE))
+    const creatrice = await this.ownership.assertCreatriceOwned(
+      currentUser,
+      creatriceId,
+    );
 
-    //- Cherche si un User avec cet email existe déjà
+    //- Vérifie aussi que la boutique cible appartient à la gérante
+    await this.ownership.assertBoutiqueOwned(currentUser, boutiqueId);
+
+    //- Cherche si un User (la créatrice invitée) avec cet email existe déjà
     const user = await this.prisma.user.findUnique({
       where: { email },
     });

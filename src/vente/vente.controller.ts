@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -29,7 +30,20 @@ export class VenteController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
   @Post()
-  @UseInterceptors(FileInterceptor('photo'))
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return callback(
+            new BadRequestException('Seules les images sont autorisées'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
   async create(
     @Req() req,
     @Body() createVenteDto: CreateVenteDto,
@@ -40,12 +54,12 @@ export class VenteController {
       const uploaded = await this.cloudinaryService.uploadImage(file);
       photoUrl = uploaded.secure_url;
     }
-    return this.venteService.create(createVenteDto, req.user.id, photoUrl);
+    return this.venteService.create(createVenteDto, req.user, photoUrl);
   }
 
   @Get()
-  findAll(@Query() filters: QueryVente) {
-    return this.venteService.findAll(filters);
+  findAll(@Query() filters: QueryVente, @Req() req) {
+    return this.venteService.findAll(filters, req.user);
   }
 
   @Get('recent')
@@ -54,17 +68,21 @@ export class VenteController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.venteService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.venteService.findOne(id, req.user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVenteDto: UpdateVenteDto) {
-    return this.venteService.update(id, updateVenteDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateVenteDto: UpdateVenteDto,
+    @Req() req,
+  ) {
+    return this.venteService.update(id, updateVenteDto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.venteService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    return this.venteService.remove(id, req.user);
   }
 }

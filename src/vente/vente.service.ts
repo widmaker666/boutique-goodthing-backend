@@ -4,30 +4,35 @@ import { UpdateVenteDto } from './dto/update-vente.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QueryVente } from './dto/query-vente.dto';
 import { EmailService } from 'src/email/email.service';
+import {
+  AuthUser,
+  OwnershipService,
+} from 'src/common/ownership/ownership.service';
 
 @Injectable()
 export class VenteService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly ownership: OwnershipService,
   ) {}
-  async create(createVenteDto: CreateVenteDto, userId: string, photoUrl?: string) {
-    //- Vérifie que la créatrice liée à cette vente existe bien en base
-    //- Évite de créer une vente orpheline avec un creatriceId invalide
-    const isCreatriceExist = await this.prisma.creatrice.findUnique({
-      where: { id: createVenteDto.creatriceId },
-    });
-
-    //- Si la créatrice n'existe pas → erreur 404 Not Found
-    if (!isCreatriceExist) {
-      throw new NotFoundException("La créatrice avec cet id n'existe pas");
-    }
+  async create(createVenteDto: CreateVenteDto, user: AuthUser, photoUrl?: string) {
+    //- Vérifie que la créatrice liée à cette vente appartient bien au user
+    //- (GERANTE: une de ses créatrices ; CREATRICE: sa propre fiche)
+    //- 404 si pas possédée → bloque la création de vente sur une créatrice tierce
+    await this.ownership.assertCreatriceOwned(user, createVenteDto.creatriceId);
 
     //- Auto-détecte la boutique si non fournie (GERANTE FREE = 1 boutique)
+    //- Pour une CREATRICE, geranteId ne matchera aucune boutique → boutiqueId reste undefined
     let boutiqueId = createVenteDto.boutiqueId;
-    if (!boutiqueId) {
+    if (boutiqueId) {
+      //- Si fournie, vérifie que la boutique appartient bien au user gérant
+      if (user.role === 'GERANTE') {
+        await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+      }
+    } else {
       const boutique = await this.prisma.boutique.findFirst({
-        where: { geranteId: userId },
+        where: { geranteId: user.id },
       });
       boutiqueId = boutique?.id;
     }
@@ -59,13 +64,10 @@ export class VenteService {
     const netCreatrice = Math.round((prixVente - montantCommission) * 100) / 100;
 
     //- Envoi email si la créatrice a un compte User avec notifications activées
-    console.log('[Vente] creatrice.userId:', createVente.creatrice.userId);
-    console.log('[Vente] boutiqueId résolu:', boutiqueId);
     if (createVente.creatrice.userId) {
       const user = await this.prisma.user.findUnique({
         where: { id: createVente.creatrice.userId },
       });
-      console.log('[Vente] user:', user?.email, '| notifs:', user?.notificationsEmail);
 
       if (user && user.notificationsEmail && user.email) {
         await this.emailService.sendVenteNotification(
@@ -101,11 +103,15 @@ export class VenteService {
     return { ...createVente, montantCommission, netCreatrice };
   }
 
-  async findAll(filters: QueryVente) {
-    //- Récupère toutes les ventes avec filtres optionnels
+  async findAll(filters: QueryVente, user: AuthUser) {
+    //- Scope les ventes aux ressources possédées par le user (finding sécu C1)
+    const ownershipWhere = await this.ownership.getVenteOwnershipWhere(user);
+
+    //- Récupère les ventes possédées avec filtres optionnels
     //- include: { creatrice: true } nécessaire pour calculer les commissions
     const allDataVente = await this.prisma.vente.findMany({
       where: {
+        ...ownershipWhere,
         nomArticle: filters.nomArticle,
         prixVente: { gte: filters.minPrixVente, lte: filters.maxPrixVente },
         modePaiement: filters.modePaiement,
@@ -121,7 +127,10 @@ export class VenteService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user: AuthUser) {
+    //- Vérifie l'ownership (404 si pas possédée → ne leak pas l'existence)
+    await this.ownership.assertVenteOwned(user, id);
+
     //- Cherche une vente par son id unique avec sa créatrice associée
     const oneVente = await this.prisma.vente.findUnique({
       where: { id },
@@ -143,36 +152,34 @@ export class VenteService {
     return { ...oneVente, montantCommission, netCreatrice };
   }
 
-  async update(id: string, updateVenteDto: UpdateVenteDto) {
-    //- Vérifie que la vente existe avant de tenter la mise à jour
-    const isUpdateVenteExist = await this.prisma.vente.findUnique({
-      where: { id },
-    });
+  async update(id: string, updateVenteDto: UpdateVenteDto, user: AuthUser) {
+    //- Vérifie l'ownership de la vente avant la mise à jour
+    await this.ownership.assertVenteOwned(user, id);
 
-    //- Si la vente n'existe pas → erreur 404 Not Found
-    if (!isUpdateVenteExist) {
-      throw new NotFoundException(`Vente #${id} introuvable`);
+    //- Si le DTO tente de réassigner la vente à une autre créatrice/boutique,
+    //- vérifie que la cible appartient aussi au user (anti-réassignation malveillante)
+    if (updateVenteDto.creatriceId) {
+      await this.ownership.assertCreatriceOwned(user, updateVenteDto.creatriceId);
     }
+    if (updateVenteDto.boutiqueId && user.role === 'GERANTE') {
+      await this.ownership.assertBoutiqueOwned(user, updateVenteDto.boutiqueId);
+    }
+
+    //- Exclut les champs non persistés directement sur Vente (articleId, quantite gérés à la création)
+    const { articleId, ...venteData } = updateVenteDto;
 
     //- Met à jour uniquement les champs fournis dans le DTO (grâce à PartialType)
     const updateVente = await this.prisma.vente.update({
       where: { id },
-      data: updateVenteDto,
+      data: venteData,
     });
 
     return updateVente;
   }
 
-  async remove(id: string) {
-    //- Vérifie que la vente existe avant de tenter la suppression
-    const isDeleteVenteExist = await this.prisma.vente.findUnique({
-      where: { id },
-    });
-
-    //- Si la vente n'existe pas → erreur 404 Not Found
-    if (!isDeleteVenteExist) {
-      throw new NotFoundException(`Vente #${id} introuvable`);
-    }
+  async remove(id: string, user: AuthUser) {
+    //- Vérifie l'ownership de la vente avant la suppression
+    await this.ownership.assertVenteOwned(user, id);
 
     //- Supprime définitivement la vente de la base
     const deleteVente = await this.prisma.vente.delete({

@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import {
+  AuthUser,
+  OwnershipService,
+} from 'src/common/ownership/ownership.service';
 
 @Injectable()
 export class StatsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ownership: OwnershipService,
+  ) {}
 
   async getGlobalStats(userId: string, role: string, plan: string) {
     let where: any = {};
@@ -78,7 +85,10 @@ export class StatsService {
     return { stats, paiement, totalCommissions };
   }
 
-  async getStatsByCreatrice(id: string) {
+  async getStatsByCreatrice(id: string, user: AuthUser) {
+    //- Vérifie l'ownership de la créatrice avant d'exposer ses stats (finding sécu C1)
+    await this.ownership.assertCreatriceOwned(user, id);
+
     const stats = await this.prisma.vente.aggregate({
       _sum: { prixVente: true },
       _count: true,
