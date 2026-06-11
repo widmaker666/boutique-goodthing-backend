@@ -8,9 +8,13 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
+  //- Client utilisé pour vérifier les tokens Google (mobile) — getTokenInfo() valide l'aud
+  private readonly googleOAuthClient = new OAuth2Client();
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
@@ -29,9 +33,9 @@ export class AuthService {
     }
 
     //- Hash du mot de passe avant stockage — on ne stocke jamais un mdp en clair
-    //- Le "10" correspond au nombre de rounds de hashage (bon équilibre sécurité/performance)
+    //- Le "12" correspond au nombre de rounds de hashage (bon équilibre sécurité/performance)
     //- Plus le nombre est élevé, plus c'est sécurisé mais lent
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 12);
 
     //- Crée l'utilisateur en base avec le mot de passe hashé
     //- Le refreshToken est null par défaut — il sera généré au premier login
@@ -161,10 +165,17 @@ export class AuthService {
     }
 
     //- Génère et retourne un nouvel access token valide 15 minutes
+    //- Recharge role et plan depuis la base — comme dans login(), pour que le payload
+    //- reste à jour même si le rôle/plan a changé depuis l'émission du refresh token
     //- Le refresh token reste le même — pas besoin d'en générer un nouveau
     return {
       accessToken: this.jwtService.sign(
-        { sub: findUser.id, email: findUser.email },
+        {
+          sub: findUser.id,
+          email: findUser.email,
+          role: findUser.role,
+          plan: findUser.plan,
+        },
         { expiresIn: '15m' },
       ),
     };
@@ -207,7 +218,21 @@ export class AuthService {
   }
 
   async googleLoginMobile(googleAccessToken: string) {
-    //- Vérifie le token Google en appelant l'API Google
+    //- Vérifie l'access token Google et son audience (aud) via getTokenInfo
+    //- aud doit correspondre au GOOGLE_CLIENT_ID configuré côté serveur
+    //- Empêche un attaquant d'utiliser un access token Google émis pour une AUTRE application
+    let tokenInfo;
+    try {
+      tokenInfo = await this.googleOAuthClient.getTokenInfo(googleAccessToken);
+    } catch {
+      throw new UnauthorizedException('Token Google invalide');
+    }
+
+    if (tokenInfo.aud !== process.env.GOOGLE_CLIENT_ID) {
+      throw new UnauthorizedException('Token Google invalide (audience incorrecte)');
+    }
+
+    //- Récupère les infos du profil utilisateur
     const response = await fetch(
       `https://www.googleapis.com/oauth2/v3/userinfo`,
       { headers: { Authorization: `Bearer ${googleAccessToken}` } },

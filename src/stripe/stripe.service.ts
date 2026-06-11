@@ -19,9 +19,9 @@ export class StripeService {
       //- Le produit acheté — priceId = price_xxx du plan choisi (mensuel ou annuel)
       line_items: [{ price: priceId, quantity: 1 }],
       //- URL de redirection après paiement réussi
-      success_url: 'http://localhost:3000/stripe/success',
+      success_url: `${process.env.APP_URL}/stripe/success`,
       //- URL de redirection si l'user annule le paiement
-      cancel_url: 'http://localhost:3000/stripe/cancel',
+      cancel_url: `${process.env.APP_URL}/stripe/cancel`,
       //- Données custom qu'on attache à la session — permet de retrouver le user dans le webhook
       metadata: { userId },
     });

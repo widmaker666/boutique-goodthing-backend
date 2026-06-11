@@ -10,7 +10,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       //- Extrait le token du header Authorization: Bearer <token>
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       //- La clé secrète pour vérifier la signature du token
-      secretOrKey: process.env.JWT_SECRET ?? 'fallback-secret',
+      //- Pas de fallback : la validation Joi au boot (app.module.ts) garantit sa présence
+      secretOrKey: process.env.JWT_SECRET as string,
     });
   }
 

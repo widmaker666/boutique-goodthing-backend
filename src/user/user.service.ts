@@ -35,14 +35,18 @@ export class UserService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, refreshToken, ...userWithoutPassword } = userUpdate;
-    console.log('userWithoutPassword', userWithoutPassword);
     return userWithoutPassword;
   }
 
   async updateNotifications(userId: string, notificationsEmail: boolean) {
-    return this.prisma.user.update({
+    const userUpdate = await this.prisma.user.update({
       where: { id: userId },
       data: { notificationsEmail },
     });
+
+    //- Exclut le mot de passe et le refresh token hashé de la réponse — même pattern que getProfil/updatePlan
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, refreshToken, ...userWithoutPassword } = userUpdate;
+    return userWithoutPassword;
   }
 }

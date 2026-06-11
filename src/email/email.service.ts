@@ -52,9 +52,10 @@ export class EmailService {
       `,
     });
     if (error) {
-      console.error(`[Email] sendVenteNotification ERREUR → ${recipient}:`, error);
+      //- Pas de PII dans les logs (email destinataire) — message générique uniquement
+      console.error('[Email] sendVenteNotification ERREUR', error);
     } else {
-      console.log(`[Email] sendVenteNotification OK → ${recipient} (id: ${data?.id})`);
+      console.log(`[Email] sendVenteNotification OK (id: ${data?.id})`);
     }
   }
 

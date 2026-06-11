@@ -6,7 +6,8 @@ import { PrismaService } from './prisma.service';
 import { VenteModule } from './vente/vente.module';
 import { StatsModule } from './stats/stats.module';
 import { AuthModule } from './auth/auth.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { ExportModule } from './export/export.module';
@@ -53,6 +54,15 @@ import { ArticleModule } from './article/article.module';
         GOOGLE_CLIENT_ID: Joi.string().required(),
         GOOGLE_CLIENT_SECRET: Joi.string().required(),
         GOOGLE_CALLBACK_URL: Joi.string().required(),
+        STRIPE_SECRET_KEY: Joi.string().required(),
+        STRIPE_WEBHOOK_SECRET: Joi.string().required(),
+        RESEND_API_KEY: Joi.string().required(),
+        RESEND_OVERRIDE_EMAIL: Joi.string().optional(),
+        CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+        CLOUDINARY_API_KEY: Joi.string().required(),
+        CLOUDINARY_API_SECRET: Joi.string().required(),
+        CORS_ORIGINS: Joi.string().optional(), // Liste d'origines autorisées séparées par des virgules
+        APP_URL: Joi.string().required(), // URL publique de l'app (Stripe success/cancel)
       }),
     }),
     UserModule,
@@ -67,6 +77,15 @@ import { ArticleModule } from './article/article.module';
 
   controllers: [AppController],
   //- PrismaService est déclaré ici en plus des modules pour être accessible globalement
-  providers: [AppService, PrismaService],
+  providers: [
+    AppService,
+    PrismaService,
+    //- Active le rate limiting (ThrottlerModule.forRoot) sur toutes les routes
+    //- Sans ce provider, la config Throttler importée plus haut n'a aucun effet
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
