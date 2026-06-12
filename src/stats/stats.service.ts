@@ -48,27 +48,25 @@ export class StatsService {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });
-        where = boutique
-          ? { boutiqueId: boutique.id, ...dateFilter }
-          : { ...dateFilter };
-      } else {
-        const creatrice = await this.prisma.creatrice.findFirst({
-          where: { userId },
-        });
-
-        if (!creatrice) {
+        if (!boutique) {
           return {
-            stats: {
-              _sum: { prixVente: 0 },
-              _count: 0,
-              _min: { prixVente: 0 },
-              _max: { prixVente: 0 },
-            },
+            stats: { _sum: { prixVente: 0 }, _count: 0, _min: { prixVente: 0 }, _max: { prixVente: 0 } },
             paiement: [],
             totalCommissions: 0,
           };
         }
-
+        where = { boutiqueId: boutique.id, ...dateFilter };
+      } else {
+        const creatrice = await this.prisma.creatrice.findFirst({
+          where: { userId },
+        });
+        if (!creatrice) {
+          return {
+            stats: { _sum: { prixVente: 0 }, _count: 0, _min: { prixVente: 0 }, _max: { prixVente: 0 } },
+            paiement: [],
+            totalCommissions: 0,
+          };
+        }
         where = { creatriceId: creatrice.id, ...dateFilter };
       }
     }
@@ -123,16 +121,14 @@ export class StatsService {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });
-        where = boutique
-          ? { boutiqueId: boutique.id, ...dateFilter }
-          : { ...dateFilter };
+        if (!boutique) return [];
+        where = { boutiqueId: boutique.id, ...dateFilter };
       } else {
         const creatrice = await this.prisma.creatrice.findFirst({
           where: { userId },
         });
-        where = creatrice
-          ? { creatriceId: creatrice.id, ...dateFilter }
-          : { ...dateFilter };
+        if (!creatrice) return [];
+        where = { creatriceId: creatrice.id, ...dateFilter };
       }
     }
 
@@ -254,12 +250,14 @@ export class StatsService {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });
-        where = boutique ? { boutiqueId: boutique.id } : {};
+        if (!boutique) return [];
+        where = { boutiqueId: boutique.id };
       } else {
         const creatrice = await this.prisma.creatrice.findFirst({
           where: { userId },
         });
-        where = creatrice ? { creatriceId: creatrice.id } : {};
+        if (!creatrice) return [];
+        where = { creatriceId: creatrice.id };
       }
     }
 

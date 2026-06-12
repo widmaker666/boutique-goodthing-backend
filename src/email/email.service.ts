@@ -323,7 +323,7 @@ export class EmailService {
           <p>Vous avez été invitée à rejoindre une boutique sur <strong>Encaissly</strong>.</p>
           <p>Téléchargez l'application et créez votre compte avec cette adresse email pour accéder à vos ventes et commissions.</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="#" style="background: #7a41bb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+            <a href="encaissly://register?email=${encodeURIComponent(email)}&role=CREATRICE" style="background: #7a41bb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
               Créer mon compte
             </a>
           </div>
