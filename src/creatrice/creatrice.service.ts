@@ -180,14 +180,21 @@ export class CreatriceService {
       throw new NotFoundException('Créatrice introuvable');
     }
 
-    //- Vérifie que l'invitation est bien destinée à ce compte (via email)
-    if (creatrice.email !== currentUser.email) {
-      throw new ForbiddenException('Cette invitation ne vous est pas destinée');
-    }
-
     //- Bloque si déjà lié — évite un double-link silencieux
     if (creatrice.userId) {
       throw new ConflictException('Déjà lié à un compte');
+    }
+
+    //- Vérifie qu'une notification INVITATION_BOUTIQUE pour cette créatrice existe bien pour ce user
+    const notification = await this.prisma.notification.findFirst({
+      where: {
+        userId: currentUser.id,
+        type: 'INVITATION_BOUTIQUE',
+        metadata: { path: ['creatriceId'], equals: creatriceId },
+      },
+    });
+    if (!notification) {
+      throw new ForbiddenException('Aucune invitation en attente pour cette créatrice');
     }
 
     //- Lie le User à la fiche Creatrice
