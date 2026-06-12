@@ -180,9 +180,13 @@ export class CreatriceService {
       throw new NotFoundException('Créatrice introuvable');
     }
 
-    //- Bloque si déjà lié — évite un double-link silencieux
+    //- Déjà lié à ce même compte → idempotent (invitation acceptée deux fois, ou ancienne donnée)
+    if (creatrice.userId === currentUser.id) {
+      return { message: 'Déjà membre' };
+    }
+    //- Lié à un autre compte → conflit réel
     if (creatrice.userId) {
-      throw new ConflictException('Déjà lié à un compte');
+      throw new ConflictException('Cette créatrice est déjà liée à un autre compte');
     }
 
     //- Vérifie qu'une notification INVITATION_BOUTIQUE pour cette créatrice existe bien pour ce user
