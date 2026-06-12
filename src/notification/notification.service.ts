@@ -5,10 +5,11 @@ import { PrismaService } from 'src/prisma.service';
 export class NotificationService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createForUser(userId: string, type: string, message: string) {
+  async createForUser(userId: string, type: string, message: string, metadata?: Record<string, any>) {
     //- Crée une notification en base pour l'utilisateur cible
+    //- metadata optionnel : données structurées liées au type (ex: creatriceId, boutiqueId)
     return this.prisma.notification.create({
-      data: { userId, type, message },
+      data: { userId, type, message, ...(metadata ? { metadata } : {}) },
     });
   }
 

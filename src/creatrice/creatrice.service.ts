@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCreatriceDto } from './dto/create-creatrice.dto';
 import { UpdateCreatriceDto } from './dto/update-creatrice.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -8,6 +13,7 @@ import {
   AuthUser,
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class CreatriceService {
@@ -15,6 +21,7 @@ export class CreatriceService {
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
     private readonly ownership: OwnershipService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(createCreatriceDto: CreateCreatriceDto, user: AuthUser) {
@@ -129,7 +136,7 @@ export class CreatriceService {
     return { message: 'Créatrice supprimée avec succès' };
   }
 
-  //- Invite créatrice par mail
+  //- Invite créatrice — notif in-app si User existant, email sinon
   async inviteCreatrice(
     creatriceId: string,
     email: string,
@@ -143,31 +150,64 @@ export class CreatriceService {
       creatriceId,
     );
 
-    //- Vérifie aussi que la boutique cible appartient à la gérante
-    await this.ownership.assertBoutiqueOwned(currentUser, boutiqueId);
+    //- Vérifie aussi que la boutique cible appartient à la gérante — retourne la boutique pour son nom
+    const boutique = await this.ownership.assertBoutiqueOwned(currentUser, boutiqueId);
 
     //- Cherche si un User (la créatrice invitée) avec cet email existe déjà
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (user) {
-      //- Lie directement le User au profil Creatrice
-      await this.prisma.creatrice.update({
-        where: { id: creatriceId },
-        data: { userId: user.id },
-      });
-
-      //- Ajoute en BoutiqueMember
-      await this.prisma.boutiqueMember.create({
-        data: { memberId: user.id, boutiqueMemberId: boutiqueId },
-      });
-
-      return { message: 'Créatrice liée avec succès', linked: true };
+      //- User existant → notification in-app pour consentement manuel (pas de lien direct)
+      await this.notificationService.createForUser(
+        user.id,
+        'INVITATION_BOUTIQUE',
+        `Tu as été invitée à rejoindre une boutique Encaissly.`,
+        { creatriceId: creatrice.id, boutiqueId, boutiqueName: boutique.nom },
+      );
+      return { message: 'Invitation envoyée', linked: false };
     }
 
-    //- Si pas de compte → envoie un email d'invitation
+    //- Pas de compte → envoie un email d'invitation
     await this.emailService.sendInvitation(email, creatrice.nom);
-    return { message: 'Invitation envoyée', linked: false };
+    return { message: 'Invitation envoyée par email', linked: false };
+  }
+
+  //- Accepte une invitation INVITATION_BOUTIQUE — accessible à CREATRICE et GERANTE
+  async acceptInvitation(creatriceId: string, boutiqueId: string, currentUser: AuthUser) {
+    const creatrice = await this.prisma.creatrice.findUnique({ where: { id: creatriceId } });
+
+    if (!creatrice) {
+      throw new NotFoundException('Créatrice introuvable');
+    }
+
+    //- Vérifie que l'invitation est bien destinée à ce compte (via email)
+    if (creatrice.email !== currentUser.email) {
+      throw new ForbiddenException('Cette invitation ne vous est pas destinée');
+    }
+
+    //- Bloque si déjà lié — évite un double-link silencieux
+    if (creatrice.userId) {
+      throw new ConflictException('Déjà lié à un compte');
+    }
+
+    //- Lie le User à la fiche Creatrice
+    await this.prisma.creatrice.update({
+      where: { id: creatriceId },
+      data: { userId: currentUser.id },
+    });
+
+    //- Ajoute en BoutiqueMember si boutiqueId fourni et pas déjà membre
+    if (boutiqueId) {
+      const alreadyMember = await this.prisma.boutiqueMember.findFirst({
+        where: { memberId: currentUser.id, boutiqueMemberId: boutiqueId },
+      });
+      if (!alreadyMember) {
+        await this.prisma.boutiqueMember.create({
+          data: { memberId: currentUser.id, boutiqueMemberId: boutiqueId },
+        });
+      }
+    }
+
+    return { message: 'Invitation acceptée' };
   }
 }

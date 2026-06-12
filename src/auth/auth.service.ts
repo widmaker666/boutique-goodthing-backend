@@ -49,6 +49,13 @@ export class AuthService {
       },
     });
 
+    //- Auto-link : si un record Creatrice avec cet email existe sans userId, lier au nouveau compte
+    //- Cas typique : gérante a créé la fiche avant que la créatrice s'inscrive
+    await this.prismaService.creatrice.updateMany({
+      where: { email: dto.email, userId: null },
+      data: { userId: user.id },
+    });
+
     //- Exclut le mot de passe de la réponse — on ne retourne jamais un hash au client
     //- Le destructuring extrait password et met le reste dans userWithoutPassword
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -200,6 +207,12 @@ export class AuthService {
           password: '',
           avatar: googleUser.picture,
         },
+      });
+
+      //- Auto-link : si un record Creatrice avec cet email existe sans userId, lier au nouveau compte Google
+      await this.prismaService.creatrice.updateMany({
+        where: { email: googleUser.email, userId: null },
+        data: { userId: user.id },
       });
     } else if (googleUser.picture && !user.avatar) {
       user = await this.prismaService.user.update({

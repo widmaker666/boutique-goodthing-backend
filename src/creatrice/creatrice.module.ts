@@ -4,9 +4,10 @@ import { CreatriceController } from './creatrice.controller';
 import { PrismaService } from 'src/prisma.service';
 import { EmailService } from 'src/email/email.service';
 import { OwnershipModule } from 'src/common/ownership/ownership.module';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
-  imports: [OwnershipModule],
+  imports: [OwnershipModule, NotificationModule],
   controllers: [CreatriceController],
   providers: [CreatriceService, PrismaService, EmailService],
 })

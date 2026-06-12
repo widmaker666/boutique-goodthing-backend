@@ -63,4 +63,14 @@ export class CreatriceController {
   ) {
     return this.creatriceService.inviteCreatrice(id, email, boutiqueId, req.user);
   }
+
+  //- Accessible à CREATRICE et GERANTE — pas de @Roles restrictif
+  @Post(':id/accept-invitation')
+  acceptInvitation(
+    @Param('id') id: string,
+    @Body('boutiqueId') boutiqueId: string,
+    @Req() req,
+  ) {
+    return this.creatriceService.acceptInvitation(id, boutiqueId, req.user);
+  }
 }

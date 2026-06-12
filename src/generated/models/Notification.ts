@@ -47,6 +47,7 @@ export type NotificationCountAggregateOutputType = {
   userId: number
   type: number
   message: number
+  metadata: number
   read: number
   createdAt: number
   _all: number
@@ -76,6 +77,7 @@ export type NotificationCountAggregateInputType = {
   userId?: true
   type?: true
   message?: true
+  metadata?: true
   read?: true
   createdAt?: true
   _all?: true
@@ -158,6 +160,7 @@ export type NotificationGroupByOutputType = {
   userId: string
   type: string
   message: string
+  metadata: runtime.JsonValue | null
   read: boolean
   createdAt: Date
   _count: NotificationCountAggregateOutputType | null
@@ -188,6 +191,7 @@ export type NotificationWhereInput = {
   userId?: Prisma.StringFilter<"Notification"> | string
   type?: Prisma.StringFilter<"Notification"> | string
   message?: Prisma.StringFilter<"Notification"> | string
+  metadata?: Prisma.JsonNullableFilter<"Notification">
   read?: Prisma.BoolFilter<"Notification"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -198,6 +202,7 @@ export type NotificationOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -211,6 +216,7 @@ export type NotificationWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Notification"> | string
   type?: Prisma.StringFilter<"Notification"> | string
   message?: Prisma.StringFilter<"Notification"> | string
+  metadata?: Prisma.JsonNullableFilter<"Notification">
   read?: Prisma.BoolFilter<"Notification"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -221,6 +227,7 @@ export type NotificationOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.NotificationCountOrderByAggregateInput
@@ -236,6 +243,7 @@ export type NotificationScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Notification"> | string
   type?: Prisma.StringWithAggregatesFilter<"Notification"> | string
   message?: Prisma.StringWithAggregatesFilter<"Notification"> | string
+  metadata?: Prisma.JsonNullableWithAggregatesFilter<"Notification">
   read?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Notification"> | Date | string
 }
@@ -244,6 +252,7 @@ export type NotificationCreateInput = {
   id?: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutNotificationsInput
@@ -254,6 +263,7 @@ export type NotificationUncheckedCreateInput = {
   userId: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
 }
@@ -262,6 +272,7 @@ export type NotificationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutNotificationsNestedInput
@@ -272,6 +283,7 @@ export type NotificationUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -281,6 +293,7 @@ export type NotificationCreateManyInput = {
   userId: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
 }
@@ -289,6 +302,7 @@ export type NotificationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -298,6 +312,7 @@ export type NotificationUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +332,7 @@ export type NotificationCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  metadata?: Prisma.SortOrder
   read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -385,6 +401,7 @@ export type NotificationCreateWithoutUserInput = {
   id?: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
 }
@@ -393,6 +410,7 @@ export type NotificationUncheckedCreateWithoutUserInput = {
   id?: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
 }
@@ -431,6 +449,7 @@ export type NotificationScalarWhereInput = {
   userId?: Prisma.StringFilter<"Notification"> | string
   type?: Prisma.StringFilter<"Notification"> | string
   message?: Prisma.StringFilter<"Notification"> | string
+  metadata?: Prisma.JsonNullableFilter<"Notification">
   read?: Prisma.BoolFilter<"Notification"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
 }
@@ -439,6 +458,7 @@ export type NotificationCreateManyUserInput = {
   id?: string
   type: string
   message: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: boolean
   createdAt?: Date | string
 }
@@ -447,6 +467,7 @@ export type NotificationUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -455,6 +476,7 @@ export type NotificationUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -463,6 +485,7 @@ export type NotificationUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -474,6 +497,7 @@ export type NotificationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   userId?: boolean
   type?: boolean
   message?: boolean
+  metadata?: boolean
   read?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -484,6 +508,7 @@ export type NotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   type?: boolean
   message?: boolean
+  metadata?: boolean
   read?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -494,6 +519,7 @@ export type NotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   type?: boolean
   message?: boolean
+  metadata?: boolean
   read?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -504,11 +530,12 @@ export type NotificationSelectScalar = {
   userId?: boolean
   type?: boolean
   message?: boolean
+  metadata?: boolean
   read?: boolean
   createdAt?: boolean
 }
 
-export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "type" | "message" | "read" | "createdAt", ExtArgs["result"]["notification"]>
+export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "type" | "message" | "metadata" | "read" | "createdAt", ExtArgs["result"]["notification"]>
 export type NotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -529,6 +556,7 @@ export type $NotificationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     userId: string
     type: string
     message: string
+    metadata: runtime.JsonValue | null
     read: boolean
     createdAt: Date
   }, ExtArgs["result"]["notification"]>
@@ -959,6 +987,7 @@ export interface NotificationFieldRefs {
   readonly userId: Prisma.FieldRef<"Notification", 'String'>
   readonly type: Prisma.FieldRef<"Notification", 'String'>
   readonly message: Prisma.FieldRef<"Notification", 'String'>
+  readonly metadata: Prisma.FieldRef<"Notification", 'Json'>
   readonly read: Prisma.FieldRef<"Notification", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Notification", 'DateTime'>
 }
