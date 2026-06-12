@@ -189,13 +189,14 @@ export class CreatriceService {
       throw new ConflictException('Cette créatrice est déjà liée à un autre compte');
     }
 
-    //- Vérifie qu'une notification INVITATION_BOUTIQUE pour cette créatrice existe bien pour ce user
-    const notification = await this.prisma.notification.findFirst({
-      where: {
-        userId: currentUser.id,
-        type: 'INVITATION_BOUTIQUE',
-        metadata: { path: ['creatriceId'], equals: creatriceId },
-      },
+    //- Vérifie qu'une notification INVITATION_BOUTIQUE pour cette créatrice existe pour ce user
+    //- Filtrage en mémoire pour éviter les aléas du JSON path filter Prisma
+    const notifications = await this.prisma.notification.findMany({
+      where: { userId: currentUser.id, type: 'INVITATION_BOUTIQUE' },
+    });
+    const notification = notifications.find((n) => {
+      const meta = n.metadata as Record<string, string> | null;
+      return meta?.creatriceId === creatriceId;
     });
     if (!notification) {
       throw new ForbiddenException('Aucune invitation en attente pour cette créatrice');
