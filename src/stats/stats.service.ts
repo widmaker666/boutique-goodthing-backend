@@ -53,6 +53,7 @@ export class StatsService {
             stats: { _sum: { prixVente: 0 }, _count: 0, _min: { prixVente: 0 }, _max: { prixVente: 0 } },
             paiement: [],
             totalCommissions: 0,
+            previousPeriodCA: 0,
           };
         }
         where = { boutiqueId: boutique.id, ...dateFilter };
@@ -65,6 +66,7 @@ export class StatsService {
             stats: { _sum: { prixVente: 0 }, _count: 0, _min: { prixVente: 0 }, _max: { prixVente: 0 } },
             paiement: [],
             totalCommissions: 0,
+            previousPeriodCA: 0,
           };
         }
         where = { creatriceId: creatrice.id, ...dateFilter };
@@ -95,7 +97,36 @@ export class StatsService {
       return acc + (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
     }, 0);
 
-    return { stats, paiement, totalCommissions };
+    //- Calcul période précédente pour comparaison CA (FREE = M-1, PRO = M-6 à M-3)
+    const { createdAt: _currentDateFilter, ...scope } = where;
+    const now = new Date();
+    let previousWhere: any;
+
+    if (plan === 'FREE') {
+      previousWhere = {
+        ...scope,
+        createdAt: {
+          gte: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+          lte: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59),
+        },
+      };
+    } else {
+      previousWhere = {
+        ...scope,
+        createdAt: {
+          gte: new Date(now.getFullYear(), now.getMonth() - 6, 1),
+          lte: new Date(now.getFullYear(), now.getMonth() - 3, 0, 23, 59, 59),
+        },
+      };
+    }
+
+    const previousStats = await this.prisma.vente.aggregate({
+      _sum: { prixVente: true },
+      where: previousWhere,
+    });
+    const previousPeriodCA: number = previousStats._sum.prixVente ?? 0;
+
+    return { stats, paiement, totalCommissions, previousPeriodCA };
   }
 
   async getTopArticles(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string) {
