@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { Plan } from 'src/generated/enums';
+import { UserService } from 'src/user/user.service';
+import { NotificationService } from 'src/notification/notification.service';
 import Stripe from 'stripe';
 
 @Injectable()
@@ -8,7 +11,27 @@ export class StripeService {
     apiVersion: '2026-04-22.dahlia',
   });
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
+  ) {}
+
+  //- Résout un priceId Stripe vers le Plan correspondant (FREE si inconnu)
+  //- Supporte mensuel + annuel pour chaque plan
+  private resolvePlan(priceId: string): Plan {
+    const proPrices = [
+      process.env.STRIPE_PRICE_PRO_MONTHLY,
+      process.env.STRIPE_PRICE_PRO_ANNUAL,
+    ].filter(Boolean);
+    const duoPrices = [
+      process.env.STRIPE_PRICE_DUO_MONTHLY,
+      process.env.STRIPE_PRICE_DUO_ANNUAL,
+    ].filter(Boolean);
+    if (proPrices.includes(priceId)) return Plan.PRO;
+    if (duoPrices.includes(priceId)) return Plan.DUO;
+    return Plan.FREE;
+  }
 
   async createCheckoutSession(userId: string, priceId: string) {
     const session = await this.stripe.checkout.sessions.create({
@@ -67,23 +90,46 @@ export class StripeService {
       );
 
       switch (event.type) {
-        //- Paiement réussi → on passe le user en PRO
+        //- Paiement réussi → on résout le plan depuis le priceId acheté
         case 'checkout.session.completed': {
           const session = event.data.object as unknown as {
+            id: string;
             metadata: { userId: string };
             customer: string;
           };
           const userId = session.metadata?.userId;
 
-          //- Sauvegarde le stripeCustomerId pour retrouver le user lors d'une annulation
           if (userId) {
+            //- Récupère les line_items pour lire le priceId réel de la session
+            const expanded = await this.stripe.checkout.sessions.retrieve(
+              session.id,
+              { expand: ['line_items'] },
+            );
+            const priceId =
+              expanded.line_items?.data?.[0]?.price?.id ?? '';
+            const plan = this.resolvePlan(priceId);
+
+            //- Sauvegarde le stripeCustomerId et le plan résolu pour retrouver le user lors d'une annulation
             await this.prisma.user.update({
               where: { id: userId },
               data: {
-                plan: 'PRO',
+                plan,
                 stripeCustomerId: session.customer,
               },
             });
+
+            //- Si plan DUO confirmé par Stripe → sync role + fiche Creatrice (idempotent)
+            if (plan === Plan.DUO) {
+              await this.userService.upgradeDuo(userId);
+            }
+
+            //- Notif in-app : abonnement activé
+            const planLabel = plan === Plan.DUO ? 'DUO' : 'PRO';
+            await this.notificationService.createForUser(
+              userId,
+              'ABONNEMENT',
+              `Ton abonnement ${planLabel} est activé. Bienvenue !`,
+            );
           }
           break;
         }
@@ -102,8 +148,13 @@ export class StripeService {
           if (user) {
             await this.prisma.user.update({
               where: { id: user.id },
-              data: { plan: 'FREE', stripeCustomerId: null },
+              data: { plan: Plan.FREE, stripeCustomerId: null },
             });
+            await this.notificationService.createForUser(
+              user.id,
+              'ABONNEMENT',
+              'Ton abonnement a été résilié. Tu es repassé en plan FREE.',
+            );
           }
           break;
         }

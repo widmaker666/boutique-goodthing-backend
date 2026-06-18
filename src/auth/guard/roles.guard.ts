@@ -19,8 +19,11 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
     //- Si pas d'utilisateur authentifié (ne devrait pas arriver après JwtGuard), on bloque
     if (!user) return false;
-    const isRoleArray = roles.includes(user.role);
-    if (!isRoleArray) return false;
-    return true;
+    //- GERANTE_CREATRICE hérite des droits GERANTE et CREATRICE
+    const effectiveRoles: Role[] =
+      user.role === Role.GERANTE_CREATRICE
+        ? [Role.GERANTE_CREATRICE, Role.GERANTE, Role.CREATRICE]
+        : [user.role];
+    return effectiveRoles.some((r) => roles.includes(r));
   }
 }

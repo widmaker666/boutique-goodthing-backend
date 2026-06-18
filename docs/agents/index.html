@@ -93,6 +93,42 @@
 </header>
 <main>
 
+  <div class="agent-card" style="border-left: 4px solid #eb7f45;">
+    <h2>encaissly-planner</h2>
+    <div class="badges">
+      <span class="badge model-sonnet">sonnet (synthèse plan)</span>
+      <span class="badge model-haiku" style="background:#e8f5e9;color:#2e7d32;">haiku (exploration fichiers)</span>
+    </div>
+    <div class="desc">Agent de planification — analyse la demande, explore les fichiers impactés (backend + mobile), liste les étapes ordonnées avec détails, puis attend la validation de l'utilisateur avant toute exécution. À utiliser avant chaque feature, skill ou agent d'implémentation.</div>
+
+    <div class="section-title">Quand l'utiliser</div>
+    <ul>
+      <li>Avant toute nouvelle feature (backend et/ou mobile)</li>
+      <li>Avant de lancer un skill ou un autre agent d'implémentation</li>
+      <li>Pour préparer un plan à valider/modifier/refuser</li>
+      <li>Quand la tâche touche plusieurs fichiers ou plusieurs agents</li>
+    </ul>
+
+    <div class="section-title">Ce qu'il produit</div>
+    <ul>
+      <li>Résumé de la feature (1-2 phrases)</li>
+      <li>Liste des fichiers impactés (backend + mobile)</li>
+      <li>Étapes ordonnées avec : agent responsable, fichiers, ce qui change, pourquoi</li>
+      <li>Risques et points d'attention (sécu, migration, breaking change)</li>
+    </ul>
+
+    <div class="section-title">Règle absolue</div>
+    <ul>
+      <li>Ne code pas, ne modifie aucun fichier — planification uniquement</li>
+      <li>Toujours terminer par "✅ Valider · ✏️ Modifier · ❌ Refuser"</li>
+    </ul>
+
+    <div class="section-title">Repos</div>
+    <ul>
+      <li>Backend + Mobile (cross-cutting)</li>
+    </ul>
+  </div>
+
   <div class="agent-card">
     <h2>nestjs-expert</h2>
     <div class="badges">

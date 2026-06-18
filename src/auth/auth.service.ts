@@ -56,6 +56,20 @@ export class AuthService {
       data: { userId: user.id },
     });
 
+    //- GERANTE_CREATRICE : auto-créer une fiche Creatrice liée à elle-même (taux 0% par défaut)
+    if (user.role === 'GERANTE_CREATRICE') {
+      const nom = [dto.prenom, dto.nom].filter(Boolean).join(' ') || dto.email;
+      await this.prismaService.creatrice.create({
+        data: {
+          nom,
+          email: user.email,
+          tauxDeCommission: 0,
+          userId: user.id,
+          geranteId: user.id,
+        },
+      });
+    }
+
     //- Exclut le mot de passe de la réponse — on ne retourne jamais un hash au client
     //- Le destructuring extrait password et met le reste dans userWithoutPassword
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

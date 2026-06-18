@@ -44,7 +44,7 @@ export class StatsService {
     }
 
     if (!Object.keys(where).length) {
-      if (role === 'GERANTE') {
+      if (role === 'GERANTE' || role === 'GERANTE_CREATRICE') {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });
@@ -148,7 +148,7 @@ export class StatsService {
     }
 
     if (!Object.keys(where).length) {
-      if (role === 'GERANTE') {
+      if (role === 'GERANTE' || role === 'GERANTE_CREATRICE') {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });
@@ -277,7 +277,7 @@ export class StatsService {
     }
 
     if (!Object.keys(where).length) {
-      if (role === 'GERANTE') {
+      if (role === 'GERANTE' || role === 'GERANTE_CREATRICE') {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });

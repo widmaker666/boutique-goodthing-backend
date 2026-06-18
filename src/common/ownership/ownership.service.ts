@@ -21,9 +21,9 @@ export class OwnershipService {
   constructor(private readonly prisma: PrismaService) {}
 
   //- Retourne le filtre Prisma des créatrices possédées par le user
-  //- GERANTE → fiches dont elle est gérante ; CREATRICE → sa propre fiche liée
+  //- GERANTE / GERANTE_CREATRICE → fiches dont elle est gérante ; CREATRICE → sa propre fiche liée
   getOwnedCreatriceWhere(user: AuthUser) {
-    if (user.role === Role.GERANTE) {
+    if (user.role === Role.GERANTE || user.role === Role.GERANTE_CREATRICE) {
       return { geranteId: user.id };
     }
     return { userId: user.id };
@@ -42,10 +42,10 @@ export class OwnershipService {
     return creatrice;
   }
 
-  //- Pour une CREATRICE : retourne l'id de SA fiche liée (403 si pas encore liée)
-  //- Pour une GERANTE : usage non pertinent → ForbiddenException
+  //- Pour une CREATRICE / GERANTE_CREATRICE : retourne l'id de SA fiche liée (403 si pas encore liée)
+  //- Pour une GERANTE pure : usage non pertinent → ForbiddenException
   async resolveOwnCreatriceId(user: AuthUser): Promise<string> {
-    if (user.role !== Role.CREATRICE) {
+    if (user.role !== Role.CREATRICE && user.role !== Role.GERANTE_CREATRICE) {
       throw new ForbiddenException('Réservé aux créatrices');
     }
 
@@ -75,11 +75,11 @@ export class OwnershipService {
   }
 
   //- Construit le filtre Prisma des ventes possédées par le user
-  //- GERANTE → ventes des créatrices qu'elle gère OU de ses boutiques
+  //- GERANTE / GERANTE_CREATRICE → ventes des créatrices qu'elle gère OU de ses boutiques
   //- CREATRICE → ventes de sa propre fiche liée
   //- Retourne un where impossible (id: 'none') si le user n'a aucune ressource liée
   async getVenteOwnershipWhere(user: AuthUser) {
-    if (user.role === Role.GERANTE) {
+    if (user.role === Role.GERANTE || user.role === Role.GERANTE_CREATRICE) {
       return {
         OR: [
           { creatrice: { geranteId: user.id } },

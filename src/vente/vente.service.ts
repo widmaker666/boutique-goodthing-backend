@@ -29,7 +29,7 @@ export class VenteService {
     let boutiqueId = createVenteDto.boutiqueId;
     if (boutiqueId) {
       //- Si fournie, vérifie que la boutique appartient bien au user gérant
-      if (user.role === 'GERANTE') {
+      if (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE') {
         await this.ownership.assertBoutiqueOwned(user, boutiqueId);
       }
     } else {
@@ -201,7 +201,7 @@ export class VenteService {
     if (updateVenteDto.creatriceId) {
       await this.ownership.assertCreatriceOwned(user, updateVenteDto.creatriceId);
     }
-    if (updateVenteDto.boutiqueId && user.role === 'GERANTE') {
+    if (updateVenteDto.boutiqueId && (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE')) {
       await this.ownership.assertBoutiqueOwned(user, updateVenteDto.boutiqueId);
     }
 
@@ -252,7 +252,7 @@ export class VenteService {
     }
 
     if (!Object.keys(where).length) {
-      if (role === 'GERANTE') {
+      if (role === 'GERANTE' || role === 'GERANTE_CREATRICE') {
         const boutique = await this.prisma.boutique.findFirst({
           where: { geranteId: userId },
         });

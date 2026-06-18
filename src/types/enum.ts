@@ -4,6 +4,13 @@ export enum ModePaiement {
 }
 
 export enum Plan {
-  FREE = 'Free',
-  PRO = 'Pro',
+  FREE = 'FREE',
+  PRO = 'PRO',
+  DUO = 'DUO',
+}
+
+export enum Role {
+  CREATRICE = 'CREATRICE',
+  GERANTE = 'GERANTE',
+  GERANTE_CREATRICE = 'GERANTE_CREATRICE',
 }

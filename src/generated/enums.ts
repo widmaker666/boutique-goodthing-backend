@@ -19,7 +19,8 @@ export type ModePaiement = (typeof ModePaiement)[keyof typeof ModePaiement]
 
 export const Plan = {
   FREE: 'FREE',
-  PRO: 'PRO'
+  PRO: 'PRO',
+  DUO: 'DUO'
 } as const
 
 export type Plan = (typeof Plan)[keyof typeof Plan]
@@ -27,7 +28,8 @@ export type Plan = (typeof Plan)[keyof typeof Plan]
 
 export const Role = {
   CREATRICE: 'CREATRICE',
-  GERANTE: 'GERANTE'
+  GERANTE: 'GERANTE',
+  GERANTE_CREATRICE: 'GERANTE_CREATRICE'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]

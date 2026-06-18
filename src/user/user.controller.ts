@@ -12,10 +12,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { UserService } from './user.service';
-import { Plan } from 'src/generated/enums';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
 
-@UseGuards(JwtGuard, RolesGuard)
+@UseGuards(JwtGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -40,9 +38,12 @@ export class UserController {
     return this.userService.uploadAvatar(req.user.id, file);
   }
 
-  @Patch('plan')
-  updatePlan(@Req() req, @Body('plan') plan: Plan) {
-    return this.userService.updatePlan(req.user.id, plan);
+  //- PATCH /user/plan supprimé — le plan est géré exclusivement par le webhook Stripe
+  //- Laisser cet endpoint ouvert était une faille billing (n'importe quel user pouvait upgrader sans payer)
+
+  @Patch('upgrade-duo')
+  upgradeDuo(@Req() req) {
+    return this.userService.upgradeDuo(req.user.id);
   }
 
   @Patch('notifications')

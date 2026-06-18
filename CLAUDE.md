@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Règles d'orchestration (toujours actives)
+
+### Context7 — doc à jour obligatoire
+Avant toute réponse sur une lib/framework/SDK (NestJS, Prisma, Stripe, class-validator, Resend, etc.) :
+1. `mcp__context7__resolve-library-id` avec le nom de la lib + la question
+2. `mcp__context7__query-docs` avec l'ID trouvé
+Ne jamais se fier à la mémoire d'entraînement pour les APIs récentes.
+
+### Caveman — communication compressée
+- **Prompts vers sous-agents** : caveman full (fragments, pas de politesse)
+- **Invocation skills/commands** : args compressés
+- **Raisonnement interne** : caveman full
+- **Sortie utilisateur** : lisible, pas de caveman
+- **Warnings sécu / migrations / actions destructives** : toujours clair et explicite
+
+### Planner en amont
+Avant toute feature non triviale → `encaissly-planner` pour produire un plan validé avant d'exécuter quoi que ce soit.
+
 ## Commands
 
 ```bash

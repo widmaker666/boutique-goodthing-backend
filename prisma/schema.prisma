@@ -79,7 +79,7 @@ model Creatrice {
   createdAt        DateTime    @default(now())
   vente            Vente[]
   user             User?       @relation("CreatriceCompte", fields: [userId], references: [id])
-  userId           String?
+  userId           String?     @unique
   gerante          User        @relation("CreatriceGerante", fields: [geranteId], references: [id])
   geranteId        String
   evenements       Evenement[]
@@ -140,11 +140,13 @@ enum ModePaiement {
 enum Plan {
   FREE
   PRO
+  DUO
 }
 
 enum Role {
   CREATRICE
   GERANTE
+  GERANTE_CREATRICE
 }
 
 enum Status {

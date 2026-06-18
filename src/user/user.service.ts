@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Plan } from 'src/generated/enums';
+import { Role } from 'src/generated/enums';
 import { PrismaService } from 'src/prisma.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
@@ -24,21 +24,43 @@ export class UserService {
     return userWithoutPassword;
   }
 
-  async updatePlan(userId: string, plan: Plan) {
-    const userUpdate = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        plan,
-      },
-    });
-    if (!userUpdate) {
+  async upgradeDuo(userId: string) {
+    //- Récupère le user courant pour vérifier son rôle avant toute modif
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
       throw new NotFoundException('Utilisateur introuvable');
     }
 
+    //- Idempotent : si déjà GERANTE_CREATRICE, on retourne sans erreur
+    if (user.role === Role.GERANTE_CREATRICE) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, refreshToken, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+
+    //- Passe le rôle à GERANTE_CREATRICE
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { role: Role.GERANTE_CREATRICE },
+    });
+
+    //- Crée la fiche Creatrice si elle n'existe pas encore (userId n'est pas @unique → findFirst + create)
+    const existing = await this.prisma.creatrice.findFirst({ where: { userId } });
+    if (!existing) {
+      await this.prisma.creatrice.create({
+        data: {
+          nom: [user.prenom, user.nom].filter(Boolean).join(' ') || user.email,
+          email: user.email,
+          tauxDeCommission: 0,
+          userId,
+          geranteId: userId,
+        },
+      });
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshToken, ...userWithoutPassword } = userUpdate;
+    const { password, refreshToken, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
   }
 
@@ -82,7 +104,7 @@ export class UserService {
       data: { notificationsEmail },
     });
 
-    //- Exclut le mot de passe et le refresh token hashé de la réponse — même pattern que getProfil/updatePlan
+    //- Exclut le mot de passe et le refresh token hashé de la réponse — même pattern que getProfil
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, refreshToken, ...userWithoutPassword } = userUpdate;
     return userWithoutPassword;
