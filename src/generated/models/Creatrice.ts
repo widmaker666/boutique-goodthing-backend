@@ -265,6 +265,7 @@ export type CreatriceOrderByWithRelationInput = {
 
 export type CreatriceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  userId?: string
   AND?: Prisma.CreatriceWhereInput | Prisma.CreatriceWhereInput[]
   OR?: Prisma.CreatriceWhereInput[]
   NOT?: Prisma.CreatriceWhereInput | Prisma.CreatriceWhereInput[]
@@ -273,14 +274,13 @@ export type CreatriceWhereUniqueInput = Prisma.AtLeast<{
   telephone?: Prisma.StringNullableFilter<"Creatrice"> | string | null
   tauxDeCommission?: Prisma.FloatFilter<"Creatrice"> | number
   createdAt?: Prisma.DateTimeFilter<"Creatrice"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Creatrice"> | string | null
   geranteId?: Prisma.StringFilter<"Creatrice"> | string
   vente?: Prisma.VenteListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   gerante?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   evenements?: Prisma.EvenementListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
-}, "id">
+}, "id" | "userId">
 
 export type CreatriceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

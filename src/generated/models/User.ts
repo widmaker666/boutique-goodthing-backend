@@ -38,6 +38,7 @@ export type UserMinAggregateOutputType = {
   notificationsEmail: boolean | null
   stripeCustomerId: string | null
   avatar: string | null
+  cguAcceptedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type UserMaxAggregateOutputType = {
   notificationsEmail: boolean | null
   stripeCustomerId: string | null
   avatar: string | null
+  cguAcceptedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -70,6 +72,7 @@ export type UserCountAggregateOutputType = {
   notificationsEmail: number
   stripeCustomerId: number
   avatar: number
+  cguAcceptedAt: number
   _all: number
 }
 
@@ -88,6 +91,7 @@ export type UserMinAggregateInputType = {
   notificationsEmail?: true
   stripeCustomerId?: true
   avatar?: true
+  cguAcceptedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -104,6 +108,7 @@ export type UserMaxAggregateInputType = {
   notificationsEmail?: true
   stripeCustomerId?: true
   avatar?: true
+  cguAcceptedAt?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -120,6 +125,7 @@ export type UserCountAggregateInputType = {
   notificationsEmail?: true
   stripeCustomerId?: true
   avatar?: true
+  cguAcceptedAt?: true
   _all?: true
 }
 
@@ -209,6 +215,7 @@ export type UserGroupByOutputType = {
   notificationsEmail: boolean
   stripeCustomerId: string | null
   avatar: string | null
+  cguAcceptedAt: Date | null
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -246,6 +253,7 @@ export type UserWhereInput = {
   notificationsEmail?: Prisma.BoolFilter<"User"> | boolean
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
+  cguAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
@@ -267,6 +275,7 @@ export type UserOrderByWithRelationInput = {
   notificationsEmail?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  cguAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   boutiques?: Prisma.BoutiqueOrderByRelationAggregateInput
   boutiqueMembers?: Prisma.BoutiqueMemberOrderByRelationAggregateInput
   creatrices?: Prisma.CreatriceOrderByRelationAggregateInput
@@ -291,6 +300,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notificationsEmail?: Prisma.BoolFilter<"User"> | boolean
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
+  cguAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   boutiques?: Prisma.BoutiqueListRelationFilter
   boutiqueMembers?: Prisma.BoutiqueMemberListRelationFilter
   creatrices?: Prisma.CreatriceListRelationFilter
@@ -312,6 +322,7 @@ export type UserOrderByWithAggregationInput = {
   notificationsEmail?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  cguAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -334,6 +345,7 @@ export type UserScalarWhereWithAggregatesInput = {
   notificationsEmail?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  cguAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -350,6 +362,7 @@ export type UserCreateInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
@@ -371,6 +384,7 @@ export type UserUncheckedCreateInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
@@ -392,6 +406,7 @@ export type UserUpdateInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
@@ -413,6 +428,7 @@ export type UserUncheckedUpdateInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
@@ -434,6 +450,7 @@ export type UserCreateManyInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -450,6 +467,7 @@ export type UserUpdateManyMutationInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -466,6 +484,7 @@ export type UserUncheckedUpdateManyInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -482,6 +501,7 @@ export type UserCountOrderByAggregateInput = {
   notificationsEmail?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  cguAcceptedAt?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -498,6 +518,7 @@ export type UserMaxOrderByAggregateInput = {
   notificationsEmail?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  cguAcceptedAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -514,6 +535,7 @@ export type UserMinOrderByAggregateInput = {
   notificationsEmail?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  cguAcceptedAt?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -640,6 +662,7 @@ export type UserCreateWithoutBoutiquesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
   creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
@@ -660,6 +683,7 @@ export type UserUncheckedCreateWithoutBoutiquesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
   creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
@@ -696,6 +720,7 @@ export type UserUpdateWithoutBoutiquesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
   creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
@@ -716,6 +741,7 @@ export type UserUncheckedUpdateWithoutBoutiquesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
   creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
@@ -736,6 +762,7 @@ export type UserCreateWithoutBoutiqueMembersInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
   creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
@@ -756,6 +783,7 @@ export type UserUncheckedCreateWithoutBoutiqueMembersInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
   creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
@@ -792,6 +820,7 @@ export type UserUpdateWithoutBoutiqueMembersInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
   creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
@@ -812,6 +841,7 @@ export type UserUncheckedUpdateWithoutBoutiqueMembersInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
   creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
@@ -832,6 +862,7 @@ export type UserCreateWithoutCreatricesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatricesGerees?: Prisma.CreatriceCreateNestedManyWithoutGeranteInput
@@ -852,6 +883,7 @@ export type UserUncheckedCreateWithoutCreatricesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatricesGerees?: Prisma.CreatriceUncheckedCreateNestedManyWithoutGeranteInput
@@ -877,6 +909,7 @@ export type UserCreateWithoutCreatricesGereesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
@@ -897,6 +930,7 @@ export type UserUncheckedCreateWithoutCreatricesGereesInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
@@ -933,6 +967,7 @@ export type UserUpdateWithoutCreatricesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatricesGerees?: Prisma.CreatriceUpdateManyWithoutGeranteNestedInput
@@ -953,6 +988,7 @@ export type UserUncheckedUpdateWithoutCreatricesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatricesGerees?: Prisma.CreatriceUncheckedUpdateManyWithoutGeranteNestedInput
@@ -984,6 +1020,7 @@ export type UserUpdateWithoutCreatricesGereesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
@@ -1004,6 +1041,7 @@ export type UserUncheckedUpdateWithoutCreatricesGereesInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
@@ -1024,6 +1062,7 @@ export type UserCreateWithoutNotificationsInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceCreateNestedManyWithoutUserInput
@@ -1044,6 +1083,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   notificationsEmail?: boolean
   stripeCustomerId?: string | null
   avatar?: string | null
+  cguAcceptedAt?: Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedCreateNestedManyWithoutGeranteInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedCreateNestedManyWithoutMemberInput
   creatrices?: Prisma.CreatriceUncheckedCreateNestedManyWithoutUserInput
@@ -1080,6 +1120,7 @@ export type UserUpdateWithoutNotificationsInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUpdateManyWithoutUserNestedInput
@@ -1100,6 +1141,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   notificationsEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cguAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boutiques?: Prisma.BoutiqueUncheckedUpdateManyWithoutGeranteNestedInput
   boutiqueMembers?: Prisma.BoutiqueMemberUncheckedUpdateManyWithoutMemberNestedInput
   creatrices?: Prisma.CreatriceUncheckedUpdateManyWithoutUserNestedInput
@@ -1187,6 +1229,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notificationsEmail?: boolean
   stripeCustomerId?: boolean
   avatar?: boolean
+  cguAcceptedAt?: boolean
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
   creatrices?: boolean | Prisma.User$creatricesArgs<ExtArgs>
@@ -1209,6 +1252,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notificationsEmail?: boolean
   stripeCustomerId?: boolean
   avatar?: boolean
+  cguAcceptedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1225,6 +1269,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notificationsEmail?: boolean
   stripeCustomerId?: boolean
   avatar?: boolean
+  cguAcceptedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1241,9 +1286,10 @@ export type UserSelectScalar = {
   notificationsEmail?: boolean
   stripeCustomerId?: boolean
   avatar?: boolean
+  cguAcceptedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "nom" | "prenom" | "password" | "plan" | "role" | "lastExportData" | "createdAt" | "refreshToken" | "notificationsEmail" | "stripeCustomerId" | "avatar", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "nom" | "prenom" | "password" | "plan" | "role" | "lastExportData" | "createdAt" | "refreshToken" | "notificationsEmail" | "stripeCustomerId" | "avatar" | "cguAcceptedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   boutiques?: boolean | Prisma.User$boutiquesArgs<ExtArgs>
   boutiqueMembers?: boolean | Prisma.User$boutiqueMembersArgs<ExtArgs>
@@ -1278,6 +1324,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notificationsEmail: boolean
     stripeCustomerId: string | null
     avatar: string | null
+    cguAcceptedAt: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -1719,6 +1766,7 @@ export interface UserFieldRefs {
   readonly notificationsEmail: Prisma.FieldRef<"User", 'Boolean'>
   readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
+  readonly cguAcceptedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 

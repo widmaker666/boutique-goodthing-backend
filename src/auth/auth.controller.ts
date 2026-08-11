@@ -3,6 +3,7 @@ import { Throttle, seconds } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { GoogleMobileDto } from './dto/google-mobile.dto';
 import { JwtGuard } from './guard/jwt.guard';
 import { GoogleOAuthGuard } from './guard/google.guard';
 
@@ -40,8 +41,12 @@ export class AuthController {
   //- Throttle strict : 5 tentatives / minute par IP
   @Throttle({ default: { limit: 5, ttl: seconds(60) } })
   @Post('google/mobile')
-  googleMobile(@Body('accessToken') accessToken: string) {
-    return this.authService.googleLoginMobile(accessToken);
+  googleMobile(@Body() dto: GoogleMobileDto) {
+    return this.authService.googleLoginMobile(
+      dto.accessToken,
+      dto.role,
+      dto.acceptedCGU,
+    );
   }
 
   //- Throttle strict : 10 tentatives / minute par IP — un peu plus permissif (refresh légitime fréquent)

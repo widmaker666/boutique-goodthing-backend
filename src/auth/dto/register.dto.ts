@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { Role } from 'src/generated/enums';
 
 export class RegisterDto {
@@ -20,4 +20,8 @@ export class RegisterDto {
   @IsEnum(Role)
   @IsOptional()
   role?: Role;
+
+  //- Doit être `true` pour que le compte soit créé — vérifié côté service, pas juste ici
+  @IsBoolean()
+  acceptedCGU!: boolean;
 }

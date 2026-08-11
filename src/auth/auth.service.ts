@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -9,6 +10,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { OAuth2Client } from 'google-auth-library';
+import { Role } from 'src/generated/enums';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +34,14 @@ export class AuthService {
       throw new ConflictException(`L'email : ${dto.email} est déjà utilisé.`);
     }
 
+    //- CGU obligatoires — vérifié côté serveur, pas seulement dans l'app
+    //- (le front peut être contourné, donc c'est ici que ça compte vraiment)
+    if (!dto.acceptedCGU) {
+      throw new BadRequestException(
+        "Vous devez accepter les CGU et la politique de confidentialité pour créer un compte.",
+      );
+    }
+
     //- Hash du mot de passe avant stockage — on ne stocke jamais un mdp en clair
     //- Le "12" correspond au nombre de rounds de hashage (bon équilibre sécurité/performance)
     //- Plus le nombre est élevé, plus c'est sécurisé mais lent
@@ -46,6 +56,7 @@ export class AuthService {
         nom: dto.nom,
         prenom: dto.prenom,
         ...(dto.role ? { role: dto.role } : {}),
+        cguAcceptedAt: new Date(),
       },
     });
 
@@ -203,23 +214,45 @@ export class AuthService {
     };
   }
 
-  async googleLogin(googleUser: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    picture?: string;
-  }) {
+  async googleLogin(
+    googleUser: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      picture?: string;
+    },
+    //- Fournis uniquement quand le front finalise une INSCRIPTION (formulaire
+    //- pré-rempli complété). Absents pour un simple login.
+    role?: Role,
+    acceptedCGU?: boolean,
+  ) {
     //- 1. Cherche l'utilisateur en base par email
     let user = await this.prismaService.user.findUnique({
       where: { email: googleUser.email },
     });
 
     if (!user) {
+      //- Pas de compte existant et pas de CGU acceptées → on ne crée rien.
+      //- Couvre le cas "login" (aucun compte associé, l'app doit rediriger
+      //- vers l'inscription) ET empêche toute création de compte sans
+      //- consentement, quel que soit le point d'entrée.
+      if (!acceptedCGU) {
+        throw new UnauthorizedException(
+          "Aucun compte associé à ce compte Google. Inscrivez-vous d'abord.",
+        );
+      }
+
+      const nom = [googleUser.firstName, googleUser.lastName].filter(Boolean).join(' ') || googleUser.email;
+
       user = await this.prismaService.user.create({
         data: {
           email: googleUser.email,
           password: '',
+          nom: googleUser.lastName,
+          prenom: googleUser.firstName,
           avatar: googleUser.picture,
+          ...(role ? { role } : {}),
+          cguAcceptedAt: new Date(),
         },
       });
 
@@ -228,6 +261,20 @@ export class AuthService {
         where: { email: googleUser.email, userId: null },
         data: { userId: user.id },
       });
+
+      //- GERANTE_CREATRICE : auto-créer une fiche Creatrice liée à elle-même (taux 0% par défaut)
+      //- Même logique que register() — sinon un compte Google DUO n'a pas sa fiche créatrice
+      if (user.role === 'GERANTE_CREATRICE') {
+        await this.prismaService.creatrice.create({
+          data: {
+            nom,
+            email: user.email,
+            tauxDeCommission: 0,
+            userId: user.id,
+            geranteId: user.id,
+          },
+        });
+      }
     } else if (googleUser.picture && !user.avatar) {
       user = await this.prismaService.user.update({
         where: { id: user.id },
@@ -255,7 +302,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async googleLoginMobile(googleAccessToken: string) {
+  async googleLoginMobile(
+    googleAccessToken: string,
+    role?: Role,
+    acceptedCGU?: boolean,
+  ) {
     //- Vérifie l'access token Google et son audience (aud) via getTokenInfo
     //- aud doit correspondre au GOOGLE_CLIENT_ID configuré côté serveur
     //- Empêche un attaquant d'utiliser un access token Google émis pour une AUTRE application
@@ -289,11 +340,15 @@ export class AuthService {
     const googleUser = await response.json();
 
     //- Réutilise la logique existante
-    return this.googleLogin({
-      email: googleUser.email,
-      firstName: googleUser.given_name,
-      lastName: googleUser.family_name,
-      picture: googleUser.picture,
-    });
+    return this.googleLogin(
+      {
+        email: googleUser.email,
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
+        picture: googleUser.picture,
+      },
+      role,
+      acceptedCGU,
+    );
   }
 }

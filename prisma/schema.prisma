@@ -31,6 +31,7 @@ model User {
   stripeCustomerId   String?
   avatar             String?
   notifications      Notification[]
+  cguAcceptedAt      DateTime?
 }
 
 model Boutique {
