@@ -43,7 +43,7 @@ export class AuthController {
   @Post('google/mobile')
   googleMobile(@Body() dto: GoogleMobileDto) {
     return this.authService.googleLoginMobile(
-      dto.accessToken,
+      dto.idToken,
       dto.role,
       dto.acceptedCGU,
     );

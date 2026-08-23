@@ -303,49 +303,43 @@ export class AuthService {
   }
 
   async googleLoginMobile(
-    googleAccessToken: string,
+    googleIdToken: string,
     role?: Role,
     acceptedCGU?: boolean,
   ) {
-    //- Vérifie l'access token Google et son audience (aud) via getTokenInfo
-    //- aud doit correspondre au GOOGLE_CLIENT_ID configuré côté serveur
-    //- Empêche un attaquant d'utiliser un access token Google émis pour une AUTRE application
-    let tokenInfo;
-    try {
-      tokenInfo = await this.googleOAuthClient.getTokenInfo(googleAccessToken);
-    } catch {
-      throw new UnauthorizedException('Token Google invalide');
-    }
-
+    //- @react-native-google-signin/google-signin (natif, Credential Manager) fournit
+    //- un idToken (JWT) directement — remplace l'ancien flow accessToken+userinfo
+    //- (basé sur expo-auth-session, navigateur + redirection, que Google a rendu
+    //- instable au fil du temps). verifyIdToken vérifie signature + audience en un
+    //- seul appel, et le payload contient déjà toutes les infos de profil.
     const allowedAudiences = [
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_ANDROID_CLIENT_ID,
       process.env.GOOGLE_IOS_CLIENT_ID,
-    ].filter(Boolean);
+    ].filter(Boolean) as string[];
 
-    if (!allowedAudiences.includes(tokenInfo.aud as string)) {
-      throw new UnauthorizedException('Token Google invalide (audience incorrecte)');
-    }
-
-    //- Récupère les infos du profil utilisateur
-    const response = await fetch(
-      `https://www.googleapis.com/oauth2/v3/userinfo`,
-      { headers: { Authorization: `Bearer ${googleAccessToken}` } },
-    );
-
-    if (!response.ok) {
+    let payload;
+    try {
+      const ticket = await this.googleOAuthClient.verifyIdToken({
+        idToken: googleIdToken,
+        audience: allowedAudiences,
+      });
+      payload = ticket.getPayload();
+    } catch {
       throw new UnauthorizedException('Token Google invalide');
     }
 
-    const googleUser = await response.json();
+    if (!payload?.email) {
+      throw new UnauthorizedException('Token Google invalide');
+    }
 
     //- Réutilise la logique existante
     return this.googleLogin(
       {
-        email: googleUser.email,
-        firstName: googleUser.given_name,
-        lastName: googleUser.family_name,
-        picture: googleUser.picture,
+        email: payload.email,
+        firstName: payload.given_name ?? '',
+        lastName: payload.family_name ?? '',
+        picture: payload.picture,
       },
       role,
       acceptedCGU,
