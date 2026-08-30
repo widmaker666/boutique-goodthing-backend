@@ -9,6 +9,7 @@ import {
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { calculerCommission } from 'src/common/commission.util';
 
 @Injectable()
 export class VenteService {
@@ -59,11 +60,11 @@ export class VenteService {
     }
 
     //- Calcule la commission et le net à reverser à la créatrice
-    const prixVente = createVente.prixVente;
-    const txCommission = createVente.creatrice.tauxDeCommission;
-
-    const montantCommission = Math.round((prixVente * txCommission) / 100 * 100) / 100;
-    const netCreatrice = Math.round((prixVente - montantCommission) * 100) / 100;
+    const { montantCommission, netCreatrice } = calculerCommission(
+      createVente.prixVente,
+      createVente.creatrice.tauxDeCommission,
+      createVente.sansCommission,
+    );
 
     //- Envoi email si la créatrice a un compte User avec notifications activées
     if (createVente.creatrice.userId) {
@@ -177,8 +178,11 @@ export class VenteService {
 
     //- map() parcourt chaque vente pour y ajouter les calculs de commission
     return allDataVente.map((vente) => {
-      const montantCommission = Math.round((vente.prixVente * vente.creatrice.tauxDeCommission) / 100 * 100) / 100;
-      const netCreatrice = Math.round((vente.prixVente - montantCommission) * 100) / 100;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
       return { ...vente, montantCommission, netCreatrice };
     });
   }
@@ -199,11 +203,11 @@ export class VenteService {
     }
 
     //- Calcule la commission et le net pour cette vente
-    const prixVente = oneVente.prixVente;
-    const txCommission = oneVente.creatrice.tauxDeCommission;
-
-    const montantCommission = Math.round((prixVente * txCommission) / 100 * 100) / 100;
-    const netCreatrice = Math.round((prixVente - montantCommission) * 100) / 100;
+    const { montantCommission, netCreatrice } = calculerCommission(
+      oneVente.prixVente,
+      oneVente.creatrice.tauxDeCommission,
+      oneVente.sansCommission,
+    );
 
     return { ...oneVente, montantCommission, netCreatrice };
   }
@@ -289,8 +293,11 @@ export class VenteService {
     });
 
     return ventes.map((vente) => {
-      const montantCommission = Math.round((vente.prixVente * vente.creatrice.tauxDeCommission) / 100 * 100) / 100;
-      const netCreatrice = Math.round((vente.prixVente - montantCommission) * 100) / 100;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
       return { ...vente, montantCommission, netCreatrice };
     });
   }

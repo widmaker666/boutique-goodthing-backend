@@ -7,6 +7,7 @@ import {
   AuthUser,
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
+import { calculerCommission } from 'src/common/commission.util';
 
 @Injectable()
 export class ExportService {
@@ -108,9 +109,11 @@ export class ExportService {
     let totalNet = 0;
 
     for (const [index, vente] of allData.entries()) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       //- Saut de page si la prochaine ligne déborde
       if (y + 42 > MAX_ROW_Y) {
@@ -200,9 +203,11 @@ export class ExportService {
 
     //- Lignes de données
     for (const vente of allData) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       lignes.push(
         `${vente.nomArticle};${vente.creatrice.nom};${vente.creatrice.tauxDeCommission}%;${vente.prixVente.toFixed(2)}€;-${montantCommission.toFixed(2)}€;${netCreatrice.toFixed(2)}€;${vente.modePaiement};${new Date(vente.createdAt).toLocaleDateString('fr-FR')}`,
@@ -273,9 +278,11 @@ export class ExportService {
 
     //- Lignes de données
     for (const [index, vente] of allData.entries()) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       const row = sheet.addRow({
         article: vente.nomArticle,
@@ -418,9 +425,11 @@ export class ExportService {
     let totalNet = 0;
 
     for (const vente of allData) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       if (!resumeParCreatrice[vente.creatriceId]) {
         resumeParCreatrice[vente.creatriceId] = {
@@ -557,9 +566,11 @@ export class ExportService {
     let totalNet = 0;
 
     for (const vente of allData) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       if (!resumeParCreatrice[vente.creatriceId]) {
         resumeParCreatrice[vente.creatriceId] = {
@@ -643,9 +654,11 @@ export class ExportService {
     let totalNet = 0;
 
     for (const vente of allData) {
-      const montantCommission =
-        (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-      const netCreatrice = vente.prixVente - montantCommission;
+      const { montantCommission, netCreatrice } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
 
       if (!resumeParCreatrice[vente.creatriceId]) {
         resumeParCreatrice[vente.creatriceId] = {

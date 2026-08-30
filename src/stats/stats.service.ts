@@ -4,6 +4,7 @@ import {
   AuthUser,
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
+import { calculerCommission } from 'src/common/commission.util';
 
 @Injectable()
 export class StatsService {
@@ -94,7 +95,12 @@ export class StatsService {
     });
 
     const totalCommissions = ventes.reduce((acc, vente) => {
-      return acc + (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const { montantCommission } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
+      return acc + montantCommission;
     }, 0);
 
     //- Calcul période précédente pour comparaison CA (FREE = M-1, PRO = M-6 à M-3)
@@ -213,7 +219,16 @@ export class StatsService {
 
     return creatrices.map((c) => {
       const ca = c.vente.reduce((acc, v) => acc + v.prixVente, 0);
-      const commissions = (ca * c.tauxDeCommission) / 100;
+      //- Somme vente par vente (pas ca * taux global) pour respecter le
+      //- sansCommission individuel de chaque vente
+      const commissions = c.vente.reduce((acc, v) => {
+        const { montantCommission } = calculerCommission(
+          v.prixVente,
+          c.tauxDeCommission,
+          v.sansCommission,
+        );
+        return acc + montantCommission;
+      }, 0);
       const net = ca - commissions;
       return {
         id: c.id,
@@ -251,7 +266,12 @@ export class StatsService {
     });
 
     const totalCommissions = ventesByCreatrice.reduce((acc, vente) => {
-      return acc + (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
+      const { montantCommission } = calculerCommission(
+        vente.prixVente,
+        vente.creatrice.tauxDeCommission,
+        vente.sansCommission,
+      );
+      return acc + montantCommission;
     }, 0);
 
     const netCreatrice = (stats._sum.prixVente ?? 0) - totalCommissions;

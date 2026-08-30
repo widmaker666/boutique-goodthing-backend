@@ -1135,6 +1135,7 @@ export const VenteScalarFieldEnum = {
   prixVente: 'prixVente',
   quantite: 'quantite',
   modePaiement: 'modePaiement',
+  sansCommission: 'sansCommission',
   createdAt: 'createdAt',
   creatriceId: 'creatriceId',
   boutiqueId: 'boutiqueId',

@@ -14,6 +14,7 @@ import {
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { calculerCommission } from 'src/common/commission.util';
 
 @Injectable()
 export class CreatriceService {
@@ -80,6 +81,7 @@ export class CreatriceService {
             prixVente: true,
             modePaiement: true,
             createdAt: true,
+            sansCommission: true,
           },
           orderBy: { createdAt: 'desc' },
         },
@@ -94,7 +96,16 @@ export class CreatriceService {
     //- Destructure vente pour le renommer et calculer les stats
     const { vente, ...creatrice } = findData;
     const ca = vente.reduce((sum, v) => sum + v.prixVente, 0);
-    const totalCommission = (ca * creatrice.tauxDeCommission) / 100;
+    //- Somme vente par vente (pas ca * taux global) pour respecter le
+    //- sansCommission individuel de chaque vente
+    const totalCommission = vente.reduce((acc, v) => {
+      const { montantCommission } = calculerCommission(
+        v.prixVente,
+        creatrice.tauxDeCommission,
+        v.sansCommission,
+      );
+      return acc + montantCommission;
+    }, 0);
 
     return {
       ...creatrice,

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Resend } from 'resend';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
+import { calculerCommission } from 'src/common/commission.util';
 
 @Injectable()
 export class EmailService {
@@ -111,9 +112,11 @@ export class EmailService {
 
       const lignesVentes = creatrice.vente
         .map((vente) => {
-          const commission =
-            (vente.prixVente * creatrice.tauxDeCommission) / 100;
-          const net = vente.prixVente - commission;
+          const { montantCommission: commission, netCreatrice: net } = calculerCommission(
+            vente.prixVente,
+            creatrice.tauxDeCommission,
+            vente.sansCommission,
+          );
           totalCA += vente.prixVente;
           totalCommission += commission;
           totalNet += net;
@@ -224,9 +227,11 @@ export class EmailService {
       let totalNet = 0;
 
       for (const vente of boutiques.ventes) {
-        const commission =
-          (vente.prixVente * vente.creatrice.tauxDeCommission) / 100;
-        const net = vente.prixVente - commission;
+        const { montantCommission: commission, netCreatrice: net } = calculerCommission(
+          vente.prixVente,
+          vente.creatrice.tauxDeCommission,
+          vente.sansCommission,
+        );
 
         if (!resumeParCreatrice[vente.creatriceId]) {
           resumeParCreatrice[vente.creatriceId] = {

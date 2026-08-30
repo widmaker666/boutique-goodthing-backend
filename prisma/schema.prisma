@@ -113,19 +113,22 @@ model Article {
 }
 
 model Vente {
-  id           String       @id @default(uuid())
-  photo        String?
-  nomArticle   String
-  prixVente    Float
-  quantite     Int          @default(1)
-  modePaiement ModePaiement
-  createdAt    DateTime     @default(now())
-  creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])
-  creatriceId  String
-  boutique     Boutique?    @relation(fields: [boutiqueId], references: [id])
-  boutiqueId   String?
-  evenement    Evenement?   @relation(fields: [evenementId], references: [id])
-  evenementId  String?
+  id             String       @id @default(uuid())
+  photo          String?
+  nomArticle     String
+  prixVente      Float
+  quantite       Int          @default(1)
+  modePaiement   ModePaiement
+  //- Override par vente : ignore le tauxDeCommission de la créatrice et
+  //- force 0% (case à cocher côté app, dispo pour tous les modes de paiement)
+  sansCommission Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  creatrice      Creatrice    @relation(fields: [creatriceId], references: [id])
+  creatriceId    String
+  boutique       Boutique?    @relation(fields: [boutiqueId], references: [id])
+  boutiqueId     String?
+  evenement      Evenement?   @relation(fields: [evenementId], references: [id])
+  evenementId    String?
 }
 
 model Notification {

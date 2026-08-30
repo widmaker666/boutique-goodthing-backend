@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
@@ -48,4 +49,10 @@ export class CreateVenteDto {
   @IsInt()
   @Min(1)
   quantite?: number;
+
+  //- Case à cocher côté app : force la commission de CETTE vente à 0%,
+  //- peu importe le tauxDeCommission de la créatrice
+  @IsOptional()
+  @IsBoolean()
+  sansCommission?: boolean;
 }
