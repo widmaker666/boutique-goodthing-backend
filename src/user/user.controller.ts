@@ -5,6 +5,7 @@ import {
   Req,
   Patch,
   Post,
+  Delete,
   Body,
   UseInterceptors,
   UploadedFile,
@@ -55,5 +56,12 @@ export class UserController {
       req.user.id,
       notificationsEmail,
     );
+  }
+
+  //- Droit à l'effacement RGPD (art. 17) — supprime le compte et tout ce
+  //- qu'il possède/gère. Voir UserService.deleteAccount pour le détail.
+  @Delete('account')
+  deleteAccount(@Req() req) {
+    return this.userService.deleteAccount(req.user.id);
   }
 }
