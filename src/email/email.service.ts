@@ -80,11 +80,12 @@ export class EmailService {
       59,
     );
 
-    //- Récupère toutes les créatrices liées à un User PRO avec notifications activées
+    //- Récupère toutes les créatrices liées à un User PRO ou DUO (les deux
+    //- plans payants débloquent le récap mensuel) avec notifications activées
     const creatrices = await this.prisma.creatrice.findMany({
       where: {
         user: {
-          plan: 'PRO',
+          plan: { in: ['PRO', 'DUO'] },
           notificationsEmail: true,
         },
       },
