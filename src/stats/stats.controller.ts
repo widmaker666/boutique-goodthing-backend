@@ -1,6 +1,7 @@
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { StatsService } from './stats.service';
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { resolveRole } from 'src/common/resolve-role.util';
 
 @UseGuards(JwtGuard)
 @Controller('stats')
@@ -12,10 +13,11 @@ export class StatsController {
     @Req() req,
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
+    @Query('mode') mode?: string,
   ) {
     return this.statService.getGlobalStats(
       req.user.id,
-      req.user.role,
+      resolveRole(req.user.role, mode),
       req.user.plan,
       boutiqueId,
       evenementId,
@@ -27,8 +29,14 @@ export class StatsController {
     @Req() req,
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
+    @Query('mode') mode?: string,
   ) {
-    return this.statService.getHistorique(req.user.id, req.user.role, boutiqueId, evenementId);
+    return this.statService.getHistorique(
+      req.user.id,
+      resolveRole(req.user.role, mode),
+      boutiqueId,
+      evenementId,
+    );
   }
 
   @Get('top-articles')
@@ -36,10 +44,11 @@ export class StatsController {
     @Req() req,
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
+    @Query('mode') mode?: string,
   ) {
     return this.statService.getTopArticles(
       req.user.id,
-      req.user.role,
+      resolveRole(req.user.role, mode),
       req.user.plan,
       boutiqueId,
       evenementId,
@@ -47,8 +56,8 @@ export class StatsController {
   }
 
   @Get('par-creatrice')
-  getParCreatrice(@Req() req) {
-    if (req.user.role !== 'GERANTE') return [];
+  getParCreatrice(@Req() req, @Query('mode') mode?: string) {
+    if (resolveRole(req.user.role, mode) !== 'GERANTE') return [];
     return this.statService.getParCreatrice(req.user.id, req.user.plan);
   }
 

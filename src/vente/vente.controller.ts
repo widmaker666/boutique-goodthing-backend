@@ -20,6 +20,7 @@ import { QueryVente } from './dto/query-vente.dto';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { resolveRole } from 'src/common/resolve-role.util';
 
 @UseGuards(JwtGuard)
 @Controller('vente')
@@ -67,8 +68,15 @@ export class VenteController {
     @Req() req,
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
+    @Query('mode') mode?: string,
   ) {
-    return this.venteService.getRecentVentes(req.user.id, req.user.role, 5, boutiqueId, evenementId);
+    return this.venteService.getRecentVentes(
+      req.user.id,
+      resolveRole(req.user.role, mode),
+      5,
+      boutiqueId,
+      evenementId,
+    );
   }
 
   @Get(':id')
