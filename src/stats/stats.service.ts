@@ -13,6 +13,28 @@ export class StatsService {
     private readonly ownership: OwnershipService,
   ) {}
 
+  //- Résout la relation réelle avec CETTE boutique précise (gérante
+  //- propriétaire, OU créatrice membre) plutôt que de se fier au rôle
+  //- stocké — un GERANTE_CREATRICE peut être gérante d'une boutique ET
+  //- simple membre créatrice d'une autre. Brancher sur le rôle seul faisait
+  //- ignorer le boutiqueId demandé dès qu'il ne correspondait pas à SA
+  //- propre boutique gérée, et retombait sur le fallback par défaut —
+  //- montrant potentiellement les stats d'une AUTRE personne.
+  private async resolveBoutiqueWhere(userId: string, boutiqueId: string) {
+    const boutiqueGeree = await this.prisma.boutique.findFirst({
+      where: { id: boutiqueId, geranteId: userId },
+    });
+    if (boutiqueGeree) return { boutiqueId: boutiqueGeree.id };
+
+    const membership = await this.prisma.boutiqueMember.findFirst({
+      where: { memberId: userId, boutiqueMemberId: boutiqueId },
+    });
+    const creatrice = membership
+      ? await this.prisma.creatrice.findFirst({ where: { userId } })
+      : null;
+    return creatrice ? { boutiqueId, creatriceId: creatrice.id } : null;
+  }
+
   private makeDateFilter(plan: string) {
     return plan === 'FREE'
       ? {
@@ -36,12 +58,10 @@ export class StatsService {
       if (evenement) where = { evenementId: evenement.id, ...dateFilter };
     }
 
-    //- Contexte boutique — GERANTE ou CREATRICE via l'ancienne boutique perso
+    //- Contexte boutique — GERANTE (propriétaire) ou CREATRICE (membre)
     if (!Object.keys(where).length && boutiqueId) {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { id: boutiqueId, geranteId: userId },
-      });
-      if (boutique) where = { boutiqueId: boutique.id, ...dateFilter };
+      const boutiqueWhere = await this.resolveBoutiqueWhere(userId, boutiqueId);
+      if (boutiqueWhere) where = { ...boutiqueWhere, ...dateFilter };
     }
 
     if (!Object.keys(where).length) {
@@ -147,10 +167,8 @@ export class StatsService {
     }
 
     if (!Object.keys(where).length && boutiqueId) {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { id: boutiqueId, geranteId: userId },
-      });
-      if (boutique) where = { boutiqueId: boutique.id, ...dateFilter };
+      const boutiqueWhere = await this.resolveBoutiqueWhere(userId, boutiqueId);
+      if (boutiqueWhere) where = { ...boutiqueWhere, ...dateFilter };
     }
 
     if (!Object.keys(where).length) {
@@ -290,10 +308,8 @@ export class StatsService {
     }
 
     if (!Object.keys(where).length && boutiqueId) {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { id: boutiqueId, geranteId: userId },
-      });
-      if (boutique) where = { boutiqueId: boutique.id };
+      const boutiqueWhere = await this.resolveBoutiqueWhere(userId, boutiqueId);
+      if (boutiqueWhere) where = boutiqueWhere;
     }
 
     if (!Object.keys(where).length) {

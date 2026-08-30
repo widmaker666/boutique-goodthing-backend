@@ -142,16 +142,25 @@ export class VenteService {
         if (evenement) ownershipWhere = { evenementId: evenement.id };
       }
     } else if (filters.boutiqueId) {
-      if (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE') {
-        const boutique = await this.prisma.boutique.findFirst({
-          where: { id: filters.boutiqueId, geranteId: user.id },
-        });
-        if (boutique) ownershipWhere = { boutiqueId: boutique.id };
+      //- Vérifie la vraie relation avec CETTE boutique précise plutôt que de
+      //- se fier au rôle stocké — un GERANTE_CREATRICE peut être gérante
+      //- d'une boutique ET simple membre créatrice d'une autre. Se fier au
+      //- rôle seul faisait passer TOUTE requête boutiqueId d'un DUO par la
+      //- branche gérante (peu importe le mode affiché dans l'app, qui est
+      //- un état 100% côté client, jamais envoyé au serveur) — elle
+      //- retombait alors sur l'ownership par défaut (ses propres créatrices
+      //- gérées), montrant les ventes d'une AUTRE personne au lieu des
+      //- siennes.
+      const boutiqueGeree = await this.prisma.boutique.findFirst({
+        where: { id: filters.boutiqueId, geranteId: user.id },
+      });
+      if (boutiqueGeree) {
+        //- Elle gère cette boutique : vue gérante, toutes les ventes de la boutique
+        ownershipWhere = { boutiqueId: boutiqueGeree.id };
       } else {
-        //- CREATRICE consultant "ses ventes" dans une boutique où elle est
-        //- membre : vérifie l'appartenance réelle (BoutiqueMember), puis ne
-        //- montre QUE ses propres ventes dans cette boutique — jamais celles
-        //- des autres créatrices qui y vendent aussi.
+        //- Sinon, est-elle membre créatrice de cette boutique précise ?
+        //- Ne montre QUE ses propres ventes — jamais celles des autres
+        //- créatrices qui y vendent aussi.
         const membership = await this.prisma.boutiqueMember.findFirst({
           where: { memberId: user.id, boutiqueMemberId: filters.boutiqueId },
         });
