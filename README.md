@@ -280,9 +280,29 @@ Invalide le refresh token en base.
 
 ---
 
-#### `GET /auth/google` — Connexion Google OAuth
+#### `GET /auth/google` — Connexion Google OAuth (web)
 
-Redirige vers la page de connexion Google. Aucun body requis.
+Redirige vers la page de connexion Google. Aucun body requis. Utilisé par un éventuel client web — l'app mobile utilise `/auth/google/mobile` ci-dessous.
+
+---
+
+#### `POST /auth/google/mobile` — Connexion/inscription Google (mobile)
+
+Le mobile utilise `@react-native-google-signin/google-signin` (natif, Credential Manager — pas de navigateur ni de redirection). Le serveur vérifie l'`idToken` via `verifyIdToken()` (audience = client Web/Android/iOS), sans appel réseau supplémentaire.
+
+**Body :**
+
+```json
+{
+  "idToken": "eyJhbGciOi...",
+  "role": "GERANTE",
+  "acceptedCGU": true
+}
+```
+
+- `idToken` — obligatoire
+- `role` / `acceptedCGU` — fournis **uniquement** pour finaliser une inscription (après le formulaire pré-rempli côté app). Absents pour un simple login.
+- Si aucun compte n'existe pour cet email et qu'`acceptedCGU` n'est pas `true` → `401`, aucun compte n'est créé silencieusement (l'app redirige alors vers l'inscription).
 
 ---
 
@@ -311,19 +331,23 @@ Toutes les routes nécessitent `Authorization: Bearer <accessToken>`.
 
 ---
 
-#### `PATCH /user/plan` — Mettre à jour son plan
+> ⚠️ `PATCH /user/plan` n'existe plus (retiré volontairement) — le `plan` est géré **exclusivement** par le webhook Stripe (`checkout.session.completed` / `customer.subscription.deleted`). Le laisser modifiable par le client aurait permis à n'importe qui de s'auto-upgrader sans payer.
 
-Réservé aux `GERANTE`.
+#### `PATCH /user/profile` — Modifier nom/prénom
 
-**Body :**
+**Body :** `{ "nom"?: string, "prenom"?: string }`
 
-```json
-{
-  "plan": "PRO"
-}
-```
+---
 
-**Valeurs acceptées :** `FREE`, `PRO`
+#### `POST /user/avatar` — Upload avatar (multipart, champ `file`)
+
+Upload vers Cloudinary (`encaissly/avatars`), retourne le profil avec la nouvelle URL `avatar`.
+
+---
+
+#### `PATCH /user/upgrade-duo` — Passer le rôle en `GERANTE_CREATRICE`
+
+Idempotent. Crée aussi la fiche `Creatrice` auto-gérée (`geranteId = userId = userId`) si elle n'existe pas encore. Ne change pas le `plan` — l'upgrade payant vers `DUO` se fait ensuite via `/stripe/checkout`.
 
 ---
 
@@ -336,6 +360,12 @@ Réservé aux `GERANTE`.
   "notificationsEmail": false
 }
 ```
+
+---
+
+#### `DELETE /user/account` — Supprimer son compte (droit à l'effacement RGPD)
+
+**Anonymise** le compte (email → `deleted-{id}@encaissly.invalid`, mot de passe invalidé, nom/prénom/avatar/tokens/`stripeCustomerId` effacés, `deletedAt` posé) plutôt que de supprimer la ligne — les boutiques/créatrices/ventes liées restent intactes et résolubles (obligation légale française de conservation des données comptables, 10 ans). Résilie l'abonnement Stripe actif au passage (best-effort). Détache (sans supprimer) toute fiche `Creatrice` liée au compte.
 
 ---
 
@@ -495,6 +525,8 @@ Enregistrement des ventes avec calcul automatique des commissions, upload photo 
 - `nomArticle` — recherche par nom d'article
 - `minPrixVente` / `maxPrixVente` — filtre par intervalle de prix
 - `modePaiement` — `ESPECES` ou `CARTE`
+- `evenementId` — ventes d'un événement (créatrice, priment sur `boutiqueId`)
+- `boutiqueId` — ventes d'une boutique. Résolu par la **relation réelle** avec cette boutique précise (gérante propriétaire, ou créatrice membre via `BoutiqueMember`), jamais par le rôle stocké seul — un compte `GERANTE_CREATRICE` peut être gérante d'une boutique et simple membre d'une autre ; une créatrice membre ne voit jamais que ses propres ventes dans cette boutique
 
 ---
 
@@ -512,7 +544,9 @@ Enregistrement des ventes avec calcul automatique des commissions, upload photo 
 | prixVente    | Text | ✓           | Prix de vente (nombre)           |
 | modePaiement | Text | ✓           | `ESPECES` ou `CARTE`             |
 | creatriceId  | Text | ✓           | UUID de la créatrice             |
-| boutiqueId   | Text | ✗           | UUID de la boutique (optionnel)  |
+| boutiqueId   | Text | ✗           | UUID de la boutique (auto-détectée si omise, pour une GERANTE) |
+| evenementId  | Text | ✗           | UUID de l'événement (créatrice)  |
+| sansCommission | Text | ✗         | `true` pour forcer la commission de CETTE vente à 0%, quel que soit le mode de paiement |
 | photo        | File | ✗           | Photo de l'article (optionnelle) |
 
 **Réponse 201 :**
@@ -652,109 +686,93 @@ Gestion des abonnements PRO via Stripe.
 
 ## Modèle de données
 
+> Schéma source de vérité : [`prisma/schema.prisma`](./prisma/schema.prisma). Résumé ci-dessous — se référer au fichier pour le détail exact (types, index, `onDelete`).
+
 ```prisma
 model User {
-  id                  String           @id @default(uuid())
-  email               String           @unique
-  password            String
-  plan                Plan             @default(FREE)
-  role                Role             @default(CREATRICE)
-  notificationsEmail  Boolean          @default(true)
-  stripeCustomerId    String?
-  lastExportData      DateTime?
-  createdAt           DateTime         @default(now())
-  refreshToken        String?
-  boutiques           Boutique[]
-  boutiqueMembers     BoutiqueMember[]
-  creatrices          Creatrice[]
+  id, email (unique), nom?, prenom?, password
+  plan (FREE|PRO|DUO), role (CREATRICE|GERANTE|GERANTE_CREATRICE)
+  notificationsEmail, stripeCustomerId?, avatar?, lastExportData?, refreshToken?
+  cguAcceptedAt?          // preuve de consentement, posé à l'inscription (email ou Google)
+  deletedAt?              // non-null = compte anonymisé (RGPD), ligne conservée pour les FK
+  boutiques[], boutiqueMembers[], notifications[]
+  creatrices[]        @relation("CreatriceCompte")   // sa PROPRE fiche créatrice si elle en a une (DUO)
+  creatricesGerees[]  @relation("CreatriceGerante")  // les créatrices qu'elle gère (GERANTE)
 }
 
 model Boutique {
-  id              String           @id @default(uuid())
-  nom             String
-  email           String?
-  telephone       String?
-  createdAt       DateTime         @default(now())
-  gerante         User             @relation(fields: [geranteId], references: [id])
-  geranteId       String
-  boutiqueMembers BoutiqueMember[]
-  ventes          Vente[]
+  id, nom, email?, telephone?, createdAt
+  gerante User @relation(geranteId)   // propriétaire — toujours un seul
+  boutiqueMembers[], ventes[]
 }
 
 model BoutiqueMember {
-  id               String   @id @default(uuid())
-  member           User     @relation(fields: [memberId], references: [id])
-  memberId         String
-  boutique         Boutique @relation(fields: [boutiqueMemberId], references: [id])
-  boutiqueMemberId String
-  planMember       Plan     @default(FREE)
-  createdAt        DateTime @default(now())
-  status           Status   @default(INVITE)
+  member User (memberId), boutiqueMember Boutique (boutiqueMemberId)
+  planMember (FREE|PRO|DUO), status (ACTIVE|INVITE|SUSPENDUE)
   @@unique([memberId, boutiqueMemberId])
 }
 
 model Creatrice {
-  id               String   @id @default(uuid())
-  nom              String
-  email            String?
-  telephone        String?
-  tauxDeCommission Float
-  createdAt        DateTime @default(now())
-  vente            Vente[]
-  user             User?    @relation(fields: [userId], references: [id])
-  userId           String?
+  id, nom, email?, telephone?, tauxDeCommission, createdAt
+  user User? (userId, @unique)     // compte lié — null si fiche créée sans invitation acceptée
+  gerante User (geranteId)         // qui la gère — toujours renseigné, y compris auto-géré en DUO
+  vente[], evenements[], articles[]
+}
+
+model Evenement {
+  id, nom, dateDebut, dateFin?
+  creatrice Creatrice (creatriceId)   // événement personnel, indépendant d'une boutique
+  ventes[], articles[]
+}
+
+model Article {
+  id, nom, description?, prixIndicatif?, quantite?, photo?
+  creatrice? (onDelete: Cascade), evenement? (onDelete: Cascade)   // l'un des deux toujours présent
+  @@unique([nom, creatriceId]) / @@unique([nom, evenementId])
 }
 
 model Vente {
-  id           String       @id @default(uuid())
-  photo        String?
-  nomArticle   String
-  prixVente    Float
-  modePaiement ModePaiement
-  createdAt    DateTime     @default(now())
-  creatrice    Creatrice    @relation(fields: [creatriceId], references: [id])
-  creatriceId  String
-  boutique     Boutique?    @relation(fields: [boutiqueId], references: [id])
-  boutiqueId   String?
+  id, photo?, nomArticle, prixVente, quantite, modePaiement (ESPECES|CARTE)
+  sansCommission (Boolean, défaut false)   // force la commission de CETTE vente à 0%
+  creatrice Creatrice (creatriceId, obligatoire)
+  boutique? Boutique (boutiqueId), evenement? Evenement (evenementId)
 }
 
-enum ModePaiement {
-  ESPECES
-  CARTE
+model Notification {
+  id, userId (onDelete: Cascade), type, message, metadata (Json)?, read
 }
 
-enum Plan {
-  FREE
-  PRO
-}
-
-enum Role {
-  CREATRICE
-  GERANTE
-}
-
-enum Status {
-  ACTIVE
-  INVITE
-  SUSPENDUE
-}
+enum Plan { FREE, PRO, DUO }
+enum Role { CREATRICE, GERANTE, GERANTE_CREATRICE }
+enum Status { ACTIVE, INVITE, SUSPENDUE }
+enum ModePaiement { ESPECES, CARTE }
 ```
+
+Le calcul de commission (`prixVente × tauxDeCommission / 100`, ou `0` si `sansCommission`) est centralisé dans [`src/common/commission.util.ts`](./src/common/commission.util.ts) — utilisé partout où un montant de commission est calculé (vente, stats, créatrice, export, email), pour ne jamais avoir à dupliquer/resynchroniser la formule.
 
 ---
 
+## Rôles
+
+| Rôle                | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------- |
+| `GERANTE`            | Gère boutique(s), créatrices, ventes, stats globales                     |
+| `CREATRICE`          | Voit ses propres ventes/commissions, peut être membre de boutiques d'autres gérantes |
+| `GERANTE_CREATRICE`  | "DUO" — cumule les deux rôles sur un seul compte. Le choix d'affichage gérante/créatrice (`duoMode`) est un état **côté client uniquement** (jamais transmis au serveur) — toute logique métier qui doit distinguer les deux casquettes d'un compte DUO doit vérifier la relation réelle en base (ex. `geranteId` de la boutique demandée) et jamais se fier au rôle stocké seul |
+
 ## Plans
 
-| Fonctionnalité                      | Gratuit                   | Pro (9€/mois ou 79€/an)                   |
-| ----------------------------------- | ------------------------- | ----------------------------------------- |
-| Créatrices                          | 3 max                     | Illimitées                                |
-| Boutiques                           | 1                         | Multi-boutiques                           |
-| Stats                               | Mois en cours uniquement  | Avancées + historique complet             |
-| Export PDF                          | 1 par mois avec filigrane | Illimité, sans filigrane, brandé boutique |
-| Export Excel / CSV                  | ✗                         | ✓                                         |
-| Période d'export                    | Mois en cours             | Filtrable librement                       |
-| Logo boutique dans PDF              | ✗                         | ✓                                         |
-| Récap automatique mensuel par email | ✗                         | ✓                                         |
-| Support                             | —                         | Prioritaire                               |
+| Fonctionnalité                      | Gratuit                   | Pro (9€/mois ou 79€/an) / DUO (15€/mois ou 129€/an) |
+| ----------------------------------- | ------------------------- | ------------------------------------------------------ |
+| Créatrices                          | 3 max                     | Illimitées                                              |
+| Boutiques                           | 1                         | Multi-boutiques                                         |
+| Événements (créatrice)              | 1 max                     | Illimités                                               |
+| Stats                               | Mois en cours uniquement  | Avancées + historique complet (3 mois)                  |
+| Export PDF                          | 1 par mois avec filigrane | Illimité, sans filigrane, brandé boutique               |
+| Export Excel / CSV                  | ✗                         | ✓                                                        |
+| Récap automatique mensuel par email | ✗                         | ✓                                                        |
+
+> `DUO` (`Plan.DUO`) débloque **exactement** les mêmes fonctionnalités que `PRO` — c'est un plan payant à part entière (pour les comptes `GERANTE_CREATRICE`), pas une variante de `FREE`. Toute vérification de plan doit traiter `PRO` et `DUO` de façon identique (jamais `plan === 'PRO'` seul comme condition de déblocage — historiquement une source de bugs où DUO se retrouvait bridé comme `FREE`).
 
 ---
 
@@ -762,28 +780,39 @@ enum Status {
 
 **Backend**
 
-- [x] Module `creatrice` — CRUD + filtres + validation
-- [x] Module `vente` — CRUD + filtres + calcul commission + upload photo (Cloudinary)
-- [x] Module `stats` — bilan global et par créatrice
-- [x] Module `auth` — inscription, connexion, JWT, Google OAuth, refresh tokens
-- [x] Module `user` — profil, gestion du plan (`FREE` / `PRO`), notifications email
-- [x] Sécurité — Helmet, rate limiting, validation des variables d'env
-- [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE`)
-- [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO`)
+- [x] Module `creatrice` — CRUD + filtres + validation + invitation par email/notification
+- [x] Module `vente` — CRUD + filtres (dont `boutiqueId` résolu par relation réelle, pas par rôle) + calcul commission centralisé (`common/commission.util.ts`) + override `sansCommission` par vente + upload photo (Cloudinary)
+- [x] Module `stats` — bilan global, par créatrice, historique, top articles
+- [x] Module `auth` — inscription, connexion, JWT, Google OAuth (web + natif mobile via idToken), refresh tokens, CGU obligatoires côté serveur
+- [x] Module `user` — profil, avatar, upgrade DUO, notifications email, **suppression de compte (anonymisation RGPD)**
+- [x] Sécurité — Helmet, rate limiting, validation des variables d'env, plan géré uniquement par webhook Stripe (pas d'endpoint client)
+- [x] `RolesGuard` + `@Roles()` — contrôle d'accès par rôle (`GERANTE` / `CREATRICE` / `GERANTE_CREATRICE`)
+- [x] `PlanGuard` + `@Plans()` — contrôle d'accès par plan (`FREE` / `PRO` / `DUO`)
 - [x] Module `boutique` — CRUD complet + gestion des membres (statut, plan)
-- [x] Module `cloudinary` — upload et stockage des photos de ventes
+- [x] Module `evenement` — événements personnels créatrice (marché, foire), indépendants d'une boutique
+- [x] Module `cloudinary` — upload et stockage des photos de ventes/avatars
 - [x] Module `export` — PDF, Excel, CSV par créatrice et par boutique (avec filigrane FREE)
-- [x] Module `email` — notifications vente + récaps mensuels automatiques (Resend)
-- [x] Cron jobs — récap mensuel créatrice PRO + récap mensuel boutique
-- [x] Module `stripe` — abonnements mensuel/annuel + webhooks
+- [x] Module `email` — notifications vente + récaps mensuels automatiques PRO/DUO (Resend)
+- [x] Module `notification` — notifications in-app (invitations, ventes)
+- [x] Cron jobs — récap mensuel créatrice + récap mensuel boutique
+- [x] Module `stripe` — abonnements PRO/DUO mensuel/annuel + webhooks
 - [ ] Tests unitaires et e2e — Jest + Supertest
+- [ ] Séparation base de données dev/prod (actuellement même instance Neon)
+- [ ] Retention légale des données comptables au-delà de la simple anonymisation compte (10 ans, Code de commerce) — à formaliser avant les premiers vrais clients payants
 
-**Mobile**
+**Mobile** (`encaissly-mobile`, Expo + Expo Router)
 
-- [ ] Application React Native + Expo (iOS & Android)
-- [ ] Écrans d'authentification (email/mdp + Google)
-- [ ] Dashboard des ventes
-- [ ] Gestion des créatrices
-- [ ] Stats et rapports
-- [ ] Intégration paiement Stripe
-- [ ] Visualisation des exports (PDF viewer)
+- [x] Application React Native + Expo (Android testé, iOS non encore buildé/testé)
+- [x] Écrans d'authentification — email/mdp + Google natif (Credential Manager), flow d'inscription à choix Google/Email
+- [x] Dashboard, Ventes (création/édition/suppression), Créatrices, Stats, Profil
+- [x] Gestion des créatrices — fiches directes ou invitations
+- [x] Mode DUO (`GERANTE_CREATRICE`) avec bascule d'affichage gérante/créatrice
+- [x] Onglet "Boutique" pour une créatrice affiliée — ses ventes filtrées par boutique
+- [x] Intégration paiement Stripe (checkout + résiliation)
+- [x] Export PDF/Excel/CSV (téléchargement + partage natif)
+- [x] Notifications in-app + badge
+- [x] Écran Aide (guide par section/rôle)
+- [x] Suppression de compte
+- [ ] Build iOS (actuellement Android uniquement, test fermé)
+- [ ] Dark mode
+- [ ] Mise en production réelle (Play Store, Stripe live, domaine email) — bloquée par la réimmatriculation SIRET de l'auto-entreprise

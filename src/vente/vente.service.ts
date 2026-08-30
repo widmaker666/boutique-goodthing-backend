@@ -142,34 +142,22 @@ export class VenteService {
         if (evenement) ownershipWhere = { evenementId: evenement.id };
       }
     } else if (filters.boutiqueId) {
-      //- Vérifie la vraie relation avec CETTE boutique précise plutôt que de
-      //- se fier au rôle stocké — un GERANTE_CREATRICE peut être gérante
-      //- d'une boutique ET simple membre créatrice d'une autre. Se fier au
-      //- rôle seul faisait passer TOUTE requête boutiqueId d'un DUO par la
-      //- branche gérante (peu importe le mode affiché dans l'app, qui est
-      //- un état 100% côté client, jamais envoyé au serveur) — elle
-      //- retombait alors sur l'ownership par défaut (ses propres créatrices
-      //- gérées), montrant les ventes d'une AUTRE personne au lieu des
-      //- siennes.
-      const boutiqueGeree = await this.prisma.boutique.findFirst({
-        where: { id: filters.boutiqueId, geranteId: user.id },
+      //- Seul appelant réel de ce filtre : l'écran "mes ventes dans cette
+      //- boutique" (créatrice affiliée). L'intention est TOUJOURS "mes
+      //- propres ventes ici", jamais "toutes les ventes de la boutique" —
+      //- même si l'utilisateur est AUSSI la gérante-propriétaire de cette
+      //- boutique (cas DUO courant : elle gère sa boutique ET y vend ses
+      //- propres articles). Vérifier la propriété gérante EN PREMIER était
+      //- le bug : ça faisait toujours gagner la vue "toute la boutique" dès
+      //- qu'elle possédait la boutique demandée, montrant les ventes des
+      //- AUTRES créatrices au lieu des siennes.
+      const creatrice = await this.prisma.creatrice.findFirst({
+        where: { userId: user.id },
       });
-      if (boutiqueGeree) {
-        //- Elle gère cette boutique : vue gérante, toutes les ventes de la boutique
-        ownershipWhere = { boutiqueId: boutiqueGeree.id };
+      if (creatrice) {
+        ownershipWhere = { boutiqueId: filters.boutiqueId, creatriceId: creatrice.id };
       } else {
-        //- Sinon, est-elle membre créatrice de cette boutique précise ?
-        //- Ne montre QUE ses propres ventes — jamais celles des autres
-        //- créatrices qui y vendent aussi.
-        const membership = await this.prisma.boutiqueMember.findFirst({
-          where: { memberId: user.id, boutiqueMemberId: filters.boutiqueId },
-        });
-        const creatrice = membership
-          ? await this.prisma.creatrice.findFirst({ where: { userId: user.id } })
-          : null;
-        if (creatrice) {
-          ownershipWhere = { boutiqueId: filters.boutiqueId, creatriceId: creatrice.id };
-        }
+        ownershipWhere = { id: 'none' };
       }
     }
 
