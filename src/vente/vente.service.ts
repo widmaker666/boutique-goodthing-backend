@@ -141,10 +141,26 @@ export class VenteService {
         if (evenement) ownershipWhere = { evenementId: evenement.id };
       }
     } else if (filters.boutiqueId) {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { id: filters.boutiqueId, geranteId: user.id },
-      });
-      if (boutique) ownershipWhere = { boutiqueId: boutique.id };
+      if (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE') {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { id: filters.boutiqueId, geranteId: user.id },
+        });
+        if (boutique) ownershipWhere = { boutiqueId: boutique.id };
+      } else {
+        //- CREATRICE consultant "ses ventes" dans une boutique où elle est
+        //- membre : vérifie l'appartenance réelle (BoutiqueMember), puis ne
+        //- montre QUE ses propres ventes dans cette boutique — jamais celles
+        //- des autres créatrices qui y vendent aussi.
+        const membership = await this.prisma.boutiqueMember.findFirst({
+          where: { memberId: user.id, boutiqueMemberId: filters.boutiqueId },
+        });
+        const creatrice = membership
+          ? await this.prisma.creatrice.findFirst({ where: { userId: user.id } })
+          : null;
+        if (creatrice) {
+          ownershipWhere = { boutiqueId: filters.boutiqueId, creatriceId: creatrice.id };
+        }
+      }
     }
 
     //- Récupère les ventes possédées avec filtres optionnels
