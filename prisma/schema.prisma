@@ -32,6 +32,12 @@ model User {
   avatar             String?
   notifications      Notification[]
   cguAcceptedAt      DateTime?
+  //- Non-null = compte anonymisé (droit à l'effacement RGPD). La ligne User
+  //- est conservée (pas supprimée) pour ne pas casser les FK vers les
+  //- boutiques/créatrices/ventes, dont les données comptables doivent être
+  //- conservées 10 ans (obligation légale, Code de commerce) — seules les
+  //- infos personnelles du compte sont scrubbed.
+  deletedAt          DateTime?
 }
 
 model Boutique {

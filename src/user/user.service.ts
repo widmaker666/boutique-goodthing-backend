@@ -3,6 +3,8 @@ import { Role } from 'src/generated/enums';
 import { PrismaService } from 'src/prisma.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import Stripe from 'stripe';
+import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -119,19 +121,21 @@ export class UserService {
   }
 
   //- Suppression de compte (droit à l'effacement RGPD, art. 17).
-  //- Règle : on supprime tout ce que CE compte possède/gère (boutiques,
-  //- créatrices qu'il gère, ventes, événements, articles) — mais on ne
-  //- touche JAMAIS au compte (User) d'une AUTRE personne. Une créatrice
-  //- employée par une gérante supprimée perd sa fiche/historique chez cette
-  //- gérante, mais garde son propre login intact (juste délié).
+  //- On anonymise le compte plutôt que de supprimer la ligne User ou ses
+  //- boutiques/créatrices/ventes : la loi française impose de conserver les
+  //- données comptables 10 ans (Code de commerce), donc ces enregistrements
+  //- doivent rester intacts et résolubles (FK) — seules les infos
+  //- personnelles directement liées au compte (email, mot de passe, nom,
+  //- avatar, notifications) sont scrubbed. Une créatrice/fiche gérée par ce
+  //- compte n'est jamais supprimée ; seul son propre lien de compte l'est.
   async deleteAccount(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('Utilisateur introuvable');
     }
 
-    //- Résilie l'abonnement Stripe actif avant suppression — sinon le
-    //- compte disparaît mais Stripe continue de facturer un customer fantôme.
+    //- Résilie l'abonnement Stripe actif — sinon le compte est anonymisé
+    //- mais Stripe continue de facturer un customer fantôme.
     //- Best-effort : un souci Stripe ne doit pas bloquer la suppression du compte.
     if (user.stripeCustomerId) {
       try {
@@ -148,62 +152,36 @@ export class UserService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      //- 1. Boutiques qu'elle possède (GERANTE) → suppression totale de tout
-      //-    ce qui en dépend (ventes de la boutique, appartenances membres)
-      const boutiques = await tx.boutique.findMany({
-        where: { geranteId: userId },
-        select: { id: true },
-      });
-      const boutiqueIds = boutiques.map((b) => b.id);
-      if (boutiqueIds.length) {
-        await tx.vente.deleteMany({ where: { boutiqueId: { in: boutiqueIds } } });
-        await tx.boutiqueMember.deleteMany({
-          where: { boutiqueMemberId: { in: boutiqueIds } },
-        });
-        await tx.boutique.deleteMany({ where: { id: { in: boutiqueIds } } });
-      }
-
-      //- 2. Ses propres appartenances (créatrice invitée dans D'AUTRES boutiques)
-      await tx.boutiqueMember.deleteMany({ where: { memberId: userId } });
-
-      //- 3. Créatrices qu'elle gère (geranteId = elle) → fiches + historique
-      //-    supprimés intégralement (inclut sa propre fiche auto-gérée si
-      //-    GERANTE_CREATRICE, puisque geranteId = userId dans ce cas aussi)
-      const creatricesGerees = await tx.creatrice.findMany({
-        where: { geranteId: userId },
-        select: { id: true },
-      });
-      const creatriceIds = creatricesGerees.map((c) => c.id);
-      if (creatriceIds.length) {
-        const evenements = await tx.evenement.findMany({
-          where: { creatriceId: { in: creatriceIds } },
-          select: { id: true },
-        });
-        const evenementIds = evenements.map((e) => e.id);
-        if (evenementIds.length) {
-          await tx.vente.deleteMany({ where: { evenementId: { in: evenementIds } } });
-          //- Les articles liés à l'événement sont en cascade DB (schema.prisma)
-          await tx.evenement.deleteMany({ where: { id: { in: evenementIds } } });
-        }
-        //- Ventes restantes de ces créatrices (sans boutique ni événement)
-        await tx.vente.deleteMany({ where: { creatriceId: { in: creatriceIds } } });
-        //- Articles liés directement à la créatrice : cascade DB également
-        await tx.creatrice.deleteMany({ where: { id: { in: creatriceIds } } });
-      }
-
-      //- 4. Si elle est elle-même la fiche créatrice d'une AUTRE gérante,
-      //-    on détache seulement — son compte disparaît, la fiche/l'historique
-      //-    reste pour la comptabilité de cette gérante (comme à l'auto-link
-      //-    à l'inscription). Les fiches où geranteId = userId ont déjà été
-      //-    supprimées à l'étape 3, donc ce updateMany ne touche que les
-      //-    fiches gérées par quelqu'un d'autre.
+      //- Si elle est elle-même une fiche créatrice (chez elle-même en DUO,
+      //- ou chez une autre gérante) : on détache le compte, la fiche et son
+      //- historique de ventes restent intacts pour la comptabilité.
       await tx.creatrice.updateMany({
         where: { userId },
         data: { userId: null },
       });
 
-      //- 5. Le compte lui-même — les Notification liées sont en cascade DB
-      await tx.user.delete({ where: { id: userId } });
+      //- Historique de notifications — aucune valeur comptable/légale,
+      //- purement lié à l'usage de l'app, supprimé sans anonymisation.
+      await tx.notification.deleteMany({ where: { userId } });
+
+      //- Anonymise le compte. La ligne User reste (id, role, plan) pour que
+      //- Boutique.geranteId / Creatrice.geranteId restent résolubles sur
+      //- les enregistrements conservés — mais tout ce qui identifie la
+      //- personne ou permettrait de se reconnecter disparaît.
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          email: `deleted-${userId}@encaissly.invalid`,
+          password: await bcrypt.hash(randomUUID(), 12),
+          nom: null,
+          prenom: null,
+          avatar: null,
+          refreshToken: null,
+          notificationsEmail: false,
+          stripeCustomerId: null,
+          deletedAt: new Date(),
+        },
+      });
     });
 
     return { message: 'Compte supprimé avec succès' };

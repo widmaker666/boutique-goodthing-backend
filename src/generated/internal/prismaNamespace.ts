@@ -1056,7 +1056,8 @@ export const UserScalarFieldEnum = {
   notificationsEmail: 'notificationsEmail',
   stripeCustomerId: 'stripeCustomerId',
   avatar: 'avatar',
-  cguAcceptedAt: 'cguAcceptedAt'
+  cguAcceptedAt: 'cguAcceptedAt',
+  deletedAt: 'deletedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
