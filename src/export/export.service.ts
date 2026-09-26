@@ -1,5 +1,10 @@
 import { PrismaService } from './../prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { Response } from 'express';
 import * as ExcelJS from 'exceljs';
@@ -8,6 +13,17 @@ import {
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
 import { calculerCommission } from 'src/common/commission.util';
+import {
+  currentMois,
+  MOIS_REGEX,
+  moisLabel,
+  moisRange,
+} from 'src/common/month-range.util';
+import {
+  renderVentesCsv,
+  renderVentesExcel,
+  renderVentesPdf,
+} from './ventes-renderer';
 
 @Injectable()
 export class ExportService {
@@ -17,8 +33,9 @@ export class ExportService {
   ) {}
 
   //* Documents CREATRICE *//
-  async getExportPdf(user, res: Response) {
-    //- Trouve la créatrice liée au user connecté
+
+  //- Ventes de la créatrice liée au user connecté (404 si aucune fiche liée)
+  private async getVentesCreatrice(user) {
     const creatrice = await this.prismaService.creatrice.findFirst({
       where: { userId: user.id },
     });
@@ -27,325 +44,109 @@ export class ExportService {
       throw new NotFoundException('Aucune créatrice liée à ce compte');
     }
 
-    const allData = await this.prismaService.vente.findMany({
+    return this.prismaService.vente.findMany({
       where: { creatriceId: creatrice.id },
       include: { creatrice: true },
+      orderBy: { createdAt: 'asc' },
     });
+  }
 
-    const FONT = 'src/export/fonts/Archivo-Regular.ttf';
-    const FONT_BOLD = 'src/export/fonts/Archivo-Bold.ttf';
-    const PRIMARY = '#451e64';
-    const ACCENT = '#eb7f45';
-
-    //- Mode paysage
-    const doc = new PDFDocument({ margin: 40, layout: 'landscape' });
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename=export.pdf');
-    doc.pipe(res);
-
-    //- Colonnes
-    const col0 = 40;
-    const col1 = 80;
-    const col2 = 210;
-    const col3 = 320;
-    const col4 = 400;
-    const col5 = 490;
-    const col6 = 590;
-    const col7 = 700;
-
-    const PAGE_W = 842;
-    const FOOTER_Y = 565;
-    const MAX_ROW_Y = 545;
-
-    const drawWatermark = () => {
-      if (user.plan !== 'FREE') return;
-      doc.save();
-      doc.font(FONT).fontSize(18).opacity(0.15).fillColor('#cc0000');
-      for (let fy = 100; fy < 600; fy += 120) {
-        for (let fx = -50; fx < 900; fx += 220) {
-          doc.text('MODE GRATUIT', fx, fy, { lineBreak: false });
-        }
-      }
-      doc.restore();
-    };
-
-    const drawColHeaders = (top: number) => {
-      doc.rect(40, top, 780, 26).fill(ACCENT);
-      doc.font(FONT_BOLD).fontSize(9).fillColor('white');
-      doc.text('Photo', col0, top + 8);
-      doc.text('Article', col1, top + 8);
-      doc.text('Créatrice', col2, top + 8);
-      doc.text('Taux com.', col3, top + 8);
-      doc.text('Prix vente', col4, top + 8);
-      doc.text('Commission', col5, top + 8);
-      doc.text('Net créatrice', col6, top + 8);
-      doc.text('Paiement', col7, top + 8);
-    };
-
-    const drawPageFooter = () => {
-      doc.rect(0, FOOTER_Y, PAGE_W, 20).fill(PRIMARY);
-      doc.font(FONT).fontSize(8).fillColor('#aaaaaa').text(
-        'Encaissly — La caisse intelligente des boutiques de créateurs',
-        40,
-        FOOTER_Y + 4,
-      );
-    };
-
-    //- Header première page
-    doc.rect(0, 0, PAGE_W, 80).fill(PRIMARY);
-    doc.font(FONT_BOLD).fontSize(26).fillColor('white').text('Encaissly', 40, 20);
-    doc.font(FONT).fontSize(11).fillColor(ACCENT).text('Rapport des ventes', 40, 52);
-    doc.font(FONT).fontSize(9).fillColor('#aaaaaa').text(
-      `Généré le ${new Date().toLocaleDateString('fr-FR')}`, 40, 90, { align: 'right' },
-    );
-    drawWatermark();
-
-    const tableTop = 110;
-    drawColHeaders(tableTop);
-    let y = tableTop + 32;
-    let totalPrixVente = 0;
-    let totalCommission = 0;
-    let totalNet = 0;
-
-    for (const [index, vente] of allData.entries()) {
-      const { montantCommission, netCreatrice } = calculerCommission(
-        vente.prixVente,
-        vente.creatrice.tauxDeCommission,
-        vente.sansCommission,
-      );
-
-      //- Saut de page si la prochaine ligne déborde
-      if (y + 42 > MAX_ROW_Y) {
-        drawPageFooter();
-        doc.addPage();
-        drawWatermark();
-        const newTop = 30;
-        drawColHeaders(newTop);
-        y = newTop + 32;
-      }
-
-      if (index % 2 === 0) {
-        doc.rect(40, y - 4, 780, 38).fill('#f7f7f7');
-      }
-
-      //- Photo
-      if (vente.photo) {
-        try {
-          const jpgUrl = vente.photo.replace(/\.[^/.]+$/, '.jpg');
-          const response = await fetch(jpgUrl);
-          const buffer = Buffer.from(await response.arrayBuffer());
-          doc.image(buffer, col0, y, { width: 28, height: 28 });
-        } catch (error) {
-          console.error('Erreur photo:', error);
-        }
-      }
-
-      doc.font(FONT).fontSize(9).fillColor('#222222');
-      doc.text(vente.nomArticle, col1, y + 10);
-      doc.text(vente.creatrice.nom, col2, y + 10);
-      doc.text(`${vente.creatrice.tauxDeCommission}%`, col3, y + 10);
-      doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${vente.prixVente.toFixed(2)}€`, col4, y + 10);
-      doc.font(FONT).fillColor('#cc0000').text(`-${montantCommission.toFixed(2)}€`, col5, y + 10);
-      doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${netCreatrice.toFixed(2)}€`, col6, y + 10);
-      doc.font(FONT).fillColor('#555555').text(vente.modePaiement, col7, y + 10);
-
-      totalPrixVente += vente.prixVente;
-      totalCommission += montantCommission;
-      totalNet += netCreatrice;
-      y += 42;
-    }
-
-    //- Saut de page si les totaux ne tiennent pas (séparateur + ligne totaux ≈ 50px)
-    if (y + 50 > MAX_ROW_Y) {
-      drawPageFooter();
-      doc.addPage();
-      y = 40;
-    }
-
-    //- Séparateur
-    doc.moveTo(40, y + 8).lineTo(820, y + 8).strokeColor(ACCENT).lineWidth(1.5).stroke();
-    y += 20;
-
-    //- Totaux
-    doc.font(FONT_BOLD).fontSize(10).fillColor(PRIMARY).text('TOTAUX', col1, y);
-    doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${totalPrixVente.toFixed(2)}€`, col4, y);
-    doc.font(FONT_BOLD).fillColor('#cc0000').text(`-${totalCommission.toFixed(2)}€`, col5, y);
-    doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${totalNet.toFixed(2)}€`, col6, y);
-
-    drawPageFooter();
-    doc.end();
+  async getExportPdf(user, res: Response) {
+    const ventes = await this.getVentesCreatrice(user);
+    return renderVentesPdf(ventes, res, {
+      plan: user.plan,
+      sousTitre: 'Rapport des ventes',
+      filename: 'export.pdf',
+      withPhotos: true,
+    });
   }
 
   async getExportCsv(user, res: Response) {
-    //- Trouve la créatrice liée au user connecté
-    const creatrice = await this.prismaService.creatrice.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (!creatrice) {
-      throw new NotFoundException('Aucune créatrice liée à ce compte');
-    }
-
-    const allData = await this.prismaService.vente.findMany({
-      where: { creatriceId: creatrice.id },
-      include: { creatrice: true },
-    });
-
-    //- En-têtes CSV
-    const lignes = [
-      '"Article";"Créatrice";"Taux com.";"Prix vente";"Commission";"Net créatrice";"Paiement";"Date"',
-    ];
-
-    let totalPrixVente = 0;
-    let totalCommission = 0;
-    let totalNet = 0;
-
-    //- Lignes de données
-    for (const vente of allData) {
-      const { montantCommission, netCreatrice } = calculerCommission(
-        vente.prixVente,
-        vente.creatrice.tauxDeCommission,
-        vente.sansCommission,
-      );
-
-      lignes.push(
-        `${vente.nomArticle};${vente.creatrice.nom};${vente.creatrice.tauxDeCommission}%;${vente.prixVente.toFixed(2)}€;-${montantCommission.toFixed(2)}€;${netCreatrice.toFixed(2)}€;${vente.modePaiement};${new Date(vente.createdAt).toLocaleDateString('fr-FR')}`,
-      );
-
-      totalPrixVente += vente.prixVente;
-      totalCommission += montantCommission;
-      totalNet += netCreatrice;
-    }
-
-    //- Ligne vide + totaux
-    lignes.push('');
-    lignes.push(
-      `TOTAL;;;${totalPrixVente.toFixed(2)}€;-${totalCommission.toFixed(2)}€;${totalNet.toFixed(2)}€;;`,
-    );
-
-    const csv = lignes.join('\n');
-
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
-    //- BOM UTF-8 pour que Excel ouvre correctement les accents
-    res.send('\uFEFF' + csv);
+    const ventes = await this.getVentesCreatrice(user);
+    return renderVentesCsv(ventes, res, 'export.csv');
   }
 
   async getExportExcel(user, res: Response) {
-    const creatrice = await this.prismaService.creatrice.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (!creatrice) {
-      throw new NotFoundException('Aucune créatrice liée à ce compte');
-    }
-
-    const allData = await this.prismaService.vente.findMany({
-      where: { creatriceId: creatrice.id },
-      include: { creatrice: true },
-    });
-
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Ventes');
-
-    //- Largeurs des colonnes
-    sheet.columns = [
-      { header: 'Article', key: 'article', width: 25 },
-      { header: 'Créatrice', key: 'creatrice', width: 20 },
-      { header: 'Taux com.', key: 'taux', width: 12 },
-      { header: 'Prix vente', key: 'prixVente', width: 14 },
-      { header: 'Commission', key: 'commission', width: 14 },
-      { header: 'Net créatrice', key: 'net', width: 14 },
-      { header: 'Paiement', key: 'paiement', width: 12 },
-      { header: 'Date', key: 'date', width: 14 },
-    ];
-
-    //- Style en-têtes
-    sheet.getRow(1).eachCell((cell) => {
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFEB7F45' },
-      };
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      cell.alignment = { horizontal: 'center' };
-    });
-
-    let totalPrixVente = 0;
-    let totalCommission = 0;
-    let totalNet = 0;
-
-    //- Lignes de données
-    for (const [index, vente] of allData.entries()) {
-      const { montantCommission, netCreatrice } = calculerCommission(
-        vente.prixVente,
-        vente.creatrice.tauxDeCommission,
-        vente.sansCommission,
-      );
-
-      const row = sheet.addRow({
-        article: vente.nomArticle,
-        creatrice: vente.creatrice.nom,
-        taux: `${vente.creatrice.tauxDeCommission}%`,
-        prixVente: vente.prixVente,
-        commission: -montantCommission,
-        net: netCreatrice,
-        paiement: vente.modePaiement,
-        date: new Date(vente.createdAt).toLocaleDateString('fr-FR'),
-      });
-
-      //- Alternance couleur fond
-      if (index % 2 === 0) {
-        row.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFF7F7F7' },
-          };
-        });
-      }
-
-      //- Couleur rouge pour commission
-      row.getCell('commission').font = { color: { argb: 'FFCC0000' } };
-      //- Couleur verte pour net
-      row.getCell('net').font = { color: { argb: 'FF1A7A4A' }, bold: true };
-
-      totalPrixVente += vente.prixVente;
-      totalCommission += montantCommission;
-      totalNet += netCreatrice;
-    }
-
-    //- Ligne vide
-    sheet.addRow({});
-
-    //- Ligne totaux
-    const totalRow = sheet.addRow({
-      article: 'TOTAL',
-      prixVente: totalPrixVente,
-      commission: -totalCommission,
-      net: totalNet,
-    });
-
-    totalRow.eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF311B42' },
-      };
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    });
-
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader('Content-Disposition', 'attachment; filename=export.xlsx');
-
-    await workbook.xlsx.write(res);
-    res.end();
+    const ventes = await this.getVentesCreatrice(user);
+    return renderVentesExcel(ventes, res, 'export.xlsx');
   }
+
+  //* DÉTAIL DES VENTES (gérante) *//
+  //- Une ligne par vente. Toute la boutique d'un coup, ou une seule créatrice
+  //- (creatriceId). Périmètre toujours vérifié via la relation réelle en base
+  //- (boutique dont elle est gérante / créatrice qu'elle gère) — jamais via le
+  //- rôle stocké seul, un compte DUO n'ayant pas de "mode" côté serveur.
+  //- mois ("AAAA-MM", heure de Paris) : restreint aux ventes de ce mois ; absent =
+  //- tout l'historique. FREE : mois en cours uniquement (les mois passés → 403) ;
+  //- le PDF-only est appliqué par le @Plans du controller sur csv/excel.
+  async getExportVentesGerante(
+    user: AuthUser,
+    res: Response,
+    format: 'pdf' | 'csv' | 'excel',
+    boutiqueId?: string,
+    creatriceId?: string,
+    mois?: string,
+  ) {
+    if (mois !== undefined && !MOIS_REGEX.test(mois)) {
+      throw new BadRequestException('Mois invalide (format attendu : AAAA-MM)');
+    }
+    const boutique = boutiqueId
+      ? await this.ownership.assertBoutiqueOwned(user, boutiqueId)
+      : null;
+    const creatrice = creatriceId
+      ? await this.ownership.assertCreatriceOwned(user, creatriceId)
+      : null;
+
+    const isFree = user.plan === 'FREE';
+    let moisCible = mois;
+    if (isFree) {
+      const moisCourant = currentMois();
+      if (moisCible && moisCible !== moisCourant) {
+        throw new ForbiddenException(
+          "L'historique des mois passés est réservé aux plans PRO et DUO",
+        );
+      }
+      moisCible = moisCourant;
+    }
+    const periode = moisCible ? moisRange(moisCible) : null;
+
+    const ventes = await this.prismaService.vente.findMany({
+      where: {
+        //- Sans boutique précisée : toutes SES boutiques (jamais les événements
+        //- personnels d'une créatrice, qui n'ont pas de boutiqueId)
+        ...(boutique
+          ? { boutiqueId: boutique.id }
+          : { boutique: { geranteId: user.id } }),
+        ...(creatrice ? { creatriceId: creatrice.id } : {}),
+        ...(periode
+          ? { createdAt: { gte: periode.debut, lt: periode.fin } }
+          : {}),
+      },
+      include: { creatrice: true },
+      orderBy: [{ creatrice: { nom: 'asc' } }, { createdAt: 'asc' }],
+    });
+
+    const sousTitre =
+      (creatrice ? `Ventes de ${creatrice.nom}` : 'Toutes les ventes') +
+      (boutique ? ` — ${boutique.nom}` : '') +
+      ` — ${moisCible ? moisLabel(moisCible) : "tout l'historique"}`;
+    const base = creatrice ? 'ventes-creatrice' : 'ventes-boutique';
+
+    switch (format) {
+      case 'pdf':
+        return renderVentesPdf(ventes, res, {
+          plan: user.plan,
+          sousTitre,
+          filename: `${base}.pdf`,
+          withPhotos: false,
+        });
+      case 'csv':
+        return renderVentesCsv(ventes, res, `${base}.csv`);
+      case 'excel':
+        return renderVentesExcel(ventes, res, `${base}.xlsx`);
+    }
+  }
+
   //* DOCUMENTS BOUTIQUE *//
   async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId?: string) {
     //- Auto-détecte la boutique si non fournie

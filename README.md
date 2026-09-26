@@ -582,11 +582,15 @@ Bilan global et par créatrice.
 
 Export des données selon le plan d'abonnement.
 
-| Format | FREE               | PRO          |
-| ------ | ------------------ | ------------ |
-| PDF    | ✓ (avec filigrane) | ✓ (illimité) |
-| Excel  | ✗                  | ✓            |
-| CSV    | ✗                  | ✓            |
+Aucune limite sur le nombre de téléchargements : on peut relancer un export autant de fois qu'on veut.
+
+| Format | FREE               | PRO / DUO |
+| ------ | ------------------ | --------- |
+| PDF    | ✓ (avec filigrane) | ✓         |
+| Excel  | ✗                  | ✓         |
+| CSV    | ✗                  | ✓         |
+
+> `PlanGuard` teste l'appartenance exacte au plan : toujours `@Plans(Plan.PRO, Plan.DUO)`, jamais `@Plans(Plan.PRO)` seul (DUO serait refusé en 403).
 
 #### Routes export créatrice
 
@@ -606,6 +610,30 @@ Export des données selon le plan d'abonnement.
 
 > Les routes boutique nécessitent un query param `?boutiqueId=<id>`.
 > Exemple : `GET /export/pdf/boutique?boutiqueId=3810828a-dc08-4dc6-810f-a104a4731a2d`
+
+#### Routes détail des ventes (vue gérante)
+
+Une ligne par vente (article, créatrice, taux, prix, commission, net, paiement, date) + totaux, triées par créatrice puis par date. Sert à reverser à chaque créatrice ce qu'elle a vendu, ou à sortir tout le mois d'une boutique pour la compta. Différent des routes `/boutique` ci-dessus, qui ne donnent qu'un résumé par créatrice.
+
+| Méthode | Route                | Description                | Accès                |
+| ------- | -------------------- | -------------------------- | -------------------- |
+| GET     | `/export/pdf/ventes`   | PDF du détail des ventes   | GERANTE (tous plans) |
+| GET     | `/export/excel/ventes` | Excel du détail des ventes | GERANTE + PRO/DUO    |
+| GET     | `/export/csv/ventes`   | CSV du détail des ventes   | GERANTE + PRO/DUO    |
+
+Query params, tous optionnels :
+
+| Param        | Effet                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------ |
+| `boutiqueId`  | Une boutique précise (404 si elle n'appartient pas à la gérante). Absent = toutes SES boutiques        |
+| `creatriceId` | Une seule créatrice (404 si ce n'est pas l'une de ses créatrices). Absent = toutes les créatrices      |
+| `mois`        | `AAAA-MM`, bornes à l'heure de Paris (400 si le format est invalide). Absent = tout l'historique       |
+
+- **FREE** : PDF uniquement et **mois en cours uniquement** (un mois passé → 403 ; sans `mois`, le mois en cours est appliqué).
+- **PRO / DUO** : tous formats, tous les mois.
+- Périmètre vérifié via la relation réelle en base (`boutique.geranteId` / `creatrice.geranteId`), jamais via le rôle stocké : un compte DUO n'a pas de « mode » côté serveur. Les ventes d'événements personnels d'une créatrice (sans boutique) ne sont jamais incluses.
+- Export d'une boutique entière : PDF sans photos (une requête réseau par photo serait trop lente).
+- Dans le CSV, les noms saisis par les créatrices sont neutralisés : un texte commençant par `=`, `+`, `-` ou `@` serait sinon interprété comme une formule par Excel.
 
 ---
 
@@ -768,7 +796,7 @@ Le calcul de commission (`prixVente × tauxDeCommission / 100`, ou `0` si `sansC
 | Boutiques                           | 1                         | Multi-boutiques                                         |
 | Événements (créatrice)              | 1 max                     | Illimités                                               |
 | Stats                               | Mois en cours uniquement  | Avancées + historique complet (3 mois)                  |
-| Export PDF                          | 1 par mois avec filigrane | Illimité, sans filigrane, brandé boutique               |
+| Export PDF                          | Illimité, avec filigrane  | Illimité, sans filigrane, brandé boutique               |
 | Export Excel / CSV                  | ✗                         | ✓                                                        |
 | Récap automatique mensuel par email | ✗                         | ✓                                                        |
 
