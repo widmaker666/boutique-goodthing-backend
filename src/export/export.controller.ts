@@ -24,21 +24,23 @@ export class ExportController {
 
   //* GET CREATRICE *//
 
+  //- ?mois=AAAA-MM optionnel : restreint à ce mois (absent = tout l'historique,
+  //- jamais limité même en FREE — seul un mois PASSÉ précis est réservé PRO/DUO)
   @Get('pdf')
-  getexportPdf(@Req() req, @Res() res: Response) {
-    return this.exportService.getExportPdf(req.user, res);
+  getexportPdf(@Req() req, @Res() res: Response, @Query('mois') mois?: string) {
+    return this.exportService.getExportPdf(req.user, res, mois);
   }
 
   @Plans(...PAID_PLANS)
   @Get('excel')
-  getexportExcel(@Req() req, @Res() res: Response) {
-    return this.exportService.getExportExcel(req.user, res);
+  getexportExcel(@Req() req, @Res() res: Response, @Query('mois') mois?: string) {
+    return this.exportService.getExportExcel(req.user, res, mois);
   }
 
   @Plans(...PAID_PLANS)
   @Get('csv')
-  getexportCsv(@Req() req, @Res() res: Response) {
-    return this.exportService.getExportCsv(req.user, res);
+  getexportCsv(@Req() req, @Res() res: Response, @Query('mois') mois?: string) {
+    return this.exportService.getExportCsv(req.user, res, mois);
   }
 
   //* GET BOUTIQUE (récap par créatrice) *//
@@ -49,8 +51,9 @@ export class ExportController {
     @Req() req,
     @Res() res: Response,
     @Query('boutiqueId') boutiqueId?: string,
+    @Query('mois') mois?: string,
   ) {
-    return this.exportService.getExportPdfBoutique(req.user, res, boutiqueId);
+    return this.exportService.getExportPdfBoutique(req.user, res, boutiqueId, mois);
   }
 
   @Roles(Role.GERANTE)
@@ -60,8 +63,9 @@ export class ExportController {
     @Req() req,
     @Res() res: Response,
     @Query('boutiqueId') boutiqueId?: string,
+    @Query('mois') mois?: string,
   ) {
-    return this.exportService.getExportExcelBoutique(boutiqueId, res, req.user);
+    return this.exportService.getExportExcelBoutique(boutiqueId, res, req.user, mois);
   }
 
   @Roles(Role.GERANTE)
@@ -71,8 +75,9 @@ export class ExportController {
     @Req() req,
     @Res() res: Response,
     @Query('boutiqueId') boutiqueId?: string,
+    @Query('mois') mois?: string,
   ) {
-    return this.exportService.getExportCsvBoutique(boutiqueId, res, req.user);
+    return this.exportService.getExportCsvBoutique(boutiqueId, res, req.user, mois);
   }
 
   //* GET DÉTAIL DES VENTES (gérante) — toute la boutique, ou une créatrice (?creatriceId=) *//

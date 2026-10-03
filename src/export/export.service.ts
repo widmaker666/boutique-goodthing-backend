@@ -34,8 +34,27 @@ export class ExportService {
 
   //* Documents CREATRICE *//
 
+  //- Choix du mois pour les rapports "classiques" (celui-ci et les 3
+  //- rapports boutique ci-dessous) : contrairement au détail des ventes
+  //- (getExportVentesGerante), omettre `mois` reste autorisé en FREE —
+  //- "tout l'historique" n'a jamais été limité pour ce rapport, décision
+  //- confirmée avec Alex le 2026-10 plutôt que de le restreindre en
+  //- silence. Seul le choix d'un mois PASSÉ précis est réservé PRO/DUO.
+  private resolveMoisClassique(user: AuthUser, mois?: string): string | undefined {
+    if (mois === undefined) return undefined;
+    if (!MOIS_REGEX.test(mois)) {
+      throw new BadRequestException('Mois invalide (format attendu : AAAA-MM)');
+    }
+    if (user.plan === 'FREE' && mois !== currentMois()) {
+      throw new ForbiddenException(
+        "L'historique des mois passés est réservé aux plans PRO et DUO",
+      );
+    }
+    return mois;
+  }
+
   //- Ventes de la créatrice liée au user connecté (404 si aucune fiche liée)
-  private async getVentesCreatrice(user) {
+  private async getVentesCreatrice(user, periode?: { debut: Date; fin: Date }) {
     const creatrice = await this.prismaService.creatrice.findFirst({
       where: { userId: user.id },
     });
@@ -45,30 +64,39 @@ export class ExportService {
     }
 
     return this.prismaService.vente.findMany({
-      where: { creatriceId: creatrice.id },
+      where: {
+        creatriceId: creatrice.id,
+        ...(periode ? { createdAt: { gte: periode.debut, lt: periode.fin } } : {}),
+      },
       include: { creatrice: true },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  async getExportPdf(user, res: Response) {
-    const ventes = await this.getVentesCreatrice(user);
+  async getExportPdf(user, res: Response, mois?: string) {
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+    const ventes = await this.getVentesCreatrice(user, periode);
     return renderVentesPdf(ventes, res, {
       plan: user.plan,
-      sousTitre: 'Rapport des ventes',
-      filename: 'export.pdf',
+      sousTitre: moisCible ? `Rapport des ventes — ${moisLabel(moisCible)}` : 'Rapport des ventes',
+      filename: moisCible ? `export-${moisCible}.pdf` : 'export.pdf',
       withPhotos: true,
     });
   }
 
-  async getExportCsv(user, res: Response) {
-    const ventes = await this.getVentesCreatrice(user);
-    return renderVentesCsv(ventes, res, 'export.csv');
+  async getExportCsv(user, res: Response, mois?: string) {
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+    const ventes = await this.getVentesCreatrice(user, periode);
+    return renderVentesCsv(ventes, res, moisCible ? `export-${moisCible}.csv` : 'export.csv');
   }
 
-  async getExportExcel(user, res: Response) {
-    const ventes = await this.getVentesCreatrice(user);
-    return renderVentesExcel(ventes, res, 'export.xlsx');
+  async getExportExcel(user, res: Response, mois?: string) {
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+    const ventes = await this.getVentesCreatrice(user, periode);
+    return renderVentesExcel(ventes, res, moisCible ? `export-${moisCible}.xlsx` : 'export.xlsx');
   }
 
   //* DÉTAIL DES VENTES (gérante) *//
@@ -148,7 +176,7 @@ export class ExportService {
   }
 
   //* DOCUMENTS BOUTIQUE *//
-  async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId?: string) {
+  async getExportPdfBoutique(user: AuthUser, res: Response, boutiqueId?: string, mois?: string) {
     //- Auto-détecte la boutique si non fournie
     if (!boutiqueId) {
       const boutique = await this.prismaService.boutique.findFirst({ where: { geranteId: user.id } });
@@ -158,8 +186,14 @@ export class ExportService {
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+
     const allData = await this.prismaService.vente.findMany({
-      where: { boutiqueId },
+      where: {
+        boutiqueId,
+        ...(periode ? { createdAt: { gte: periode.debut, lt: periode.fin } } : {}),
+      },
       include: { creatrice: true },
     });
 
@@ -173,7 +207,7 @@ export class ExportService {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename=export-boutique.pdf',
+      `attachment; filename=export-boutique${moisCible ? `-${moisCible}` : ''}.pdf`,
     );
     doc.pipe(res);
 
@@ -200,7 +234,7 @@ export class ExportService {
       .font(FONT)
       .fontSize(11)
       .fillColor(ACCENT)
-      .text('Rapport boutique', 40, 52);
+      .text(moisCible ? `Rapport boutique — ${moisLabel(moisCible)}` : 'Rapport boutique', 40, 52);
     doc
       .font(FONT)
       .fontSize(9)
@@ -335,6 +369,7 @@ export class ExportService {
     boutiqueId: string | undefined,
     res: Response,
     user: AuthUser,
+    mois?: string,
   ) {
     //- Auto-détecte la boutique si non fournie
     if (!boutiqueId) {
@@ -345,8 +380,14 @@ export class ExportService {
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+
     const allData = await this.prismaService.vente.findMany({
-      where: { boutiqueId },
+      where: {
+        boutiqueId,
+        ...(periode ? { createdAt: { gte: periode.debut, lt: periode.fin } } : {}),
+      },
       include: { creatrice: true },
     });
 
@@ -392,8 +433,12 @@ export class ExportService {
       totalNet += netCreatrice;
     }
 
-    //- En-têtes
+    //- En-têtes (+ ligne de période si un mois précis est demandé)
+    //- Texte généré côté serveur (jamais saisi par une créatrice) : pas
+    //- besoin de neutralisation anti-injection de formule ici.
     const lignes = [
+      `"Période";"${moisCible ? moisLabel(moisCible) : "Tout l'historique"}"`,
+      '',
       '"Créatrice";"Taux com.";"CA total";"Commission";"Net créatrice"',
     ];
 
@@ -415,7 +460,7 @@ export class ExportService {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename=export-boutique.csv',
+      `attachment; filename=export-boutique${moisCible ? `-${moisCible}` : ''}.csv`,
     );
     res.send('\uFEFF' + csv);
   }
@@ -424,6 +469,7 @@ export class ExportService {
     boutiqueId: string | undefined,
     res: Response,
     user: AuthUser,
+    mois?: string,
   ) {
     //- Auto-détecte la boutique si non fournie
     if (!boutiqueId) {
@@ -434,8 +480,14 @@ export class ExportService {
     //- Vérifie que la boutique appartient à la gérante connectée (finding sécu C1)
     await this.ownership.assertBoutiqueOwned(user, boutiqueId);
 
+    const moisCible = this.resolveMoisClassique(user, mois);
+    const periode = moisCible ? moisRange(moisCible) : undefined;
+
     const allData = await this.prismaService.vente.findMany({
-      where: { boutiqueId },
+      where: {
+        boutiqueId,
+        ...(periode ? { createdAt: { gte: periode.debut, lt: periode.fin } } : {}),
+      },
       include: { creatrice: true },
     });
 
@@ -503,6 +555,12 @@ export class ExportService {
       cell.alignment = { horizontal: 'center' };
     });
 
+    //- Ligne de période au-dessus des en-têtes (décale la ligne stylée vers
+    //- le bas — ExcelJS conserve le style avec la ligne lors de l'insertion)
+    sheet.insertRow(1, [`Période : ${moisCible ? moisLabel(moisCible) : "Tout l'historique"}`]);
+    sheet.mergeCells('A1:E1');
+    sheet.getRow(1).font = { italic: true, color: { argb: 'FF888888' } };
+
     //- Lignes par créatrice
     Object.values(resumeParCreatrice).forEach((c, index) => {
       const row = sheet.addRow({
@@ -553,7 +611,7 @@ export class ExportService {
     );
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename=export-boutique.xlsx',
+      `attachment; filename=export-boutique${moisCible ? `-${moisCible}` : ''}.xlsx`,
     );
 
     await workbook.xlsx.write(res);
