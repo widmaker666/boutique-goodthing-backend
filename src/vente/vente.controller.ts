@@ -59,8 +59,8 @@ export class VenteController {
   }
 
   @Get()
-  findAll(@Query() filters: QueryVente, @Req() req) {
-    return this.venteService.findAll(filters, req.user);
+  findAll(@Query() filters: QueryVente, @Req() req, @Query('mode') mode?: string) {
+    return this.venteService.findAll(filters, req.user, mode);
   }
 
   @Get('recent')

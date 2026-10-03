@@ -10,6 +10,7 @@ import {
 } from 'src/common/ownership/ownership.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { calculerCommission } from 'src/common/commission.util';
+import { resolveRole } from 'src/common/resolve-role.util';
 
 @Injectable()
 export class VenteService {
@@ -127,8 +128,14 @@ export class VenteService {
     return { ...createVente, montantCommission, netCreatrice };
   }
 
-  async findAll(filters: QueryVente, user: AuthUser) {
-    let ownershipWhere: any = await this.ownership.getVenteOwnershipWhere(user);
+  async findAll(filters: QueryVente, user: AuthUser, mode?: string) {
+    //- `mode` ne concerne que le scope par défaut (ni événement, ni boutique
+    //- demandés) — un compte GERANTE_CREATRICE (DUO) a toujours le même rôle
+    //- en base, le toggle gérante/créatrice est un état client (voir
+    //- resolve-role.util.ts). Sans ça, la bascule "Créatrice" continuait de
+    //- montrer toutes les ventes de la boutique au lieu des siennes.
+    const effectiveUser = { ...user, role: resolveRole(user.role, mode) };
+    let ownershipWhere: any = await this.ownership.getVenteOwnershipWhere(effectiveUser);
 
     //- Contexte événement — filtre les ventes de cet événement si possédé
     if (filters.evenementId) {

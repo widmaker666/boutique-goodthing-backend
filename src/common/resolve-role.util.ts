@@ -8,8 +8,11 @@
 //-
 //- N'a d'effet que pour un compte GERANTE_CREATRICE : pour un rôle simple
 //- (GERANTE ou CREATRICE), le mode est ignoré, il n'y a rien d'ambigu.
-export function resolveRole(role: string, mode?: string): string {
+//- Générique (plutôt que `string`) pour pouvoir réassigner le résultat
+//- directement à un champ typé `Role` (enum Prisma) sans cast à l'appel —
+//- utile pour construire un AuthUser "effectif" (ex: vente.service.ts findAll).
+export function resolveRole<T extends string>(role: T, mode?: string): T {
   if (role !== 'GERANTE_CREATRICE') return role;
-  if (mode === 'GERANTE' || mode === 'CREATRICE') return mode;
+  if (mode === 'GERANTE' || mode === 'CREATRICE') return mode as T;
   return role;
 }
