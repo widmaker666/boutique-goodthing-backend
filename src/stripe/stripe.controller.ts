@@ -14,11 +14,18 @@ export class StripeController {
   constructor(private readonly stripe: StripeService) {}
   @UseGuards(JwtGuard)
   @Post('checkout')
-  createCheckoutSession(@Req() req, @Body('priceId') priceId: string) {
+  createCheckoutSession(
+    @Req() req,
+    @Body('priceId') priceId: string,
+    //- Fourni par le web (window.location.origin) pour rediriger après paiement
+    //- vers le bon site plutôt que vers le backend lui-même (voir
+    //- resolveReturnOrigin — jamais fait confiance aveuglément, allowlist).
+    @Body('origin') origin?: string,
+  ) {
     const checkUserId = req.user.id;
     const checkPriceId = priceId;
 
-    return this.stripe.createCheckoutSession(checkUserId, checkPriceId);
+    return this.stripe.createCheckoutSession(checkUserId, checkPriceId, origin);
   }
 
   @Post('webhook')

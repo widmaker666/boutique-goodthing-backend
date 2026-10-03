@@ -33,7 +33,34 @@ export class StripeService {
     return Plan.FREE;
   }
 
-  async createCheckoutSession(userId: string, priceId: string) {
+  //- Origines autorisées à recevoir la redirection post-paiement. Jamais
+  //- l'origine fournie par le client telle quelle (open redirect) — un
+  //- attaquant pourrait sinon faire pointer success_url vers un site de
+  //- phishing. Le mobile ne passe pas `origin` : il garde l'ancien
+  //- comportement (APP_URL, backend — cassé en UX mais webhook = source de
+  //- vérité, voir project_stripe_prod memory), inchangé par ce fix.
+  private static readonly ALLOWED_WEB_ORIGINS = [
+    'https://encaissly-web.vercel.app',
+    'https://encaissly-web-git-main-widmaker666s-projects.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5183',
+  ];
+
+  private resolveReturnUrls(origin?: string): { success: string; cancel: string } {
+    if (origin && StripeService.ALLOWED_WEB_ORIGINS.includes(origin)) {
+      return {
+        success: `${origin}/profil?checkout=success`,
+        cancel: `${origin}/profil?checkout=cancel`,
+      };
+    }
+    return {
+      success: `${process.env.APP_URL}/stripe/success`,
+      cancel: `${process.env.APP_URL}/stripe/cancel`,
+    };
+  }
+
+  async createCheckoutSession(userId: string, priceId: string, origin?: string) {
+    const { success, cancel } = this.resolveReturnUrls(origin);
     const session = await this.stripe.checkout.sessions.create({
       //- 'subscription' = abonnement récurrent (pas un paiement unique)
       mode: 'subscription',
@@ -42,9 +69,9 @@ export class StripeService {
       //- Le produit acheté — priceId = price_xxx du plan choisi (mensuel ou annuel)
       line_items: [{ price: priceId, quantity: 1 }],
       //- URL de redirection après paiement réussi
-      success_url: `${process.env.APP_URL}/stripe/success`,
+      success_url: success,
       //- URL de redirection si l'user annule le paiement
-      cancel_url: `${process.env.APP_URL}/stripe/cancel`,
+      cancel_url: cancel,
       //- Données custom qu'on attache à la session — permet de retrouver le user dans le webhook
       metadata: { userId },
     });
