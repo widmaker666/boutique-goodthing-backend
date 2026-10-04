@@ -168,20 +168,48 @@ export class VenteService {
       }
     }
 
-    //- Récupère les ventes possédées avec filtres optionnels
-    //- include: { creatrice: true } nécessaire pour calculer les commissions
-    const allDataVente = await this.prisma.vente.findMany({
-      where: {
-        ...ownershipWhere,
-        nomArticle: filters.nomArticle,
-        prixVente: { gte: filters.minPrixVente, lte: filters.maxPrixVente },
-        modePaiement: filters.modePaiement,
-      },
-      include: { creatrice: true, evenement: { select: { nom: true } } },
-    });
+    //- Filtre créatrice — gérante uniquement. `ownershipWhere` d'une
+    //- CREATRICE vaut déjà { creatriceId: <elle-même> } : si on laissait
+    //- `filters.creatriceId` s'ajouter tel quel au même niveau d'objet, il
+    //- ÉCRASERAIT cette clé (dernière valeur gagne dans un spread JS) et
+    //- laisserait une créatrice demander les ventes de n'importe quelle
+    //- autre — exactement le bug déjà documenté plus haut pour boutiqueId.
+    //- Pour une gérante, `ownershipWhere` est un OR sans clé `creatriceId`
+    //- au même niveau : l'ajouter en AND restreint sans jamais l'écraser.
+    const where: any = {
+      ...ownershipWhere,
+      nomArticle: filters.nomArticle,
+      prixVente: { gte: filters.minPrixVente, lte: filters.maxPrixVente },
+      modePaiement: filters.modePaiement,
+    };
+    if (filters.creatriceId && (effectiveUser.role === 'GERANTE' || effectiveUser.role === 'GERANTE_CREATRICE')) {
+      where.creatriceId = filters.creatriceId;
+    }
+    if (filters.dateDebut || filters.dateFin) {
+      where.createdAt = {
+        ...(filters.dateDebut ? { gte: new Date(filters.dateDebut) } : {}),
+        ...(filters.dateFin ? { lte: new Date(filters.dateFin) } : {}),
+      };
+    }
+
+    const take = filters.take ?? 20;
+    const skip = filters.skip ?? 0;
+
+    //- count() et findMany() en parallèle sur le MÊME `where` — nécessaire
+    //- pour que le front sache s'il reste des pages ("Afficher plus").
+    const [total, allDataVente] = await Promise.all([
+      this.prisma.vente.count({ where }),
+      this.prisma.vente.findMany({
+        where,
+        include: { creatrice: true, evenement: { select: { nom: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+    ]);
 
     //- map() parcourt chaque vente pour y ajouter les calculs de commission
-    return allDataVente.map((vente) => {
+    const data = allDataVente.map((vente) => {
       const { montantCommission, netCreatrice } = calculerCommission(
         vente.prixVente,
         vente.creatrice.tauxDeCommission,
@@ -189,6 +217,8 @@ export class VenteService {
       );
       return { ...vente, montantCommission, netCreatrice };
     });
+
+    return { data, total, hasMore: skip + data.length < total };
   }
 
   async findOne(id: string, user: AuthUser) {
