@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Patch,
   Param,
@@ -37,5 +38,12 @@ export class NotificationController {
   markAsRead(@Param('id') id: string, @Req() req) {
     //- Marque une notification spécifique comme lue
     return this.notificationService.markAsRead(id, req.user.id);
+  }
+
+  @Delete('read')
+  clearRead(@Req() req) {
+    //- Supprime définitivement les notifications déjà lues de l'user connecté
+    //- IMPORTANT: doit être AVANT un éventuel /:id futur pour éviter le conflit de routing
+    return this.notificationService.clearRead(req.user.id);
   }
 }

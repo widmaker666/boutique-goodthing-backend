@@ -45,4 +45,11 @@ export class NotificationService {
       data: { read: true },
     });
   }
+
+  async clearRead(userId: string) {
+    //- Supprime définitivement les notifications déjà lues de l'user
+    return this.prisma.notification.deleteMany({
+      where: { userId, read: true },
+    });
+  }
 }
