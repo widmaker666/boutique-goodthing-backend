@@ -100,11 +100,29 @@ export class StripeService {
       throw new BadRequestException('Aucun abonnement actif trouvé');
     }
 
-    //- Annule le premier abonnement actif
-    //- Stripe enverra ensuite le webhook customer.subscription.deleted
-    await this.stripe.subscriptions.cancel(subscriptions.data[0].id);
+    //- Résiliation à la fin de la période payée (CGV : pas de prorata) —
+    //- l'accès reste actif jusque-là, puis Stripe enverra le webhook
+    //- customer.subscription.deleted qui repasse le user en FREE
+    const updated = await this.stripe.subscriptions.update(
+      subscriptions.data[0].id,
+      { cancel_at_period_end: true },
+    );
+    const endsAt = updated.cancel_at
+      ? new Date(updated.cancel_at * 1000).toISOString()
+      : null;
 
-    return { message: 'Abonnement annulé avec succès' };
+    if (endsAt) {
+      const dateFr = new Date(endsAt).toLocaleDateString('fr-FR', {
+        timeZone: 'Europe/Paris',
+      });
+      await this.notificationService.createForUser(
+        userId,
+        'ABONNEMENT',
+        `Résiliation enregistrée : ton abonnement reste actif jusqu'au ${dateFr}, puis tu repasseras en plan FREE.`,
+      );
+    }
+
+    return { message: 'Résiliation programmée', endsAt };
   }
 
   async handleWebhook(signature: string, body: Buffer) {
