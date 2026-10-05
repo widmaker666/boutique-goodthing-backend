@@ -213,6 +213,14 @@ export class CreatriceService {
       throw new ForbiddenException('Aucune invitation en attente pour cette créatrice');
     }
 
+    //- Un compte ne peut être lié qu'à une seule fiche (userId unique) → 409 clair au lieu d'un 500
+    const dejaLiee = await this.prisma.creatrice.findUnique({
+      where: { userId: currentUser.id },
+    });
+    if (dejaLiee) {
+      throw new ConflictException('Ton compte est déjà lié à une autre fiche créatrice');
+    }
+
     //- Lie le User à la fiche Creatrice
     await this.prisma.creatrice.update({
       where: { id: creatriceId },
