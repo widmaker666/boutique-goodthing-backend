@@ -274,26 +274,33 @@ export class StatsService {
 
   async getStatsByCreatrice(id: string, user: AuthUser) {
     //- Vérifie l'ownership de la créatrice avant d'exposer ses stats (finding sécu C1)
-    await this.ownership.assertCreatriceOwned(user, id);
+    const fiche = await this.ownership.assertCreatriceOwned(user, id);
+
+    //- Une gérante ne voit pas les ventes d'événements (compte perso de la
+    //- créatrice) — sauf sur sa propre fiche
+    const where =
+      user.role === 'CREATRICE' || fiche.userId === user.id
+        ? { creatriceId: id }
+        : { creatriceId: id, evenementId: null };
 
     const stats = await this.prisma.vente.aggregate({
       _sum: { prixVente: true },
       _count: true,
       _min: { prixVente: true },
       _max: { prixVente: true },
-      where: { creatriceId: id },
+      where,
     });
 
     const paiement = await this.prisma.vente.groupBy({
       by: ['modePaiement'],
       _count: true,
       _sum: { prixVente: true },
-      where: { creatriceId: id },
+      where,
     });
 
     const ventesByCreatrice = await this.prisma.vente.findMany({
       include: { creatrice: true },
-      where: { creatriceId: id },
+      where,
     });
 
     const totalCommissions = ventesByCreatrice.reduce((acc, vente) => {

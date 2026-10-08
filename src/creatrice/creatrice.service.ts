@@ -38,6 +38,13 @@ export class CreatriceService {
     return newCreateur;
   }
 
+  //- Une gérante ne voit PAS les ventes d'événements des créatrices qu'elle
+  //- gère (leur compte perso). Une créatrice voit tout sur sa propre fiche.
+  private ventesVisiblesWhere(user: AuthUser, creatriceUserId?: string | null) {
+    const estSaFiche = creatriceUserId != null && creatriceUserId === user.id;
+    return user.role === 'CREATRICE' || estSaFiche ? {} : { evenementId: null };
+  }
+
   async findAll(filters: QueryCreatrice, user: AuthUser) {
     //- Récupère les créatrices possédées par le user (finding sécu C1)
     //- GERANTE → ses créatrices ; CREATRICE → uniquement sa propre fiche
@@ -53,28 +60,36 @@ export class CreatriceService {
         },
       },
       include: {
-        vente: { select: { prixVente: true } },
+        vente: { select: { prixVente: true, evenementId: true } },
       },
     });
 
     //- Calcule nbVentes et ca (somme prixVente) pour chaque créatrice
     //- Destructure `vente` hors du spread pour ne pas l'exposer dans la réponse
-    return allData.map(({ vente, ...creatrice }) => ({
-      ...creatrice,
-      nbVentes: vente.length,
-      ca: vente.reduce((sum, v) => sum + v.prixVente, 0),
-    }));
+    //- Ventes d'événements exclues sauf sur sa propre fiche (filtrage par
+    //- fiche, d'où le JS plutôt qu'un where unique sur l'include)
+    return allData.map(({ vente, ...creatrice }) => {
+      const visibles = vente.filter(
+        (v) => !v.evenementId || creatrice.userId === user.id || user.role === 'CREATRICE',
+      );
+      return {
+        ...creatrice,
+        nbVentes: visibles.length,
+        ca: visibles.reduce((sum, v) => sum + v.prixVente, 0),
+      };
+    });
   }
 
   async findOne(id: string, user: AuthUser) {
     //- Vérifie l'ownership avant tout (404 si pas au user → ne leak pas l'existence)
-    await this.ownership.assertCreatriceOwned(user, id);
+    const fiche = await this.ownership.assertCreatriceOwned(user, id);
 
     //- Cherche une créatrice par son id unique avec ses ventes
     const findData = await this.prisma.creatrice.findUnique({
       where: { id },
       include: {
         vente: {
+          where: this.ventesVisiblesWhere(user, fiche.userId),
           select: {
             id: true,
             nomArticle: true,
