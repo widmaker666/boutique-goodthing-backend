@@ -35,6 +35,26 @@ describe('Ventes d\'événements — périmètre gérante', () => {
     expect(prisma.creatrice.findUnique.mock.calls[2][0].include.vente.where).toEqual({});
   });
 
+  it('findOne + mois : filtre le mois (PRO) ; ignoré en FREE', async () => {
+    const prisma: any = {
+      creatrice: { findUnique: jest.fn().mockResolvedValue({ id: 'c1', tauxDeCommission: 10, vente: [] }) },
+    };
+    const ownership: any = { assertCreatriceOwned: jest.fn().mockResolvedValue({ id: 'c1', userId: 'camille' }) };
+    const svc = new CreatriceService(prisma, {} as any, ownership, {} as any);
+
+    await svc.findOne('c1', gerante, '2026-02');
+    const w = prisma.creatrice.findUnique.mock.calls[0][0].include.vente.where;
+    expect(w.evenementId).toBeNull();
+    expect(w.createdAt.gte).toEqual(new Date(2026, 1, 1));
+    expect(w.createdAt.lte).toEqual(new Date(2026, 2, 0, 23, 59, 59, 999));
+
+    await svc.findOne('c1', { ...gerante, plan: 'FREE' }, '2026-02');
+    expect(prisma.creatrice.findUnique.mock.calls[1][0].include.vente.where.createdAt).toBeUndefined();
+
+    await svc.findOne('c1', gerante, 'nimportequoi');
+    expect(prisma.creatrice.findUnique.mock.calls[2][0].include.vente.where.createdAt).toBeUndefined();
+  });
+
   it('findAll : ca/nbVentes sans les ventes d\'événement pour la gérante', async () => {
     const prisma: any = {
       creatrice: {

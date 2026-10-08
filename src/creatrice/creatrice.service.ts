@@ -80,16 +80,28 @@ export class CreatriceService {
     });
   }
 
-  async findOne(id: string, user: AuthUser) {
+  //- mois "YYYY-MM" (PRO/DUO) : restreint les ventes à ce mois. Absent, invalide
+  //- ou plan FREE → tout l'historique, comme avant.
+  async findOne(id: string, user: AuthUser, mois?: string) {
     //- Vérifie l'ownership avant tout (404 si pas au user → ne leak pas l'existence)
     const fiche = await this.ownership.assertCreatriceOwned(user, id);
+
+    const m = user.plan !== 'FREE' ? /^(\d{4})-(0[1-9]|1[0-2])$/.exec(mois ?? '') : null;
+    const periode = m
+      ? {
+          createdAt: {
+            gte: new Date(Number(m[1]), Number(m[2]) - 1, 1),
+            lte: new Date(Number(m[1]), Number(m[2]), 0, 23, 59, 59, 999),
+          },
+        }
+      : {};
 
     //- Cherche une créatrice par son id unique avec ses ventes
     const findData = await this.prisma.creatrice.findUnique({
       where: { id },
       include: {
         vente: {
-          where: this.ventesVisiblesWhere(user, fiche.userId),
+          where: { ...this.ventesVisiblesWhere(user, fiche.userId), ...periode },
           select: {
             id: true,
             nomArticle: true,

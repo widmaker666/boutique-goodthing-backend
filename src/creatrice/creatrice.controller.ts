@@ -35,8 +35,12 @@ export class CreatriceController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req) {
-    return this.creatriceService.findOne(id, req.user);
+  async findOne(
+    @Param('id') id: string,
+    @Req() req,
+    @Query('mois') mois?: string,
+  ) {
+    return this.creatriceService.findOne(id, req.user, mois);
   }
 
   @Patch(':id')
