@@ -26,19 +26,25 @@ export class VenteService {
     //- 404 si pas possédée → bloque la création de vente sur une créatrice tierce
     await this.ownership.assertCreatriceOwned(user, createVenteDto.creatriceId);
 
-    //- Auto-détecte la boutique si non fournie (GERANTE FREE = 1 boutique)
-    //- Pour une CREATRICE, geranteId ne matchera aucune boutique → boutiqueId reste undefined
-    let boutiqueId = createVenteDto.boutiqueId;
-    if (boutiqueId) {
-      //- Si fournie, vérifie que la boutique appartient bien au user gérant
-      if (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE') {
-        await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+    //- Une vente faite dans un ÉVÉNEMENT est personnelle à la créatrice : elle n'est
+    //- JAMAIS rattachée à une boutique, même si le compte (DUO) possède une boutique.
+    //- Sans ça, les ventes d'événement d'une gérante-créatrice gonflaient le « CA boutique ».
+    //- Sinon : auto-détecte la boutique si non fournie (GERANTE FREE = 1 boutique) ;
+    //- pour une CREATRICE, geranteId ne matchera aucune boutique → boutiqueId reste undefined
+    let boutiqueId: string | undefined;
+    if (!createVenteDto.evenementId) {
+      boutiqueId = createVenteDto.boutiqueId;
+      if (boutiqueId) {
+        //- Si fournie, vérifie que la boutique appartient bien au user gérant
+        if (user.role === 'GERANTE' || user.role === 'GERANTE_CREATRICE') {
+          await this.ownership.assertBoutiqueOwned(user, boutiqueId);
+        }
+      } else {
+        const boutique = await this.prisma.boutique.findFirst({
+          where: { geranteId: user.id },
+        });
+        boutiqueId = boutique?.id;
       }
-    } else {
-      const boutique = await this.prisma.boutique.findFirst({
-        where: { geranteId: user.id },
-      });
-      boutiqueId = boutique?.id;
     }
 
     //- Extrait articleId et quantite du DTO — ces champs nécessitent un traitement séparé
