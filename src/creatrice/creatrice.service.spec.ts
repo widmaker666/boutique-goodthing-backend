@@ -6,6 +6,7 @@ import {
   AuthUser,
   OwnershipService,
 } from 'src/common/ownership/ownership.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { NotFoundException } from '@nestjs/common';
 import { Role } from 'src/generated/enums';
 import {
@@ -33,6 +34,7 @@ describe('CreatriceService', () => {
           useValue: mockPrismaService,
         },
         { provide: EmailService, useValue: {} },
+        { provide: NotificationService, useValue: {} },
         {
           provide: OwnershipService,
           useValue: {
@@ -41,7 +43,9 @@ describe('CreatriceService', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     service = module.get<CreatriceService>(CreatriceService);
   });
@@ -58,9 +62,12 @@ describe('CreatriceService', () => {
   });
 
   it('should return a creatrice when found', async () => {
-    mockPrismaService.creatrice.findUnique.mockResolvedValue(mockCreatrice);
-    await expect(service.findOne('uuid-test', mockUser)).resolves.toEqual(
-      mockCreatrice,
+    mockPrismaService.creatrice.findUnique.mockResolvedValue({ ...mockCreatrice, vente: [] });
+    //- findOne renvoie la fiche enrichie : ses ventes et ses stats (ca, commission, net)
+    const result = await service.findOne('uuid-test', mockUser);
+    expect(result).toMatchObject({ id: mockCreatrice.id, nom: mockCreatrice.nom });
+    expect(result.stats).toEqual(
+      expect.objectContaining({ nbVentes: expect.any(Number), ca: expect.any(Number) }),
     );
   });
 });

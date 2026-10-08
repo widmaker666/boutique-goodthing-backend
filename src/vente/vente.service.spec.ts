@@ -27,7 +27,9 @@ describe('VenteService', () => {
           useValue: mockPrismaService,
         },
       ],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     service = module.get<VenteService>(VenteService);
   });

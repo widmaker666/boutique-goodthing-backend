@@ -20,7 +20,9 @@ describe('VenteController', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<VenteController>(VenteController);
   });

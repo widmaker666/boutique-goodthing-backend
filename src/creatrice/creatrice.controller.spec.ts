@@ -20,7 +20,9 @@ describe('CreatriceController', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<CreatriceController>(CreatriceController);
   });

@@ -7,7 +7,9 @@ describe('EvenementController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EvenementController],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<EvenementController>(EvenementController);
   });
