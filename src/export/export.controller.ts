@@ -24,8 +24,8 @@ export class ExportController {
 
   //* GET CREATRICE *//
 
-  //- ?mois=AAAA-MM optionnel : restreint à ce mois (absent = tout l'historique,
-  //- jamais limité même en FREE — seul un mois PASSÉ précis est réservé PRO/DUO)
+  //- ?mois=AAAA-MM optionnel : restreint à ce mois. Absent = tout l'historique
+  //- (PRO/DUO) ou mois en cours (FREE) ; un mois PASSÉ précis est réservé PRO/DUO
   @Get('pdf')
   getexportPdf(@Req() req, @Res() res: Response, @Query('mois') mois?: string) {
     return this.exportService.getExportPdf(req.user, res, mois);

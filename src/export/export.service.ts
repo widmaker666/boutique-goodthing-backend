@@ -36,13 +36,14 @@ export class ExportService {
   //* Documents CREATRICE *//
 
   //- Choix du mois pour les rapports "classiques" (celui-ci et les 3
-  //- rapports boutique ci-dessous) : contrairement au détail des ventes
-  //- (getExportVentesGerante), omettre `mois` reste autorisé en FREE —
-  //- "tout l'historique" n'a jamais été limité pour ce rapport, décision
-  //- confirmée avec Alex le 2026-10 plutôt que de le restreindre en
-  //- silence. Seul le choix d'un mois PASSÉ précis est réservé PRO/DUO.
+  //- rapports boutique ci-dessous), aligné sur le détail des ventes
+  //- (getExportVentesGerante) et sur les Stats : FREE = mois en cours
+  //- UNIQUEMENT. Omettre `mois` en FREE donne le mois en cours (avant
+  //- 2026-10-08 il donnait tout l'historique — incohérence corrigée à la
+  //- demande d'Alex) ; un mois passé précis reste refusé (403).
+  //- PRO/DUO : `mois` absent = tout l'historique.
   private resolveMoisClassique(user: AuthUser, mois?: string): string | undefined {
-    if (mois === undefined) return undefined;
+    if (mois === undefined) return user.plan === 'FREE' ? currentMois() : undefined;
     if (!MOIS_REGEX.test(mois)) {
       throw new BadRequestException('Mois invalide (format attendu : AAAA-MM)');
     }
