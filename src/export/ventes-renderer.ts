@@ -34,6 +34,10 @@ const formatDate = (d: Date) =>
   new Date(d).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 
 //- Une cellule CSV entre guillemets (valeurs calculées par nous : montants, dates…)
+//- Montant CSV à la française : virgule décimale ("25,52") — le CSV est lu par
+//- Excel/Sheets en locale FR. Réservé au CSV, le PDF garde son format.
+export const fmtMontantCsv = (n: number): string => n.toFixed(2).replace('.', ',');
+
 const csvCell = (value: string | number): string =>
   `"${String(value).replace(/"/g, '""')}"`;
 
@@ -225,9 +229,9 @@ export function renderVentesCsv(
         csvText(vente.nomArticle),
         csvText(vente.creatrice.nom),
         csvCell(`${vente.creatrice.tauxDeCommission}%`),
-        csvCell(`${vente.prixVente.toFixed(2)}€`),
-        csvCell(`-${montantCommission.toFixed(2)}€`),
-        csvCell(`${netCreatrice.toFixed(2)}€`),
+        csvCell(`${fmtMontantCsv(vente.prixVente)}€`),
+        csvCell(`-${fmtMontantCsv(montantCommission)}€`),
+        csvCell(`${fmtMontantCsv(netCreatrice)}€`),
         csvCell(vente.modePaiement),
         csvCell(formatDate(vente.createdAt)),
       ].join(';'),
@@ -241,7 +245,7 @@ export function renderVentesCsv(
   //- Ligne vide + totaux
   lignes.push('');
   lignes.push(
-    `"TOTAL";;;"${totalPrixVente.toFixed(2)}€";"-${totalCommission.toFixed(2)}€";"${totalNet.toFixed(2)}€";;`,
+    `"TOTAL";;;"${fmtMontantCsv(totalPrixVente)}€";"-${fmtMontantCsv(totalCommission)}€";"${fmtMontantCsv(totalNet)}€";;`,
   );
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -263,9 +267,9 @@ export async function renderVentesExcel(
     { header: 'Article', key: 'article', width: 25 },
     { header: 'Créatrice', key: 'creatrice', width: 20 },
     { header: 'Taux com.', key: 'taux', width: 12 },
-    { header: 'Prix vente', key: 'prixVente', width: 14 },
-    { header: 'Commission', key: 'commission', width: 14 },
-    { header: 'Net créatrice', key: 'net', width: 14 },
+    { header: 'Prix vente', key: 'prixVente', width: 14, style: { numFmt: '#,##0.00 "€"' } },
+    { header: 'Commission', key: 'commission', width: 14, style: { numFmt: '#,##0.00 "€"' } },
+    { header: 'Net créatrice', key: 'net', width: 14, style: { numFmt: '#,##0.00 "€"' } },
     { header: 'Paiement', key: 'paiement', width: 12 },
     { header: 'Date', key: 'date', width: 14 },
   ];

@@ -21,6 +21,7 @@ import {
 } from 'src/common/month-range.util';
 import {
   renderVentesCsv,
+  fmtMontantCsv,
   renderVentesExcel,
   renderVentesPdf,
 } from './ventes-renderer';
@@ -445,14 +446,14 @@ export class ExportService {
     //- Lignes par créatrice
     for (const c of Object.values(resumeParCreatrice)) {
       lignes.push(
-        `${c.nom};${c.taux}%;${c.total.toFixed(2)}€;-${c.commission.toFixed(2)}€;${c.net.toFixed(2)}€`,
+        `${c.nom};${c.taux}%;${fmtMontantCsv(c.total)}€;-${fmtMontantCsv(c.commission)}€;${fmtMontantCsv(c.net)}€`,
       );
     }
 
     //- Ligne vide + totaux
     lignes.push('');
     lignes.push(
-      `"TOTAL BOUTIQUE";;${totalCA.toFixed(2)}€;-${totalCommission.toFixed(2)}€;${totalNet.toFixed(2)}€`,
+      `"TOTAL BOUTIQUE";;${fmtMontantCsv(totalCA)}€;-${fmtMontantCsv(totalCommission)}€;${fmtMontantCsv(totalNet)}€`,
     );
 
     const csv = lignes.join('\n');
@@ -539,9 +540,9 @@ export class ExportService {
     sheet.columns = [
       { header: 'Créatrice', key: 'creatrice', width: 25 },
       { header: 'Taux com.', key: 'taux', width: 12 },
-      { header: 'CA total', key: 'total', width: 14 },
-      { header: 'Commission', key: 'commission', width: 14 },
-      { header: 'Net créatrice', key: 'net', width: 14 },
+      { header: 'CA total', key: 'total', width: 14, style: { numFmt: '#,##0.00 "€"' } },
+      { header: 'Commission', key: 'commission', width: 14, style: { numFmt: '#,##0.00 "€"' } },
+      { header: 'Net créatrice', key: 'net', width: 14, style: { numFmt: '#,##0.00 "€"' } },
     ];
 
     //- Style en-têtes

@@ -58,9 +58,9 @@ describe('renderVentesCsv', () => {
 
     expect(headers['Content-Disposition']).toContain('ventes-boutique.csv');
     expect(csv.startsWith('﻿')).toBe(true);
-    expect(csv).toContain('"Collier argent";"Sophie";"25%";"40.00€";"-10.00€";"30.00€";"CARTE"');
-    expect(csv).toContain('"Bracelet";"Sophie";"25%";"20.00€";"-0.00€";"20.00€";"ESPECES"');
-    expect(csv).toContain('"TOTAL";;;"60.00€";"-10.00€";"50.00€"');
+    expect(csv).toContain('"Collier argent";"Sophie";"25%";"40,00€";"-10,00€";"30,00€";"CARTE"');
+    expect(csv).toContain('"Bracelet";"Sophie";"25%";"20,00€";"-0,00€";"20,00€";"ESPECES"');
+    expect(csv).toContain('"TOTAL";;;"60,00€";"-10,00€";"50,00€"');
   });
 
   it("neutralise une formule saisie comme nom d'article (CSV injection)", async () => {
