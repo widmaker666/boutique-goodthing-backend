@@ -14,6 +14,7 @@ export class StatsController {
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
     @Query('mode') mode?: string,
+    @Query('mois') mois?: string,
   ) {
     return this.statService.getGlobalStats(
       req.user.id,
@@ -21,6 +22,7 @@ export class StatsController {
       req.user.plan,
       boutiqueId,
       evenementId,
+      mois,
     );
   }
 
@@ -45,6 +47,7 @@ export class StatsController {
     @Query('boutiqueId') boutiqueId?: string,
     @Query('evenementId') evenementId?: string,
     @Query('mode') mode?: string,
+    @Query('mois') mois?: string,
   ) {
     return this.statService.getTopArticles(
       req.user.id,
@@ -52,13 +55,18 @@ export class StatsController {
       req.user.plan,
       boutiqueId,
       evenementId,
+      mois,
     );
   }
 
   @Get('par-creatrice')
-  getParCreatrice(@Req() req, @Query('mode') mode?: string) {
+  getParCreatrice(
+    @Req() req,
+    @Query('mode') mode?: string,
+    @Query('mois') mois?: string,
+  ) {
     if (resolveRole(req.user.role, mode) !== 'GERANTE') return [];
-    return this.statService.getParCreatrice(req.user.id, req.user.plan);
+    return this.statService.getParCreatrice(req.user.id, req.user.plan, mois);
   }
 
   @Get('creatrice/:id')

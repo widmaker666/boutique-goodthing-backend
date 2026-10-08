@@ -35,20 +35,36 @@ export class StatsService {
     return creatrice ? { boutiqueId, creatriceId: creatrice.id } : null;
   }
 
-  private makeDateFilter(plan: string) {
-    return plan === 'FREE'
-      ? {
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-            lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-          },
-        }
-      : {};
+  //- Borne un mois "YYYY-MM" (null si format invalide). Fin = dernière ms du mois
+  private parseMois(mois?: string) {
+    const m = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(mois ?? '');
+    if (!m) return null;
+    const y = Number(m[1]);
+    const mo = Number(m[2]) - 1;
+    return {
+      debut: new Date(y, mo, 1),
+      fin: new Date(y, mo + 1, 0, 23, 59, 59, 999),
+    };
   }
 
-  async getGlobalStats(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string) {
+  //- FREE = toujours le mois en cours (le param mois est ignoré, c'est le
+  //- paywall). PRO/DUO = mois choisi si fourni, sinon tout l'historique.
+  private makeDateFilter(plan: string, mois?: string) {
+    if (plan === 'FREE') {
+      return {
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+        },
+      };
+    }
+    const bornes = this.parseMois(mois);
+    return bornes ? { createdAt: { gte: bornes.debut, lte: bornes.fin } } : {};
+  }
+
+  async getGlobalStats(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string, mois?: string) {
     let where: any = {};
-    const dateFilter = this.makeDateFilter(plan);
+    const dateFilter = this.makeDateFilter(plan, mois);
 
     //- Contexte événement — CREATRICE qui veut voir les stats de son événement
     if (evenementId) {
@@ -136,6 +152,16 @@ export class StatsService {
           lte: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59),
         },
       };
+    } else if (this.parseMois(mois)) {
+      //- Mois choisi → comparé au mois calendaire précédent
+      const { debut } = this.parseMois(mois)!;
+      previousWhere = {
+        ...scope,
+        createdAt: {
+          gte: new Date(debut.getFullYear(), debut.getMonth() - 1, 1),
+          lte: new Date(debut.getFullYear(), debut.getMonth(), 0, 23, 59, 59, 999),
+        },
+      };
     } else {
       previousWhere = {
         ...scope,
@@ -155,9 +181,9 @@ export class StatsService {
     return { stats, paiement, totalCommissions, previousPeriodCA };
   }
 
-  async getTopArticles(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string) {
+  async getTopArticles(userId: string, role: string, plan: string, boutiqueId?: string, evenementId?: string, mois?: string) {
     let where: any = {};
-    const dateFilter = this.makeDateFilter(plan);
+    const dateFilter = this.makeDateFilter(plan, mois);
 
     if (evenementId) {
       const evenement = await this.prisma.evenement.findFirst({
@@ -204,21 +230,8 @@ export class StatsService {
     }));
   }
 
-  async getParCreatrice(userId: string, plan: string) {
-    //- Filtre par mois en cours pour les FREE
-    const dateFilter =
-      plan === 'FREE'
-        ? {
-            createdAt: {
-              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-              lte: new Date(
-                new Date().getFullYear(),
-                new Date().getMonth() + 1,
-                0,
-              ),
-            },
-          }
-        : {};
+  async getParCreatrice(userId: string, plan: string, mois?: string) {
+    const dateFilter = this.makeDateFilter(plan, mois);
 
     const boutique = await this.prisma.boutique.findFirst({
       where: { geranteId: userId },
