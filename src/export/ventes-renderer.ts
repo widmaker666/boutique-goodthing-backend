@@ -34,9 +34,9 @@ const formatDate = (d: Date) =>
   new Date(d).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 
 //- Une cellule CSV entre guillemets (valeurs calculées par nous : montants, dates…)
-//- Montant CSV à la française : virgule décimale ("25,52") — le CSV est lu par
-//- Excel/Sheets en locale FR. Réservé au CSV, le PDF garde son format.
-export const fmtMontantCsv = (n: number): string => n.toFixed(2).replace('.', ',');
+//- Montant à la française : virgule décimale ("25,52") — CSV (lu par Excel/Sheets en
+//- locale FR) et PDF.
+export const fmtMontantFr = (n: number): string => n.toFixed(2).replace('.', ',');
 
 const csvCell = (value: string | number): string =>
   `"${String(value).replace(/"/g, '""')}"`;
@@ -169,9 +169,9 @@ export async function renderVentesPdf(
     doc.text(fit(doc, vente.nomArticle, c.articleW), c.article, y + 10, { lineBreak: false });
     doc.text(fit(doc, vente.creatrice.nom, c.creatriceW), c.creatrice, y + 10, { lineBreak: false });
     doc.text(`${vente.creatrice.tauxDeCommission}%`, c.taux, y + 10);
-    doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${vente.prixVente.toFixed(2)}€`, c.prix, y + 10);
-    doc.font(FONT).fillColor('#cc0000').text(`-${montantCommission.toFixed(2)}€`, c.commission, y + 10);
-    doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${netCreatrice.toFixed(2)}€`, c.net, y + 10);
+    doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${fmtMontantFr(vente.prixVente)}€`, c.prix, y + 10);
+    doc.font(FONT).fillColor('#cc0000').text(`-${fmtMontantFr(montantCommission)}€`, c.commission, y + 10);
+    doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${fmtMontantFr(netCreatrice)}€`, c.net, y + 10);
     doc.font(FONT).fillColor('#555555').text(vente.modePaiement, c.paiement, y + 10);
     doc.text(formatDate(vente.createdAt), c.date, y + 10);
 
@@ -194,9 +194,9 @@ export async function renderVentesPdf(
 
   //- Totaux
   doc.font(FONT_BOLD).fontSize(10).fillColor(PRIMARY).text('TOTAUX', c.article, y);
-  doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${totalPrixVente.toFixed(2)}€`, c.prix, y);
-  doc.font(FONT_BOLD).fillColor('#cc0000').text(`-${totalCommission.toFixed(2)}€`, c.commission, y);
-  doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${totalNet.toFixed(2)}€`, c.net, y);
+  doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${fmtMontantFr(totalPrixVente)}€`, c.prix, y);
+  doc.font(FONT_BOLD).fillColor('#cc0000').text(`-${fmtMontantFr(totalCommission)}€`, c.commission, y);
+  doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${fmtMontantFr(totalNet)}€`, c.net, y);
 
   drawPageFooter();
   doc.end();
@@ -229,9 +229,9 @@ export function renderVentesCsv(
         csvText(vente.nomArticle),
         csvText(vente.creatrice.nom),
         csvCell(`${vente.creatrice.tauxDeCommission}%`),
-        csvCell(`${fmtMontantCsv(vente.prixVente)}€`),
-        csvCell(`-${fmtMontantCsv(montantCommission)}€`),
-        csvCell(`${fmtMontantCsv(netCreatrice)}€`),
+        csvCell(`${fmtMontantFr(vente.prixVente)}€`),
+        csvCell(`-${fmtMontantFr(montantCommission)}€`),
+        csvCell(`${fmtMontantFr(netCreatrice)}€`),
         csvCell(vente.modePaiement),
         csvCell(formatDate(vente.createdAt)),
       ].join(';'),
@@ -245,7 +245,7 @@ export function renderVentesCsv(
   //- Ligne vide + totaux
   lignes.push('');
   lignes.push(
-    `"TOTAL";;;"${fmtMontantCsv(totalPrixVente)}€";"-${fmtMontantCsv(totalCommission)}€";"${fmtMontantCsv(totalNet)}€";;`,
+    `"TOTAL";;;"${fmtMontantFr(totalPrixVente)}€";"-${fmtMontantFr(totalCommission)}€";"${fmtMontantFr(totalNet)}€";;`,
   );
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');

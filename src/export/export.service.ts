@@ -21,7 +21,7 @@ import {
 } from 'src/common/month-range.util';
 import {
   renderVentesCsv,
-  fmtMontantCsv,
+  fmtMontantFr,
   renderVentesExcel,
   renderVentesPdf,
 } from './ventes-renderer';
@@ -338,9 +338,9 @@ export class ExportService {
       if (index % 2 === 0) doc.rect(40, y - 4, 530, 26).fill('#f7f7f7');
       doc.font(FONT).fontSize(10).fillColor('#222222').text(c.nom, col1, y);
       doc.font(FONT).fillColor('#555555').text(`${c.taux}%`, col2, y);
-      doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${c.total.toFixed(2)}€`, col3, y);
-      doc.font(FONT).fillColor('#cc0000').text(`-${c.commission.toFixed(2)}€`, col4, y);
-      doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${c.net.toFixed(2)}€`, col5, y);
+      doc.font(FONT_BOLD).fillColor(PRIMARY).text(`${fmtMontantFr(c.total)}€`, col3, y);
+      doc.font(FONT).fillColor('#cc0000').text(`-${fmtMontantFr(c.commission)}€`, col4, y);
+      doc.font(FONT_BOLD).fillColor('#1a7a4a').text(`${fmtMontantFr(c.net)}€`, col5, y);
       y += 26;
     }
 
@@ -359,9 +359,9 @@ export class ExportService {
     doc.rect(40, y, 530, 36).fill(PRIMARY);
     doc.font(FONT_BOLD).fontSize(11).fillColor('white');
     doc.text('TOTAL BOUTIQUE', col1, y + 11);
-    doc.text(`${totalCA.toFixed(2)}€`, col3, y + 11);
-    doc.fillColor('#ff9999').text(`-${totalCommission.toFixed(2)}€`, col4, y + 11);
-    doc.fillColor('#66ffaa').text(`${totalNet.toFixed(2)}€`, col5, y + 11);
+    doc.text(`${fmtMontantFr(totalCA)}€`, col3, y + 11);
+    doc.fillColor('#ff9999').text(`-${fmtMontantFr(totalCommission)}€`, col4, y + 11);
+    doc.fillColor('#66ffaa').text(`${fmtMontantFr(totalNet)}€`, col5, y + 11);
 
     drawPageFooterP();
     doc.end();
@@ -447,14 +447,14 @@ export class ExportService {
     //- Lignes par créatrice
     for (const c of Object.values(resumeParCreatrice)) {
       lignes.push(
-        `${c.nom};${c.taux}%;${fmtMontantCsv(c.total)}€;-${fmtMontantCsv(c.commission)}€;${fmtMontantCsv(c.net)}€`,
+        `${c.nom};${c.taux}%;${fmtMontantFr(c.total)}€;-${fmtMontantFr(c.commission)}€;${fmtMontantFr(c.net)}€`,
       );
     }
 
     //- Ligne vide + totaux
     lignes.push('');
     lignes.push(
-      `"TOTAL BOUTIQUE";;${fmtMontantCsv(totalCA)}€;-${fmtMontantCsv(totalCommission)}€;${fmtMontantCsv(totalNet)}€`,
+      `"TOTAL BOUTIQUE";;${fmtMontantFr(totalCA)}€;-${fmtMontantFr(totalCommission)}€;${fmtMontantFr(totalNet)}€`,
     );
 
     const csv = lignes.join('\n');
