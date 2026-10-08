@@ -38,11 +38,12 @@ export class CreatriceService {
     return newCreateur;
   }
 
-  //- Une gérante ne voit PAS les ventes d'événements des créatrices qu'elle
-  //- gère (leur compte perso). Une créatrice voit tout sur sa propre fiche.
+  //- Une gérante ne voit, sur la fiche d'une créatrice qui a son propre compte, que les
+  //- ventes de SES boutiques (pas les événements ni les ventes perso de la créatrice).
+  //- Fiche gérée sans compte : tout. Une créatrice voit tout sur sa propre fiche.
   private ventesVisiblesWhere(user: AuthUser, creatriceUserId?: string | null) {
-    const estSaFiche = creatriceUserId != null && creatriceUserId === user.id;
-    return user.role === 'CREATRICE' || estSaFiche ? {} : { evenementId: null };
+    if (user.role === 'CREATRICE' || creatriceUserId == null) return {};
+    return { boutique: { geranteId: user.id } };
   }
 
   async findAll(filters: QueryCreatrice, user: AuthUser) {
@@ -60,7 +61,7 @@ export class CreatriceService {
         },
       },
       include: {
-        vente: { select: { prixVente: true, evenementId: true } },
+        vente: { select: { prixVente: true, boutique: { select: { geranteId: true } } } },
       },
     });
 
@@ -69,9 +70,8 @@ export class CreatriceService {
     //- Ventes d'événements exclues sauf sur sa propre fiche (filtrage par
     //- fiche, d'où le JS plutôt qu'un where unique sur l'include)
     return allData.map(({ vente, ...creatrice }) => {
-      const visibles = vente.filter(
-        (v) => !v.evenementId || creatrice.userId === user.id || user.role === 'CREATRICE',
-      );
+      const toutVoir = user.role === 'CREATRICE' || creatrice.userId == null;
+      const visibles = vente.filter((v) => toutVoir || v.boutique?.geranteId === user.id);
       return {
         ...creatrice,
         nbVentes: visibles.length,

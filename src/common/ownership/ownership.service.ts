@@ -80,16 +80,16 @@ export class OwnershipService {
   //- Retourne un where impossible (id: 'none') si le user n'a aucune ressource liée
   async getVenteOwnershipWhere(user: AuthUser) {
     if (user.role === Role.GERANTE || user.role === Role.GERANTE_CREATRICE) {
-      //- Les ventes d'un ÉVÉNEMENT appartiennent à la créatrice (compte perso),
-      //- pas à la gérante qui a seulement créé/lié sa fiche : exclues, sauf les
-      //- siennes (fiche DUO auto-gérée, creatrice.userId = elle).
+      //- Les ventes PERSONNELLES d'une créatrice qui a son propre compte (événements,
+      //- ventes hors boutique) ne sont pas à la gérante, même si elle a créé/lié la fiche :
+      //- seules comptent les ventes rattachées à SES boutiques. Une fiche gérée SANS
+      //- compte (userId null) reste entièrement visible : c'est la gérante qui saisit tout.
+      //- (Critère = boutique, pas « événement » : supprimer un événement laisse des
+      //- ventes sans événement ni boutique.)
       return {
         OR: [
-          { creatrice: { geranteId: user.id }, evenementId: null },
-          {
-            boutique: { geranteId: user.id },
-            OR: [{ evenementId: null }, { creatrice: { userId: user.id } }],
-          },
+          { creatrice: { geranteId: user.id, userId: null } },
+          { boutique: { geranteId: user.id } },
         ],
       };
     }

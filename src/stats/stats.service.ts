@@ -276,12 +276,12 @@ export class StatsService {
     //- Vérifie l'ownership de la créatrice avant d'exposer ses stats (finding sécu C1)
     const fiche = await this.ownership.assertCreatriceOwned(user, id);
 
-    //- Une gérante ne voit pas les ventes d'événements (compte perso de la
-    //- créatrice) — sauf sur sa propre fiche
+    //- Une gérante ne voit, pour une créatrice qui a son propre compte, que les ventes de
+    //- SES boutiques (pas les événements ni les ventes perso). Fiche sans compte : tout.
     const where =
-      user.role === 'CREATRICE' || fiche.userId === user.id
+      user.role === 'CREATRICE' || fiche.userId == null
         ? { creatriceId: id }
-        : { creatriceId: id, evenementId: null };
+        : { creatriceId: id, boutique: { geranteId: user.id } };
 
     const stats = await this.prisma.vente.aggregate({
       _sum: { prixVente: true },

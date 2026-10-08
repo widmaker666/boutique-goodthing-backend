@@ -113,7 +113,14 @@ export class EvenementService {
   async remove(id: string, user: AuthUser) {
     await this.ownership.assertEvenementOwned(user, id);
 
-    return this.prisma.evenement.delete({ where: { id } });
+    //- L'écran de confirmation annonce que les ventes de l'événement sont supprimées avec lui.
+    //- Sans ça elles survivaient (evenementId remis à null) et devenaient des ventes
+    //- orphelines, ni événement ni boutique.
+    const [, evenement] = await this.prisma.$transaction([
+      this.prisma.vente.deleteMany({ where: { evenementId: id } }),
+      this.prisma.evenement.delete({ where: { id } }),
+    ]);
+    return evenement;
   }
 
 }
