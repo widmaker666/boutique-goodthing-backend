@@ -7,32 +7,20 @@ updates:
       day: monday
       time: "08:00"
       timezone: Europe/Paris
-    open-pull-requests-limit: 5
-    # Délai avant de proposer une release fraîche (protège contre un paquet compromis
-    # publié puis retiré). Ne s'applique pas aux correctifs de sécurité.
-    cooldown:
-      default-days: 3
-      semver-major-days: 14
-      semver-minor-days: 5
-      semver-patch-days: 3
+    # Limite à 0 : plus de mises à jour de version normales.
+    # Les correctifs de sécurité (alertes Dependabot) continuent d'arriver, groupés ci-dessous.
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(deps)"
     labels:
       - dependencies
     groups:
-      # Une seule PR pour toutes les mises à jour minor/patch
-      minor-and-patch:
-        applies-to: version-updates
-        update-types:
-          - minor
-          - patch
       # Une seule PR pour tous les correctifs de sécurité
       security-updates:
         applies-to: security-updates
         patterns:
           - "*"
 
-  # Maintient à jour les actions GitHub épinglées par SHA dans .github/workflows
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -40,11 +28,13 @@ updates:
       day: monday
       time: "08:00"
       timezone: Europe/Paris
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(ci)"
     labels:
       - dependencies
     groups:
-      github-actions:
+      security-updates:
+        applies-to: security-updates
         patterns:
           - "*"
