@@ -107,5 +107,8 @@
       "^src/(.*)$": "<rootDir>/$1"
     },
     "verbose": true
+  },
+  "overrides": {
+    "multer": "$multer"
   }
 }
