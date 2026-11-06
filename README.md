@@ -122,6 +122,11 @@ CLOUDINARY_API_SECRET="votre-api-secret"
 # RESEND — Envoi d'emails
 # ============================================================
 RESEND_API_KEY="re_xxxxxxxxxxxxxxxx"
+# Optionnel (valeurs par defaut ci-dessous) : adresse d'envoi (domaine verifie dans Resend) et adresse de reponse
+# MAIL_FROM="Encaissly <noreply@encaissly.fr>"
+# MAIL_REPLY_TO="contact.encaissly@gmail.com"
+# Dev uniquement : redirige TOUS les mails vers cette adresse (ne pas definir en production)
+# RESEND_OVERRIDE_EMAIL="vous@exemple.fr"
 
 # ============================================================
 # STRIPE — Paiements et abonnements
