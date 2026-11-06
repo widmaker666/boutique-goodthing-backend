@@ -790,7 +790,7 @@ Le calcul de commission (`prixVente × tauxDeCommission / 100`, ou `0` si `sansC
 
 ## Plans
 
-| Fonctionnalité                      | Gratuit                   | Pro (9€/mois ou 79€/an) / DUO (15€/mois ou 129€/an) |
+| Fonctionnalité                      | Gratuit                   | Pro (9€/mois ou 79€/an) / DUO (15€/mois ou 130€/an) |
 | ----------------------------------- | ------------------------- | ------------------------------------------------------ |
 | Créatrices                          | 3 max                     | Illimitées                                              |
 | Boutiques                           | 1                         | Multi-boutiques                                         |
