@@ -4,6 +4,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
 import { calculerCommission } from 'src/common/commission.util';
 
+// Adresse d'envoi : doit appartenir au domaine vérifié dans Resend (encaissly.fr).
+// Il n'y a pas de boîte mail sur ce domaine : les réponses des clientes vont sur l'adresse de contact.
+const MAIL_FROM = process.env.MAIL_FROM ?? 'Encaissly <noreply@encaissly.fr>';
+const MAIL_REPLY_TO = process.env.MAIL_REPLY_TO ?? 'contact.encaissly@gmail.com';
+
 @Injectable()
 export class EmailService {
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
@@ -21,7 +26,8 @@ export class EmailService {
     //- En dev/sandbox : rediriger vers l'adresse de test si configurée
     const recipient = process.env.RESEND_OVERRIDE_EMAIL ?? email;
     const { data, error } = await this.resend.emails.send({
-      from: 'Encaissly <onboarding@resend.dev>',
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: recipient,
       subject: `💰 Nouvelle vente enregistrée — ${nomArticle}`,
       html: `
@@ -141,7 +147,8 @@ export class EmailService {
       //- En dev/sandbox : rediriger vers l'adresse de test si configurée
       const recipientRecap = process.env.RESEND_OVERRIDE_EMAIL ?? creatrice.user!.email;
       await this.resend.emails.send({
-        from: 'Encaissly <onboarding@resend.dev>',
+        from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
         to: recipientRecap,
         subject: `📊 Récap de vos ventes — ${moisNom}`,
         html: `
@@ -275,7 +282,8 @@ export class EmailService {
       //- En dev/sandbox : rediriger vers l'adresse de test si configurée
       const recipientBoutique = process.env.RESEND_OVERRIDE_EMAIL ?? boutiques.gerante.email;
       await this.resend.emails.send({
-        from: 'Encaissly <onboarding@resend.dev>',
+        from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
         to: recipientBoutique,
         subject: `📊 Récap boutique — ${boutiques.nom} — ${moisNom}`,
         html: `
@@ -315,7 +323,8 @@ export class EmailService {
     //- En dev/sandbox : rediriger vers l'adresse de test si configurée
     const recipient = process.env.RESEND_OVERRIDE_EMAIL ?? email;
     await this.resend.emails.send({
-      from: 'Encaissly <onboarding@resend.dev>',
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: recipient,
       subject: `🎉 Vous avez été invitée sur Encaissly`,
       html: `
