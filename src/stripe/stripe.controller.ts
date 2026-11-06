@@ -6,6 +6,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle, Throttle, seconds } from '@nestjs/throttler';
 import { StripeService } from './stripe.service';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
@@ -13,6 +14,8 @@ import { JwtGuard } from 'src/auth/guard/jwt.guard';
 export class StripeController {
   constructor(private readonly stripe: StripeService) {}
   @UseGuards(JwtGuard)
+  //- Crée une session de paiement chez Stripe : pas plus de 5 par minute et par adresse IP
+  @Throttle({ default: { limit: 5, ttl: seconds(60) } })
   @Post('checkout')
   createCheckoutSession(
     @Req() req,
@@ -28,6 +31,9 @@ export class StripeController {
     return this.stripe.createCheckoutSession(checkUserId, checkPriceId, origin);
   }
 
+  //- Appelé par Stripe, authentifié par la SIGNATURE (pas par la limite de débit) : la limite de 10 requêtes
+  //- par minute ferait refuser des événements légitimes lors d'une rafale.
+  @SkipThrottle()
   @Post('webhook')
   handleWebhook(@Headers('stripe-signature') signature: string, @Req() req) {
     return this.stripe.handleWebhook(signature, req.body);
